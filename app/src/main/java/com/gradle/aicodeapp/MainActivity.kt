@@ -1,5 +1,6 @@
 package com.gradle.aicodeapp
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -17,7 +18,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import com.gradle.aicodeapp.network.repository.NetworkRepository
 import com.gradle.aicodeapp.ui.components.BottomNavigationBar
 import com.gradle.aicodeapp.ui.pages.HomePage
 import com.gradle.aicodeapp.ui.pages.SquarePage
@@ -25,28 +25,27 @@ import com.gradle.aicodeapp.ui.pages.ProjectPage
 import com.gradle.aicodeapp.ui.pages.NavigationPage
 import com.gradle.aicodeapp.ui.pages.MinePage
 import com.gradle.aicodeapp.ui.theme.AiCodeAppTheme
+import com.gradle.aicodeapp.ui.viewmodel.HomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
-    @Inject
-    lateinit var networkRepository: NetworkRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             AiCodeAppTheme {
-                MainScreen(networkRepository)
+                MainScreen()
             }
         }
     }
 }
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun MainScreen(networkRepository: NetworkRepository) {
+fun MainScreen() {
     var selectedItem by rememberSaveable {
         androidx.compose.runtime.mutableStateOf(0)
     }
@@ -61,7 +60,10 @@ fun MainScreen(networkRepository: NetworkRepository) {
         }
     ) {
         when (selectedItem) {
-            0 -> HomePage(networkRepository)
+            0 -> {
+                val viewModel: HomeViewModel = viewModel()
+                HomePage(viewModel)
+            }
             1 -> SquarePage()
             2 -> ProjectPage()
             3 -> NavigationPage()
@@ -74,7 +76,7 @@ fun MainScreen(networkRepository: NetworkRepository) {
 @Composable
 fun HomePagePreview() {
     AiCodeAppTheme {
-        // 直接预览HomePage，不使用NetworkRepository
+        // 直接预览HomePage，不使用ViewModel
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
