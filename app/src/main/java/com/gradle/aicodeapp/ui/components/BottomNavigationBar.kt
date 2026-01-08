@@ -1,10 +1,10 @@
 package com.gradle.aicodeapp.ui.components
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Apps
-import androidx.compose.material.icons.filled.Code
-import androidx.compose.material.icons.filled.Explore
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
@@ -25,9 +25,9 @@ fun BottomNavigationBar(
     BottomAppBar {
         val items = listOf(
             BottomNavItem("首页", Icons.Default.Home),
-            BottomNavItem("广场", Icons.Default.Apps),
-            BottomNavItem("项目", Icons.Default.Code),
-            BottomNavItem("导航", Icons.Default.Explore),
+            BottomNavItem("广场", Icons.Default.List),
+            BottomNavItem("项目", Icons.Default.Build),
+            BottomNavItem("导航", Icons.Default.Menu),
             BottomNavItem("我的", Icons.Default.Person)
         )
 
