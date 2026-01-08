@@ -1,18 +1,25 @@
 package com.gradle.aicodeapp.ui.pages
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.gradle.aicodeapp.ui.components.ArticleItem
 import com.gradle.aicodeapp.ui.components.BannerCarousel
 import com.gradle.aicodeapp.ui.viewmodel.HomeViewModel
@@ -21,17 +28,30 @@ import com.gradle.aicodeapp.ui.viewmodel.HomeViewModel
 fun HomePage(
     viewModel: HomeViewModel
 ) {
-    // 收集状态
     val uiState by viewModel.uiState.collectAsState()
+    val listState = rememberLazyListState()
+    
+    val isAtBottom by remember {
+        derivedStateOf {
+            val layoutInfo = listState.layoutInfo
+            val lastVisibleItem = layoutInfo.visibleItemsInfo.lastOrNull()
+            lastVisibleItem != null && lastVisibleItem.index == layoutInfo.totalItemsCount - 1
+        }
+    }
 
-    // 初始化加载
     LaunchedEffect(key1 = Unit) {
         viewModel.loadData()
     }
 
-    // 主布局
+    LaunchedEffect(isAtBottom) {
+        if (isAtBottom && uiState.hasMore && !uiState.isLoading) {
+            viewModel.loadMore()
+        }
+    }
+
+    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = uiState.isRefreshing)
+
     if (uiState.isLoading && uiState.banners.isEmpty() && uiState.articles.isEmpty()) {
-        // 初始加载状态
         androidx.compose.foundation.layout.Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center,
@@ -41,10 +61,7 @@ fun HomePage(
             Text(text = "加载中...", modifier = Modifier.padding(top = 16.dp))
         }
     } else {
-        androidx.compose.foundation.layout.Column(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            // 错误提示
+        Box(modifier = Modifier.fillMaxSize()) {
             if (uiState.errorMessage != null) {
                 androidx.compose.material3.Snackbar(
                     modifier = Modifier.padding(8.dp),
@@ -60,51 +77,48 @@ fun HomePage(
                 }
             }
 
-            // 内容列表
-            LazyColumn(
+            SwipeRefresh(
+                state = swipeRefreshState,
+                onRefresh = { viewModel.refreshData() },
                 modifier = Modifier.fillMaxSize()
             ) {
-                // Banner轮播图
-                item {
-                    if (uiState.banners.size > 0) {
-                        BannerCarousel(banners = uiState.banners)
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    state = listState
+                ) {
+                    item {
+                        if (uiState.banners.isNotEmpty()) {
+                            BannerCarousel(banners = uiState.banners)
+                        }
                     }
-                }
 
-                // 置顶文章
-                items(uiState.topArticles) { article ->
-                    ArticleItem(
-                        article = article,
-                        isTop = true,
-                        onClick = { /* 处理点击事件 */ }
-                    )
-                }
+                    items(uiState.topArticles) { article ->
+                        ArticleItem(
+                            article = article,
+                            isTop = true,
+                            onClick = { }
+                        )
+                    }
 
-                // 普通文章
-                items(uiState.articles) { article ->
-                    ArticleItem(
-                        article = article,
-                        onClick = { /* 处理点击事件 */ }
-                    )
-                }
+                    items(uiState.articles) { article ->
+                        ArticleItem(
+                            article = article,
+                            onClick = { }
+                        )
+                    }
 
-                // 加载更多
-                item {
-                    if (!uiState.isLoading) {
-                        if (uiState.hasMore) {
+                    item {
+                        if (uiState.isLoading && (uiState.banners.isNotEmpty() || uiState.articles.isNotEmpty())) {
                             androidx.compose.foundation.layout.Column(
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .padding(16.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                androidx.compose.material3.Button(
-                                    onClick = { viewModel.loadMore() }
-                                ) {
-                                    Text(text = "加载更多")
-                                }
+                                CircularProgressIndicator()
+                                Text(text = "加载中...", modifier = Modifier.padding(top = 8.dp))
                             }
-                        } else {
+                        } else if (!uiState.hasMore && uiState.articles.isNotEmpty()) {
                             androidx.compose.foundation.layout.Column(
                                 modifier = Modifier
                                     .fillMaxSize()
@@ -113,17 +127,6 @@ fun HomePage(
                             ) {
                                 Text(text = "没有更多数据了", modifier = Modifier.padding(top = 8.dp))
                             }
-                        }
-                    } else if (uiState.banners.size > 0 || uiState.articles.size > 0) {
-                        // 加载更多状态
-                        androidx.compose.foundation.layout.Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(16.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            CircularProgressIndicator()
-                            Text(text = "加载中...", modifier = Modifier.padding(top = 8.dp))
                         }
                     }
                 }
