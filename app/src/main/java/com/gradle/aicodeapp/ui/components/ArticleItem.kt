@@ -1,5 +1,6 @@
 package com.gradle.aicodeapp.ui.components
 
+import android.text.TextUtils
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -24,7 +25,7 @@ import com.gradle.aicodeapp.network.model.Article
 fun ArticleItem(
     article: Article,
     isTop: Boolean = false,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     Card(
         modifier = Modifier
@@ -67,13 +68,15 @@ fun ArticleItem(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 // 作者
-                Text(
-                    text = article.author ?: article.shareUser ?: "未知作者",
-                    fontSize = 12.sp,
-                    color = Color.Gray
-                )
+                if (!TextUtils.isEmpty(article.author)) {
+                    Text(
+                        text = article.author!!,
+                        fontSize = 12.sp,
+                        color = Color.Gray
+                    )
 
-                Spacer(modifier = Modifier.width(12.dp))
+                    Spacer(modifier = Modifier.width(12.dp))
+                }
 
                 // 时间
                 Text(

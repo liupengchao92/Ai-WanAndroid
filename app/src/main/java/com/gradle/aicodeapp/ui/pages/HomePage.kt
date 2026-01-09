@@ -24,6 +24,9 @@ import com.gradle.aicodeapp.ui.components.ArticleItem
 import com.gradle.aicodeapp.ui.components.BannerCarousel
 import com.gradle.aicodeapp.ui.viewmodel.HomeViewModel
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 
 @Composable
 fun HomePage(
@@ -88,10 +91,13 @@ fun HomePage(
             ) {
                 LazyColumn(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
+                        .fillMaxSize(),
                     state = listState
                 ) {
+                    item {
+                        Spacer(Modifier.fillMaxWidth().height(paddingValues.calculateTopPadding()))
+                    }
+
                     item {
                         if (uiState.banners.isNotEmpty()) {
                             BannerCarousel(banners = uiState.banners)
