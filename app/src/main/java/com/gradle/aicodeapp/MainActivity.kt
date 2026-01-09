@@ -58,11 +58,11 @@ fun MainScreen() {
                 onItemSelected = { selectedItem = it }
             )
         }
-    ) {
+    ) { paddingValues ->
         when (selectedItem) {
             0 -> {
                 val viewModel: HomeViewModel = viewModel()
-                HomePage(viewModel)
+                HomePage(viewModel, paddingValues)
             }
             1 -> SquarePage()
             2 -> ProjectPage()

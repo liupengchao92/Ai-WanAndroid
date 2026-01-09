@@ -23,10 +23,12 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.gradle.aicodeapp.ui.components.ArticleItem
 import com.gradle.aicodeapp.ui.components.BannerCarousel
 import com.gradle.aicodeapp.ui.viewmodel.HomeViewModel
+import androidx.compose.foundation.layout.PaddingValues
 
 @Composable
 fun HomePage(
-    viewModel: HomeViewModel
+    viewModel: HomeViewModel,
+    paddingValues: PaddingValues = PaddingValues(0.dp)
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val listState = rememberLazyListState()
@@ -53,7 +55,9 @@ fun HomePage(
 
     if (uiState.isLoading && uiState.banners.isEmpty() && uiState.articles.isEmpty()) {
         androidx.compose.foundation.layout.Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
             verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -83,7 +87,9 @@ fun HomePage(
                 modifier = Modifier.fillMaxSize()
             ) {
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
                     state = listState
                 ) {
                     item {
