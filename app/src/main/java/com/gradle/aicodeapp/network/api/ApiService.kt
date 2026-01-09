@@ -44,5 +44,14 @@ interface ApiService {
     @GET("article/top/json")
     suspend fun getTopArticles(): ApiResponse<List<Article>>
 
+    /**
+     * 广场文章列表
+     * @param page 页码，从0开始
+     */
+    @GET("user_article/list/{page}/json")
+    suspend fun getSquareArticles(
+        @Path("page") page: Int
+    ): ApiResponse<ArticleListResponse>
+
     // 可以添加更多API方法
 }

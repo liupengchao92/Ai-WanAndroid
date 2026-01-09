@@ -76,6 +76,19 @@ class NetworkRepository @Inject constructor(
     }
 
     /**
+     * 获取广场文章列表
+     * @param page 页码，从0开始
+     */
+    suspend fun getSquareArticles(page: Int): Result<ApiResponse<ArticleListResponse>> {
+        return try {
+            val response = apiService.getSquareArticles(page)
+            handleApiResponse(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    /**
      * 处理API响应
      * @param response API响应
      * @param T 响应数据类型

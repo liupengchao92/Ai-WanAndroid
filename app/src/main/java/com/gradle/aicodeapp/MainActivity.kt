@@ -26,6 +26,7 @@ import com.gradle.aicodeapp.ui.pages.NavigationPage
 import com.gradle.aicodeapp.ui.pages.MinePage
 import com.gradle.aicodeapp.ui.theme.AiCodeAppTheme
 import com.gradle.aicodeapp.ui.viewmodel.HomeViewModel
+import com.gradle.aicodeapp.ui.viewmodel.SquareViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import androidx.lifecycle.viewmodel.compose.viewModel
 
@@ -64,7 +65,10 @@ fun MainScreen() {
                 val viewModel: HomeViewModel = viewModel()
                 HomePage(viewModel, paddingValues)
             }
-            1 -> SquarePage()
+            1 -> {
+                val viewModel: SquareViewModel = viewModel()
+                SquarePage(viewModel, paddingValues)
+            }
             2 -> ProjectPage()
             3 -> NavigationPage()
             4 -> MinePage()
