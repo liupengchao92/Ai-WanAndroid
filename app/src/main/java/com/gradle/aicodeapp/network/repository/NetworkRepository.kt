@@ -6,9 +6,7 @@ import com.gradle.aicodeapp.network.model.Article
 import com.gradle.aicodeapp.network.model.ArticleListResponse
 import com.gradle.aicodeapp.network.model.Banner
 import com.gradle.aicodeapp.network.model.Friend
-import com.gradle.aicodeapp.network.model.LoginRequest
 import com.gradle.aicodeapp.network.model.LoginResponse
-import com.gradle.aicodeapp.network.model.RegisterRequest
 import com.gradle.aicodeapp.network.model.RegisterResponse
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -99,8 +97,7 @@ class NetworkRepository @Inject constructor(
      */
     suspend fun login(username: String, password: String): Result<ApiResponse<LoginResponse>> {
         return try {
-            val loginRequest = LoginRequest(username, password)
-            val response = apiService.login(loginRequest)
+            val response = apiService.login(username, password)
             handleApiResponse(response)
         } catch (e: Exception) {
             Result.failure(e)
@@ -119,8 +116,7 @@ class NetworkRepository @Inject constructor(
         repassword: String
     ): Result<ApiResponse<RegisterResponse>> {
         return try {
-            val registerRequest = RegisterRequest(username, password, repassword)
-            val response = apiService.register(registerRequest)
+            val response = apiService.register(username, password, repassword)
             handleApiResponse(response)
         } catch (e: Exception) {
             Result.failure(e)

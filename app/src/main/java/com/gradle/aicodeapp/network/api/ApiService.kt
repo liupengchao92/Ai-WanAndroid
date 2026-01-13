@@ -5,15 +5,13 @@ import com.gradle.aicodeapp.network.model.Article
 import com.gradle.aicodeapp.network.model.ArticleListResponse
 import com.gradle.aicodeapp.network.model.Banner
 import com.gradle.aicodeapp.network.model.Friend
-import com.gradle.aicodeapp.network.model.LoginRequest
 import com.gradle.aicodeapp.network.model.LoginResponse
-import com.gradle.aicodeapp.network.model.RegisterRequest
 import com.gradle.aicodeapp.network.model.RegisterResponse
-import retrofit2.http.Body
+import retrofit2.http.Field
+import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
-import retrofit2.http.Query
 
 interface ApiService {
 
@@ -61,20 +59,28 @@ interface ApiService {
 
     /**
      * 登录
-     * @param loginRequest 登录请求参数
+     * @param username 用户名
+     * @param password 密码
      */
+    @FormUrlEncoded
     @POST("user/login")
     suspend fun login(
-        @Body loginRequest: LoginRequest
+        @Field("username") username: String,
+        @Field("password") password: String
     ): ApiResponse<LoginResponse>
 
     /**
      * 注册
-     * @param registerRequest 注册请求参数
+     * @param username 用户名
+     * @param password 密码
+     * @param repassword 确认密码
      */
+    @FormUrlEncoded
     @POST("user/register")
     suspend fun register(
-        @Body registerRequest: RegisterRequest
+        @Field("username") username: String,
+        @Field("password") password: String,
+        @Field("repassword") repassword: String
     ): ApiResponse<RegisterResponse>
 
     /**
