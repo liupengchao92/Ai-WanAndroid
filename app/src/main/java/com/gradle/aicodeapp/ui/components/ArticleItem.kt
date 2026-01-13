@@ -25,6 +25,7 @@ import com.gradle.aicodeapp.network.model.Article
 fun ArticleItem(
     article: Article,
     isTop: Boolean = false,
+    isSquare: Boolean = false,
     onClick: () -> Unit,
 ) {
     Card(
@@ -76,6 +77,13 @@ fun ArticleItem(
                     )
 
                     Spacer(modifier = Modifier.width(12.dp))
+                } else if (isSquare && !TextUtils.isEmpty(article.shareUser)) {
+                    Text(
+                        text = "分享人：" + article.shareUser,
+                        fontSize = 12.sp,
+                        color = Color.Gray
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
                 }
 
                 // 时间
@@ -85,22 +93,24 @@ fun ArticleItem(
                     color = Color.Gray
                 )
 
-                Spacer(modifier = Modifier.width(12.dp))
+                if (!isSquare){
+                    Spacer(modifier = Modifier.width(12.dp))
 
-                // 分类
-                Text(
-                    text = article.superChapterName,
-                    fontSize = 12.sp,
-                    color = Color.Gray
-                )
+                    // 分类
+                    Text(
+                        text = article.superChapterName,
+                        fontSize = 12.sp,
+                        color = Color.Gray
+                    )
 
-                Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
 
-                Text(
-                    text = article.chapterName,
-                    fontSize = 12.sp,
-                    color = Color.Gray
-                )
+                    Text(
+                        text = article.chapterName,
+                        fontSize = 12.sp,
+                        color = Color.Gray
+                    )
+                }
             }
         }
     }

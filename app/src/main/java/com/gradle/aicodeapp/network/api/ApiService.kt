@@ -5,7 +5,13 @@ import com.gradle.aicodeapp.network.model.Article
 import com.gradle.aicodeapp.network.model.ArticleListResponse
 import com.gradle.aicodeapp.network.model.Banner
 import com.gradle.aicodeapp.network.model.Friend
+import com.gradle.aicodeapp.network.model.LoginRequest
+import com.gradle.aicodeapp.network.model.LoginResponse
+import com.gradle.aicodeapp.network.model.RegisterRequest
+import com.gradle.aicodeapp.network.model.RegisterResponse
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -52,6 +58,30 @@ interface ApiService {
     suspend fun getSquareArticles(
         @Path("page") page: Int
     ): ApiResponse<ArticleListResponse>
+
+    /**
+     * 登录
+     * @param loginRequest 登录请求参数
+     */
+    @POST("user/login")
+    suspend fun login(
+        @Body loginRequest: LoginRequest
+    ): ApiResponse<LoginResponse>
+
+    /**
+     * 注册
+     * @param registerRequest 注册请求参数
+     */
+    @POST("user/register")
+    suspend fun register(
+        @Body registerRequest: RegisterRequest
+    ): ApiResponse<RegisterResponse>
+
+    /**
+     * 退出登录
+     */
+    @GET("user/logout/json")
+    suspend fun logout(): ApiResponse<Any>
 
     // 可以添加更多API方法
 }

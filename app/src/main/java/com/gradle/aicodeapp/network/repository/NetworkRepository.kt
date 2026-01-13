@@ -6,6 +6,10 @@ import com.gradle.aicodeapp.network.model.Article
 import com.gradle.aicodeapp.network.model.ArticleListResponse
 import com.gradle.aicodeapp.network.model.Banner
 import com.gradle.aicodeapp.network.model.Friend
+import com.gradle.aicodeapp.network.model.LoginRequest
+import com.gradle.aicodeapp.network.model.LoginResponse
+import com.gradle.aicodeapp.network.model.RegisterRequest
+import com.gradle.aicodeapp.network.model.RegisterResponse
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -82,6 +86,53 @@ class NetworkRepository @Inject constructor(
     suspend fun getSquareArticles(page: Int): Result<ApiResponse<ArticleListResponse>> {
         return try {
             val response = apiService.getSquareArticles(page)
+            handleApiResponse(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * 登录
+     * @param username 用户名
+     * @param password 密码
+     */
+    suspend fun login(username: String, password: String): Result<ApiResponse<LoginResponse>> {
+        return try {
+            val loginRequest = LoginRequest(username, password)
+            val response = apiService.login(loginRequest)
+            handleApiResponse(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * 注册
+     * @param username 用户名
+     * @param password 密码
+     * @param repassword 确认密码
+     */
+    suspend fun register(
+        username: String,
+        password: String,
+        repassword: String
+    ): Result<ApiResponse<RegisterResponse>> {
+        return try {
+            val registerRequest = RegisterRequest(username, password, repassword)
+            val response = apiService.register(registerRequest)
+            handleApiResponse(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * 退出登录
+     */
+    suspend fun logout(): Result<ApiResponse<Any>> {
+        return try {
+            val response = apiService.logout()
             handleApiResponse(response)
         } catch (e: Exception) {
             Result.failure(e)
