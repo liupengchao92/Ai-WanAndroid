@@ -19,7 +19,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.rememberNavController
 import com.gradle.aicodeapp.data.UserManager
+import com.gradle.aicodeapp.navigation.AppNavigation
 import com.gradle.aicodeapp.ui.components.BottomNavigationBar
 import com.gradle.aicodeapp.ui.pages.HomePage
 import com.gradle.aicodeapp.ui.pages.ArticleDetailPage
@@ -53,94 +55,13 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MainScreen(userManager: UserManager) {
-    var isLoggedIn by rememberSaveable { mutableStateOf(userManager.isLoggedIn()) }
-    var currentPage by rememberSaveable { mutableStateOf("login") }
-    var selectedItem by rememberSaveable { mutableStateOf(0) }
-    var articleUrl by rememberSaveable { mutableStateOf<String?>(null) }
-
-    when {
-        !isLoggedIn -> {
-            when (currentPage) {
-                "login" -> {
-                    LoginPage(
-                        onLoginSuccess = {
-                            isLoggedIn = true
-                            currentPage = "home"
-                        },
-                        onNavigateToRegister = {
-                            currentPage = "register"
-                        }
-                    )
-                }
-                "register" -> {
-                    RegisterPage(
-                        onRegisterSuccess = {
-                            isLoggedIn = true
-                            currentPage = "home"
-                        },
-                        onNavigateToLogin = {
-                            currentPage = "login"
-                        }
-                    )
-                }
-            }
-        }
-        articleUrl != null -> {
-            ArticleDetailPage(
-                articleUrl = articleUrl!!,
-                onBackClick = {
-                    articleUrl = null
-                }
-            )
-        }
-        else -> {
-            Scaffold(
-                modifier = Modifier.fillMaxSize(),
-                bottomBar = {
-                    BottomNavigationBar(
-                        selectedItem = selectedItem,
-                        onItemSelected = { selectedItem = it }
-                    )
-                }
-            ) { paddingValues ->
-                when (selectedItem) {
-                    0 -> {
-                        val viewModel: HomeViewModel = viewModel()
-                        HomePage(
-                            viewModel = viewModel,
-                            onArticleClick = { url ->
-                                articleUrl = url
-                            },
-                            paddingValues = paddingValues
-                        )
-                    }
-                    1 -> {
-                        val viewModel: SquareViewModel = viewModel()
-                        SquarePage(
-                            viewModel = viewModel,
-                            onArticleClick = { url ->
-                                articleUrl = url
-                            },
-                            paddingValues = paddingValues
-                        )
-                    }
-                    2 -> ProjectPage()
-                    3 -> NavigationPage()
-                    4 -> MinePage(
-                        onLogout = {
-                            userManager.clearUserInfo()
-                            isLoggedIn = false
-                            currentPage = "login"
-                            selectedItem = 0
-                        }
-                    )
-                }
-            }
-        }
-    }
+    val navController = rememberNavController()
+    AppNavigation(
+        navController = navController,
+        userManager = userManager
+    )
 }
 
 @Preview(showBackground = true)

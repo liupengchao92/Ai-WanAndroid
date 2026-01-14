@@ -82,4 +82,8 @@ dependencies {
 
     // Accompanist SwipeRefresh
     implementation("com.google.accompanist:accompanist-swiperefresh:0.32.0")
+
+    // Navigation Compose
+    implementation("androidx.navigation:navigation-compose:2.7.7")
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 }
