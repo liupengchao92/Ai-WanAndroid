@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.height
 @Composable
 fun HomePage(
     viewModel: HomeViewModel,
+    onArticleClick: (String) -> Unit = {},
     paddingValues: PaddingValues = PaddingValues(0.dp)
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -108,14 +109,14 @@ fun HomePage(
                         ArticleItem(
                             article = article,
                             isTop = true,
-                            onClick = { }
+                            onClick = { onArticleClick(article.link) }
                         )
                     }
 
                     items(uiState.articles) { article ->
                         ArticleItem(
                             article = article,
-                            onClick = { }
+                            onClick = { onArticleClick(article.link) }
                         )
                     }
 

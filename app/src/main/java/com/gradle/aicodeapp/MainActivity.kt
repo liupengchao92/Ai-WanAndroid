@@ -22,6 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.gradle.aicodeapp.data.UserManager
 import com.gradle.aicodeapp.ui.components.BottomNavigationBar
 import com.gradle.aicodeapp.ui.pages.HomePage
+import com.gradle.aicodeapp.ui.pages.ArticleDetailPage
 import com.gradle.aicodeapp.ui.pages.LoginPage
 import com.gradle.aicodeapp.ui.pages.MinePage
 import com.gradle.aicodeapp.ui.pages.NavigationPage
@@ -58,6 +59,7 @@ fun MainScreen(userManager: UserManager) {
     var isLoggedIn by rememberSaveable { mutableStateOf(userManager.isLoggedIn()) }
     var currentPage by rememberSaveable { mutableStateOf("login") }
     var selectedItem by rememberSaveable { mutableStateOf(0) }
+    var articleUrl by rememberSaveable { mutableStateOf<String?>(null) }
 
     when {
         !isLoggedIn -> {
@@ -86,6 +88,14 @@ fun MainScreen(userManager: UserManager) {
                 }
             }
         }
+        articleUrl != null -> {
+            ArticleDetailPage(
+                articleUrl = articleUrl!!,
+                onBackClick = {
+                    articleUrl = null
+                }
+            )
+        }
         else -> {
             Scaffold(
                 modifier = Modifier.fillMaxSize(),
@@ -99,11 +109,23 @@ fun MainScreen(userManager: UserManager) {
                 when (selectedItem) {
                     0 -> {
                         val viewModel: HomeViewModel = viewModel()
-                        HomePage(viewModel, paddingValues)
+                        HomePage(
+                            viewModel = viewModel,
+                            onArticleClick = { url ->
+                                articleUrl = url
+                            },
+                            paddingValues = paddingValues
+                        )
                     }
                     1 -> {
                         val viewModel: SquareViewModel = viewModel()
-                        SquarePage(viewModel, paddingValues)
+                        SquarePage(
+                            viewModel = viewModel,
+                            onArticleClick = { url ->
+                                articleUrl = url
+                            },
+                            paddingValues = paddingValues
+                        )
                     }
                     2 -> ProjectPage()
                     3 -> NavigationPage()

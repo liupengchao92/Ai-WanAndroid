@@ -44,6 +44,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun SquarePage(
     viewModel: SquareViewModel,
+    onArticleClick: (String) -> Unit = {},
     paddingValues: PaddingValues = PaddingValues(0.dp),
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -158,9 +159,7 @@ fun SquarePage(
                             ArticleItem(
                                 article = article,
                                 isSquare = true,
-                                onClick = {
-                                    println("点击文章: ${article.title}")
-                                }
+                                onClick = { onArticleClick(article.link) }
                             )
                         }
 
