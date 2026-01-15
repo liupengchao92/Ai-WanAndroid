@@ -101,7 +101,10 @@ fun HomePage(
 
                     item {
                         if (uiState.banners.isNotEmpty()) {
-                            BannerCarousel(banners = uiState.banners)
+                            BannerCarousel(
+                                banners = uiState.banners,
+                                onBannerClick = onArticleClick
+                            )
                         }
                     }
 

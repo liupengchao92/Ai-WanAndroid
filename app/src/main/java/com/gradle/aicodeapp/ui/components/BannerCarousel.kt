@@ -1,5 +1,8 @@
 package com.gradle.aicodeapp.ui.components
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,6 +14,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
@@ -36,6 +40,7 @@ import kotlinx.coroutines.delay
 @Composable
 fun BannerCarousel(
     banners: List<Banner>,
+    onBannerClick: (String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     if (banners.isEmpty()) return
@@ -43,7 +48,6 @@ fun BannerCarousel(
     val lazyListState = rememberLazyListState()
     var currentIndex by remember { mutableIntStateOf(0) }
 
-    // 自动轮播
     LaunchedEffect(key1 = banners.size) {
         while (true) {
             delay(3000)
@@ -69,12 +73,11 @@ fun BannerCarousel(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(banners) {
-                    BannerItem(banner = it)
+                    BannerItem(banner = it, onBannerClick = onBannerClick)
                 }
             }
         }
 
-        // 指示器
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -96,19 +99,33 @@ fun BannerCarousel(
 
 @Composable
 fun BannerItem(
-    banner: Banner
+    banner: Banner,
+    onBannerClick: (String) -> Unit
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+
     Card(
         modifier = Modifier
             .width(300.dp)
-            .height(180.dp),
+            .height(180.dp)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = rememberRipple(bounded = true),
+                onClick = {
+                    if (banner.url.isNotBlank()) {
+                        onBannerClick(banner.url)
+                    }
+                }
+            ),
         shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = if (isPressed) 8.dp else 4.dp
+        )
     ) {
         Box(
             modifier = Modifier.fillMaxWidth()
         ) {
-            // Banner 图片
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(banner.imagePath)
@@ -119,7 +136,6 @@ fun BannerItem(
                 modifier = Modifier.fillMaxWidth().height(180.dp)
             )
 
-            // Banner 标题
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
