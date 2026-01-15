@@ -150,11 +150,11 @@ fun AppNavigation(
             }
 
             composable(NavigationRoutes.PROJECT) {
-                ProjectPage()
+                ProjectPage(paddingValues = paddingValues)
             }
 
             composable(NavigationRoutes.NAVIGATION) {
-                NavigationPage()
+                NavigationPage(paddingValues = paddingValues)
             }
 
             composable(NavigationRoutes.MINE) {
@@ -164,7 +164,8 @@ fun AppNavigation(
                         navController.navigate(NavigationRoutes.LOGIN) {
                             popUpTo(0) { inclusive = true }
                         }
-                    }
+                    },
+                    paddingValues = paddingValues
                 )
             }
 

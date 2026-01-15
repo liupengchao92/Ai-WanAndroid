@@ -2,6 +2,7 @@ package com.gradle.aicodeapp.ui.pages
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,11 +28,13 @@ import javax.inject.Inject
 
 @Composable
 fun MinePage(
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    paddingValues: PaddingValues = PaddingValues(0.dp)
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .padding(paddingValues)
             .padding(16.dp),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
