@@ -165,7 +165,15 @@ fun AppNavigation(
             }
 
             composable(NavigationRoutes.NAVIGATION) {
-                NavigationPage(paddingValues = paddingValues)
+                NavigationPage(
+                    onArticleClick = { url ->
+                        if (url.isNotBlank()) {
+                            val encodedUrl = URLEncoder.encode(url, StandardCharsets.UTF_8.toString())
+                            navController.navigate("${NavigationRoutes.ARTICLE_DETAIL}/$encodedUrl")
+                        }
+                    },
+                    paddingValues = paddingValues
+                )
             }
 
             composable(NavigationRoutes.MINE) {

@@ -6,6 +6,7 @@ import com.gradle.aicodeapp.network.model.ArticleListResponse
 import com.gradle.aicodeapp.network.model.Banner
 import com.gradle.aicodeapp.network.model.Friend
 import com.gradle.aicodeapp.network.model.LoginResponse
+import com.gradle.aicodeapp.network.model.NavigationGroup
 import com.gradle.aicodeapp.network.model.ProjectCategory
 import com.gradle.aicodeapp.network.model.RegisterResponse
 import retrofit2.http.Field
@@ -107,6 +108,12 @@ interface ApiService {
         @Path("page") page: Int,
         @Query("cid") cid: Int
     ): ApiResponse<ArticleListResponse>
+
+    /**
+     * 导航数据
+     */
+    @GET("navi/json")
+    suspend fun getNavigationData(): ApiResponse<List<NavigationGroup>>
 
     // 可以添加更多API方法
 }

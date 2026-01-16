@@ -7,6 +7,7 @@ import com.gradle.aicodeapp.network.model.ArticleListResponse
 import com.gradle.aicodeapp.network.model.Banner
 import com.gradle.aicodeapp.network.model.Friend
 import com.gradle.aicodeapp.network.model.LoginResponse
+import com.gradle.aicodeapp.network.model.NavigationGroup
 import com.gradle.aicodeapp.network.model.ProjectCategory
 import com.gradle.aicodeapp.network.model.RegisterResponse
 import javax.inject.Inject
@@ -156,6 +157,18 @@ class NetworkRepository @Inject constructor(
     suspend fun getProjectList(page: Int, cid: Int): Result<ApiResponse<ArticleListResponse>> {
         return try {
             val response = apiService.getProjectList(page, cid)
+            handleApiResponse(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * 获取导航数据
+     */
+    suspend fun getNavigationData(): Result<ApiResponse<List<NavigationGroup>>> {
+        return try {
+            val response = apiService.getNavigationData()
             handleApiResponse(response)
         } catch (e: Exception) {
             Result.failure(e)
