@@ -27,6 +27,7 @@ import com.gradle.aicodeapp.ui.pages.ProjectPage
 import com.gradle.aicodeapp.ui.pages.RegisterPage
 import com.gradle.aicodeapp.ui.pages.SquarePage
 import com.gradle.aicodeapp.ui.viewmodel.HomeViewModel
+import com.gradle.aicodeapp.ui.viewmodel.ProjectViewModel
 import com.gradle.aicodeapp.ui.viewmodel.SquareViewModel
 import java.net.URLEncoder
 import java.net.URLDecoder
@@ -150,7 +151,17 @@ fun AppNavigation(
             }
 
             composable(NavigationRoutes.PROJECT) {
-                ProjectPage(paddingValues = paddingValues)
+                val viewModel: ProjectViewModel = hiltViewModel()
+                ProjectPage(
+                    viewModel = viewModel,
+                    onArticleClick = { url ->
+                        if (url.isNotBlank()) {
+                            val encodedUrl = URLEncoder.encode(url, StandardCharsets.UTF_8.toString())
+                            navController.navigate("${NavigationRoutes.ARTICLE_DETAIL}/$encodedUrl")
+                        }
+                    },
+                    paddingValues = paddingValues
+                )
             }
 
             composable(NavigationRoutes.NAVIGATION) {

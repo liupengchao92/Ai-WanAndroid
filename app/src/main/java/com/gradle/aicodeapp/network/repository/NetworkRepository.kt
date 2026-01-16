@@ -7,6 +7,7 @@ import com.gradle.aicodeapp.network.model.ArticleListResponse
 import com.gradle.aicodeapp.network.model.Banner
 import com.gradle.aicodeapp.network.model.Friend
 import com.gradle.aicodeapp.network.model.LoginResponse
+import com.gradle.aicodeapp.network.model.ProjectCategory
 import com.gradle.aicodeapp.network.model.RegisterResponse
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -129,6 +130,32 @@ class NetworkRepository @Inject constructor(
     suspend fun logout(): Result<ApiResponse<Any>> {
         return try {
             val response = apiService.logout()
+            handleApiResponse(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * 获取项目分类
+     */
+    suspend fun getProjectCategories(): Result<ApiResponse<List<ProjectCategory>>> {
+        return try {
+            val response = apiService.getProjectCategories()
+            handleApiResponse(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * 获取项目列表
+     * @param page 页码，从1开始
+     * @param cid 分类id
+     */
+    suspend fun getProjectList(page: Int, cid: Int): Result<ApiResponse<ArticleListResponse>> {
+        return try {
+            val response = apiService.getProjectList(page, cid)
             handleApiResponse(response)
         } catch (e: Exception) {
             Result.failure(e)

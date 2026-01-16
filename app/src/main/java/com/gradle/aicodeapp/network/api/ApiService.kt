@@ -6,12 +6,14 @@ import com.gradle.aicodeapp.network.model.ArticleListResponse
 import com.gradle.aicodeapp.network.model.Banner
 import com.gradle.aicodeapp.network.model.Friend
 import com.gradle.aicodeapp.network.model.LoginResponse
+import com.gradle.aicodeapp.network.model.ProjectCategory
 import com.gradle.aicodeapp.network.model.RegisterResponse
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface ApiService {
 
@@ -88,6 +90,23 @@ interface ApiService {
      */
     @GET("user/logout/json")
     suspend fun logout(): ApiResponse<Any>
+
+    /**
+     * 项目分类
+     */
+    @GET("project/tree/json")
+    suspend fun getProjectCategories(): ApiResponse<List<ProjectCategory>>
+
+    /**
+     * 项目列表
+     * @param page 页码，从1开始
+     * @param cid 分类id
+     */
+    @GET("project/list/{page}/json")
+    suspend fun getProjectList(
+        @Path("page") page: Int,
+        @Query("cid") cid: Int
+    ): ApiResponse<ArticleListResponse>
 
     // 可以添加更多API方法
 }
