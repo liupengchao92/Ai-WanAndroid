@@ -115,5 +115,71 @@ interface ApiService {
     @GET("navi/json")
     suspend fun getNavigationData(): ApiResponse<List<NavigationGroup>>
 
+    /**
+     * 收藏站内文章
+     * @param id 文章ID
+     */
+    @POST("lg/collect/{id}/json")
+    suspend fun collectArticle(
+        @Path("id") id: Int
+    ): ApiResponse<Any>
+
+    /**
+     * 收藏站外文章
+     * @param title 文章标题
+     * @param author 作者
+     * @param link 文章链接
+     */
+    @FormUrlEncoded
+    @POST("lg/collect/add/json")
+    suspend fun collectOutsideArticle(
+        @Field("title") title: String,
+        @Field("author") author: String,
+        @Field("link") link: String
+    ): ApiResponse<Any>
+
+    /**
+     * 取消收藏（站内文章）
+     * @param id 文章ID
+     */
+    @POST("lg/uncollect_originId/{id}/json")
+    suspend fun uncollectArticle(
+        @Path("id") id: Int
+    ): ApiResponse<Any>
+
+    /**
+     * 取消收藏（站外文章）
+     * @param id 收藏ID
+     */
+    @POST("lg/uncollect/{id}/json")
+    suspend fun uncollectOutsideArticle(
+        @Path("id") id: Int
+    ): ApiResponse<Any>
+
+    /**
+     * 获取收藏列表
+     * @param page 页码，从0开始
+     */
+    @GET("lg/collect/list/{page}/json")
+    suspend fun getCollectList(
+        @Path("page") page: Int
+    ): ApiResponse<ArticleListResponse>
+
+    /**
+     * 编辑收藏文章
+     * @param id 文章ID
+     * @param title 文章标题
+     * @param author 作者
+     * @param link 文章链接
+     */
+    @FormUrlEncoded
+    @POST("lg/collect/user_article/update/{id}/json")
+    suspend fun updateCollectArticle(
+        @Path("id") id: Int,
+        @Field("title") title: String,
+        @Field("author") author: String,
+        @Field("link") link: String
+    ): ApiResponse<Any>
+
     // 可以添加更多API方法
 }

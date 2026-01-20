@@ -35,19 +35,23 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.gradle.aicodeapp.ui.components.ArticleItem
+import com.gradle.aicodeapp.ui.viewmodel.CollectViewModel
 import com.gradle.aicodeapp.ui.viewmodel.SquareViewModel
 import kotlinx.coroutines.launch
 
 @Composable
 fun SquarePage(
     viewModel: SquareViewModel,
+    collectViewModel: CollectViewModel = hiltViewModel(),
     onArticleClick: (String) -> Unit = {},
     paddingValues: PaddingValues = PaddingValues(0.dp),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val collectUiState by collectViewModel.uiState.collectAsState()
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
@@ -114,6 +118,21 @@ fun SquarePage(
                 }
             }
 
+            if (collectUiState.errorMessage != null) {
+                androidx.compose.material3.Snackbar(
+                    modifier = Modifier.padding(8.dp),
+                    action = {
+                        androidx.compose.material3.TextButton(
+                            onClick = { collectViewModel.clearError() }
+                        ) {
+                            Text(text = "关闭")
+                        }
+                    }
+                ) {
+                    Text(text = collectUiState.errorMessage ?: "")
+                }
+            }
+
             SwipeRefresh(
                 state = swipeRefreshState,
                 onRefresh = { viewModel.refreshData() },
@@ -159,7 +178,15 @@ fun SquarePage(
                             ArticleItem(
                                 article = article,
                                 isSquare = true,
-                                onClick = { onArticleClick(article.link) }
+                                onClick = { onArticleClick(article.link) },
+                                onCollectClick = { shouldCollect ->
+                                    if (shouldCollect) {
+                                        collectViewModel.collectArticle(article.id)
+                                    } else {
+                                        collectViewModel.uncollectArticle(article.id)
+                                    }
+                                    viewModel.refreshArticles()
+                                }
                             )
                         }
 

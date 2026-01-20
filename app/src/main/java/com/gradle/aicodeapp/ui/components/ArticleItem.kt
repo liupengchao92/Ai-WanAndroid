@@ -1,6 +1,7 @@
 package com.gradle.aicodeapp.ui.components
 
 import android.text.TextUtils
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,6 +14,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -27,6 +29,7 @@ fun ArticleItem(
     isTop: Boolean = false,
     isSquare: Boolean = false,
     onClick: () -> Unit,
+    onCollectClick: ((Boolean) -> Unit)? = null
 ) {
     Card(
         modifier = Modifier
@@ -66,49 +69,64 @@ fun ArticleItem(
 
             // 文章信息
             Row(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                // 作者
-                if (!TextUtils.isEmpty(article.author)) {
+                Row(
+                    modifier = Modifier.weight(1f),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // 作者
+                    if (!TextUtils.isEmpty(article.author)) {
+                        Text(
+                            text = article.author!!,
+                            fontSize = 12.sp,
+                            color = Color.Gray
+                        )
+
+                        Spacer(modifier = Modifier.width(12.dp))
+                    } else if (isSquare && !TextUtils.isEmpty(article.shareUser)) {
+                        Text(
+                            text = "分享人：" + article.shareUser,
+                            fontSize = 12.sp,
+                            color = Color.Gray
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                    }
+
+                    // 时间
                     Text(
-                        text = article.author!!,
+                        text = article.niceDate,
                         fontSize = 12.sp,
                         color = Color.Gray
                     )
 
-                    Spacer(modifier = Modifier.width(12.dp))
-                } else if (isSquare && !TextUtils.isEmpty(article.shareUser)) {
-                    Text(
-                        text = "分享人：" + article.shareUser,
-                        fontSize = 12.sp,
-                        color = Color.Gray
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
+                    if (!isSquare){
+                        Spacer(modifier = Modifier.width(12.dp))
+
+                        // 分类
+                        Text(
+                            text = article.superChapterName,
+                            fontSize = 12.sp,
+                            color = Color.Gray
+                        )
+
+                        Spacer(modifier = Modifier.width(8.dp))
+
+                        Text(
+                            text = article.chapterName,
+                            fontSize = 12.sp,
+                            color = Color.Gray
+                        )
+                    }
                 }
 
-                // 时间
-                Text(
-                    text = article.niceDate,
-                    fontSize = 12.sp,
-                    color = Color.Gray
-                )
-
-                if (!isSquare){
-                    Spacer(modifier = Modifier.width(12.dp))
-
-                    // 分类
-                    Text(
-                        text = article.superChapterName,
-                        fontSize = 12.sp,
-                        color = Color.Gray
-                    )
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    Text(
-                        text = article.chapterName,
-                        fontSize = 12.sp,
-                        color = Color.Gray
+                if (onCollectClick != null) {
+                    CollectIcon(
+                        isCollected = article.collect,
+                        onCollectClick = { onCollectClick(!article.collect) },
+                        iconSize = 24
                     )
                 }
             }

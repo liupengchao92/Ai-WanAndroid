@@ -9,8 +9,13 @@ object NavigationRoutes {
     const val NAVIGATION = "navigation"
     const val MINE = "mine"
     const val ARTICLE_DETAIL = "article_detail"
+    const val COLLECT = "collect"
+    const val COLLECT_EDIT = "collect_edit"
+    const val COLLECT_ADD = "collect_add"
 }
 
 object NavigationArguments {
     const val ARTICLE_URL = "articleUrl"
+    const val ARTICLE_ID = "articleId"
+    const val COLLECT_ID = "collectId"
 }

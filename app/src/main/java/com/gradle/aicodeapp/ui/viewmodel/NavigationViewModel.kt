@@ -2,6 +2,9 @@ package com.gradle.aicodeapp.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gradle.aicodeapp.cache.CacheConfig
+import com.gradle.aicodeapp.cache.CacheKeys
+import com.gradle.aicodeapp.cache.DataCacheManager
 import com.gradle.aicodeapp.network.repository.NetworkRepository
 import com.gradle.aicodeapp.ui.state.NavigationUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -12,16 +15,17 @@ import javax.inject.Inject
 
 @HiltViewModel
 class NavigationViewModel @Inject constructor(
-    private val networkRepository: NetworkRepository
+    private val networkRepository: NetworkRepository,
+    private val cacheManager: DataCacheManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(NavigationUiState())
     val uiState: StateFlow<NavigationUiState> = _uiState
 
-    private var hasLoadedData = false
+    private val TAG = "NavigationViewModel"
 
     fun loadNavigationData() {
-        if (hasLoadedData && _uiState.value.navigationGroups.isNotEmpty()) {
+        if (_uiState.value.navigationGroups.isNotEmpty()) {
             return
         }
 
@@ -31,27 +35,45 @@ class NavigationViewModel @Inject constructor(
         )
 
         viewModelScope.launch {
-            val result = networkRepository.getNavigationData()
-            if (result.isSuccess) {
-                val response = result.getOrNull()
-                if (response?.isSuccess() == true) {
-                    _uiState.value = _uiState.value.copy(
-                        navigationGroups = response.data ?: emptyList(),
-                        isLoading = false
-                    )
-                    hasLoadedData = true
-                } else {
-                    _uiState.value = _uiState.value.copy(
-                        errorMessage = "获取导航数据失败: ${response?.errorMsg}",
-                        isLoading = false
-                    )
-                }
+            loadNavigationDataFromCacheOrNetwork()
+        }
+    }
+
+    private suspend fun loadNavigationDataFromCacheOrNetwork() {
+        val cacheKey = CacheKeys.NAVIGATION_DATA
+        val expireTime = CacheConfig.getExpireTime(cacheKey)
+        
+        val cachedData = cacheManager.get<List<com.gradle.aicodeapp.network.model.NavigationGroup>>(cacheKey)
+        if (cachedData != null) {
+            _uiState.value = _uiState.value.copy(
+                navigationGroups = cachedData,
+                isLoading = false
+            )
+            android.util.Log.d(TAG, "Navigation data loaded from cache: ${cachedData.size}")
+            return
+        }
+
+        val result = networkRepository.getNavigationData()
+        if (result.isSuccess) {
+            val response = result.getOrNull()
+            if (response?.isSuccess() == true) {
+                _uiState.value = _uiState.value.copy(
+                    navigationGroups = response.data ?: emptyList(),
+                    isLoading = false
+                )
+                cacheManager.put(cacheKey, response.data ?: emptyList(), expireTime)
+                android.util.Log.d(TAG, "Navigation data loaded from network: ${(response.data?.size ?: 0)}")
             } else {
                 _uiState.value = _uiState.value.copy(
-                    errorMessage = "网络错误: ${result.exceptionOrNull()?.message}",
+                    errorMessage = "获取导航数据失败: ${response?.errorMsg}",
                     isLoading = false
                 )
             }
+        } else {
+            _uiState.value = _uiState.value.copy(
+                errorMessage = "网络错误: ${result.exceptionOrNull()?.message}",
+                isLoading = false
+            )
         }
     }
 

@@ -176,6 +176,98 @@ class NetworkRepository @Inject constructor(
     }
 
     /**
+     * 收藏站内文章
+     * @param id 文章ID
+     */
+    suspend fun collectArticle(id: Int): Result<ApiResponse<Any>> {
+        return try {
+            val response = apiService.collectArticle(id)
+            handleApiResponse(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * 收藏站外文章
+     * @param title 文章标题
+     * @param author 作者
+     * @param link 文章链接
+     */
+    suspend fun collectOutsideArticle(
+        title: String,
+        author: String,
+        link: String
+    ): Result<ApiResponse<Any>> {
+        return try {
+            val response = apiService.collectOutsideArticle(title, author, link)
+            handleApiResponse(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * 取消收藏（站内文章）
+     * @param id 文章ID
+     */
+    suspend fun uncollectArticle(id: Int): Result<ApiResponse<Any>> {
+        return try {
+            val response = apiService.uncollectArticle(id)
+            handleApiResponse(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * 取消收藏（站外文章）
+     * @param id 收藏ID
+     */
+    suspend fun uncollectOutsideArticle(id: Int): Result<ApiResponse<Any>> {
+        return try {
+            val response = apiService.uncollectOutsideArticle(id)
+            handleApiResponse(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * 获取收藏列表
+     * @param page 页码，从0开始
+     */
+    suspend fun getCollectList(page: Int): Result<ApiResponse<ArticleListResponse>> {
+        return try {
+            val response = apiService.getCollectList(page)
+            handleApiResponse(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * 编辑收藏文章
+     * @param id 文章ID
+     * @param title 文章标题
+     * @param author 作者
+     * @param link 文章链接
+     */
+    suspend fun updateCollectArticle(
+        id: Int,
+        title: String,
+        author: String,
+        link: String
+    ): Result<ApiResponse<Any>> {
+        return try {
+            val response = apiService.updateCollectArticle(id, title, author, link)
+            handleApiResponse(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    /**
      * 处理API响应
      * @param response API响应
      * @param T 响应数据类型

@@ -2,6 +2,7 @@ package com.gradle.aicodeapp.network.di
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.gradle.aicodeapp.data.UserManager
 import com.gradle.aicodeapp.network.api.ApiService
 import dagger.Module
 import dagger.Provides
@@ -41,10 +42,31 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideOkHttpClient(
-        loggingInterceptor: HttpLoggingInterceptor
+        loggingInterceptor: HttpLoggingInterceptor,
+        userManager: UserManager
     ): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(loggingInterceptor)
+            .addInterceptor { chain ->
+                val original = chain.request()
+                val cookie = userManager.getCookie()
+                val requestBuilder = original.newBuilder()
+                
+                if (cookie != null) {
+                    requestBuilder.addHeader("Cookie", cookie)
+                }
+                
+                val request = requestBuilder.build()
+                val response = chain.proceed(request)
+                
+                val setCookieHeader = response.headers("Set-Cookie")
+                if (setCookieHeader.isNotEmpty()) {
+                    val cookieValue = setCookieHeader.joinToString("; ")
+                    userManager.saveCookie(cookieValue)
+                }
+                
+                response
+            }
             .connectTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .readTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .writeTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)

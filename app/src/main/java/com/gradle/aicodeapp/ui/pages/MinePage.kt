@@ -1,5 +1,6 @@
 package com.gradle.aicodeapp.ui.pages
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -29,6 +30,7 @@ import javax.inject.Inject
 @Composable
 fun MinePage(
     onLogout: () -> Unit,
+    onNavigateToCollect: () -> Unit = {},
     paddingValues: PaddingValues = PaddingValues(0.dp)
 ) {
     Column(
@@ -86,7 +88,10 @@ fun MinePage(
                 Text(
                     text = "我的收藏",
                     style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(vertical = 12.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onNavigateToCollect() }
+                        .padding(vertical = 12.dp)
                 )
                 Text(
                     text = "我的文章",

@@ -10,12 +10,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -38,12 +41,17 @@ import kotlinx.coroutines.launch
 @Composable
 fun ArticleDetailPage(
     articleUrl: String,
-    onBackClick: () -> Unit
+    articleId: Int? = null,
+    onBackClick: () -> Unit,
+    onCollectClick: (Int) -> Unit = {},
+    onUncollectClick: (Int) -> Unit = {}
 ) {
     var isLoading by remember { mutableStateOf(true) }
     var hasError by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
     var loadingProgress by remember { mutableStateOf(0) }
+    var showCollectDialog by remember { mutableStateOf(false) }
+    var showUncollectDialog by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(articleUrl) {
@@ -66,6 +74,16 @@ fun ArticleDetailPage(
                             painter = painterResource(id = R.drawable.ic_arrow_back),
                             contentDescription = "返回"
                         )
+                    }
+                },
+                actions = {
+                    if (articleId != null) {
+                        IconButton(onClick = { showCollectDialog = true }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_collect),
+                                contentDescription = "收藏"
+                            )
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -179,4 +197,55 @@ fun ArticleDetailPage(
             }
         }
     }
+
+    if (showCollectDialog && articleId != null) {
+        AlertDialog(
+            onDismissRequest = { showCollectDialog = false },
+            title = { Text("收藏文章") },
+            text = { Text("确定要收藏这篇文章吗？") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showCollectDialog = false
+                        onCollectClick(articleId)
+                    }
+                ) {
+                    Text("确定")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showCollectDialog = false }
+                ) {
+                    Text("取消")
+                }
+            }
+        )
+    }
+
+    if (showUncollectDialog && articleId != null) {
+        AlertDialog(
+            onDismissRequest = { showUncollectDialog = false },
+            title = { Text("取消收藏") },
+            text = { Text("确定要取消收藏这篇文章吗？") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showUncollectDialog = false
+                        onUncollectClick(articleId)
+                    }
+                ) {
+                    Text("确定")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showUncollectDialog = false }
+                ) {
+                    Text("取消")
+                }
+            }
+        )
+    }
 }
+

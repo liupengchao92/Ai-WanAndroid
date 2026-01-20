@@ -25,6 +25,7 @@ class UserManager @Inject constructor(
         private const val KEY_NICKNAME = "nickname"
         private const val KEY_TOKEN = "token"
         private const val KEY_ICON = "icon"
+        private const val KEY_COOKIE = "cookie"
     }
 
     /**
@@ -36,7 +37,8 @@ class UserManager @Inject constructor(
         userId: Int?,
         nickname: String?,
         token: String?,
-        icon: String?
+        icon: String?,
+        cookie: String? = null
     ) {
         sharedPreferences.edit().apply {
             putBoolean(KEY_IS_LOGGED_IN, true)
@@ -46,6 +48,7 @@ class UserManager @Inject constructor(
             putString(KEY_NICKNAME, nickname)
             putString(KEY_TOKEN, token)
             putString(KEY_ICON, icon)
+            cookie?.let { putString(KEY_COOKIE, it) }
             apply()
         }
     }
@@ -117,6 +120,33 @@ class UserManager @Inject constructor(
             Pair(username, password)
         } else {
             null
+        }
+    }
+
+    /**
+     * 保存Cookie
+     */
+    fun saveCookie(cookie: String) {
+        sharedPreferences.edit().apply {
+            putString(KEY_COOKIE, cookie)
+            apply()
+        }
+    }
+
+    /**
+     * 获取Cookie
+     */
+    fun getCookie(): String? {
+        return sharedPreferences.getString(KEY_COOKIE, null)
+    }
+
+    /**
+     * 清除Cookie
+     */
+    fun clearCookie() {
+        sharedPreferences.edit().apply {
+            remove(KEY_COOKIE)
+            apply()
         }
     }
 }

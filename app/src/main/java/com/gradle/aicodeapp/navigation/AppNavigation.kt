@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -19,6 +20,9 @@ import androidx.navigation.navArgument
 import com.gradle.aicodeapp.data.UserManager
 import com.gradle.aicodeapp.ui.components.BottomNavigationBar
 import com.gradle.aicodeapp.ui.pages.ArticleDetailPage
+import com.gradle.aicodeapp.ui.pages.CollectAddPage
+import com.gradle.aicodeapp.ui.pages.CollectEditPage
+import com.gradle.aicodeapp.ui.pages.CollectPage
 import com.gradle.aicodeapp.ui.pages.HomePage
 import com.gradle.aicodeapp.ui.pages.LoginPage
 import com.gradle.aicodeapp.ui.pages.MinePage
@@ -26,6 +30,7 @@ import com.gradle.aicodeapp.ui.pages.NavigationPage
 import com.gradle.aicodeapp.ui.pages.ProjectPage
 import com.gradle.aicodeapp.ui.pages.RegisterPage
 import com.gradle.aicodeapp.ui.pages.SquarePage
+import com.gradle.aicodeapp.ui.viewmodel.CollectViewModel
 import com.gradle.aicodeapp.ui.viewmodel.HomeViewModel
 import com.gradle.aicodeapp.ui.viewmodel.ProjectViewModel
 import com.gradle.aicodeapp.ui.viewmodel.SquareViewModel
@@ -59,6 +64,16 @@ fun AppNavigation(
 
     var selectedItem by rememberSaveable { mutableIntStateOf(0) }
 
+    LaunchedEffect(currentRoute) {
+        when (currentRoute) {
+            NavigationRoutes.HOME -> selectedItem = 0
+            NavigationRoutes.SQUARE -> selectedItem = 1
+            NavigationRoutes.PROJECT -> selectedItem = 2
+            NavigationRoutes.NAVIGATION -> selectedItem = 3
+            NavigationRoutes.MINE -> selectedItem = 4
+        }
+    }
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
         bottomBar = {
@@ -66,22 +81,21 @@ fun AppNavigation(
                 BottomNavigationBar(
                     selectedItem = selectedItem,
                     onItemSelected = { index ->
-                        selectedItem = index
                         when (index) {
                             0 -> navController.navigate(NavigationRoutes.HOME) {
-                                popUpTo(NavigationRoutes.HOME) { inclusive = true }
+                                launchSingleTop = true
                             }
                             1 -> navController.navigate(NavigationRoutes.SQUARE) {
-                                popUpTo(NavigationRoutes.SQUARE) { inclusive = true }
+                                launchSingleTop = true
                             }
                             2 -> navController.navigate(NavigationRoutes.PROJECT) {
-                                popUpTo(NavigationRoutes.PROJECT) { inclusive = true }
+                                launchSingleTop = true
                             }
                             3 -> navController.navigate(NavigationRoutes.NAVIGATION) {
-                                popUpTo(NavigationRoutes.NAVIGATION) { inclusive = true }
+                                launchSingleTop = true
                             }
                             4 -> navController.navigate(NavigationRoutes.MINE) {
-                                popUpTo(NavigationRoutes.MINE) { inclusive = true }
+                                launchSingleTop = true
                             }
                         }
                     }
@@ -184,7 +198,75 @@ fun AppNavigation(
                             popUpTo(0) { inclusive = true }
                         }
                     },
+                    onNavigateToCollect = {
+                        navController.navigate(NavigationRoutes.COLLECT)
+                    },
                     paddingValues = paddingValues
+                )
+            }
+
+            composable(NavigationRoutes.COLLECT) {
+                val viewModel: CollectViewModel = hiltViewModel()
+                CollectPage(
+                    viewModel = viewModel,
+                    navController = navController,
+                    onArticleClick = { url ->
+                        if (url.isNotBlank()) {
+                            val encodedUrl = URLEncoder.encode(url, StandardCharsets.UTF_8.toString())
+                            navController.navigate("${NavigationRoutes.ARTICLE_DETAIL}/$encodedUrl")
+                        }
+                    },
+                    paddingValues = paddingValues
+                )
+            }
+
+            composable(NavigationRoutes.COLLECT_ADD) {
+                val viewModel: CollectViewModel = hiltViewModel()
+                CollectAddPage(
+                    onBackClick = { navController.popBackStack() },
+                    onSubmit = { title, author, link ->
+                        viewModel.collectOutsideArticle(title, author, link)
+                        navController.popBackStack()
+                    }
+                )
+            }
+
+            composable(
+                route = "${NavigationRoutes.COLLECT_EDIT}/{${NavigationArguments.ARTICLE_ID}}/{title}/{author}/{link}",
+                arguments = listOf(
+                    navArgument(NavigationArguments.ARTICLE_ID) { type = NavType.IntType },
+                    navArgument("title") { type = NavType.StringType },
+                    navArgument("author") { type = NavType.StringType },
+                    navArgument("link") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val articleId = backStackEntry.arguments?.getInt(NavigationArguments.ARTICLE_ID) ?: 0
+                val title = try {
+                    URLDecoder.decode(backStackEntry.arguments?.getString("title") ?: "", StandardCharsets.UTF_8.toString())
+                } catch (e: Exception) {
+                    ""
+                }
+                val author = try {
+                    URLDecoder.decode(backStackEntry.arguments?.getString("author") ?: "", StandardCharsets.UTF_8.toString())
+                } catch (e: Exception) {
+                    ""
+                }
+                val link = try {
+                    URLDecoder.decode(backStackEntry.arguments?.getString("link") ?: "", StandardCharsets.UTF_8.toString())
+                } catch (e: Exception) {
+                    ""
+                }
+                val viewModel: CollectViewModel = hiltViewModel()
+                CollectEditPage(
+                    articleId = articleId,
+                    initialTitle = title,
+                    initialAuthor = author,
+                    initialLink = link,
+                    onBackClick = { navController.popBackStack() },
+                    onSubmit = { id, newTitle, newAuthor, newLink ->
+                        viewModel.updateCollectArticle(id, newTitle, newAuthor, newLink)
+                        navController.popBackStack()
+                    }
                 )
             }
 
@@ -200,10 +282,17 @@ fun AppNavigation(
                 } catch (e: Exception) {
                     encodedUrl
                 }
+                val viewModel: CollectViewModel = hiltViewModel()
                 ArticleDetailPage(
                     articleUrl = articleUrl,
                     onBackClick = {
                         navController.popBackStack()
+                    },
+                    onCollectClick = { articleId ->
+                        viewModel.collectArticle(articleId)
+                    },
+                    onUncollectClick = { articleId ->
+                        viewModel.uncollectArticle(articleId)
                     }
                 )
             }
