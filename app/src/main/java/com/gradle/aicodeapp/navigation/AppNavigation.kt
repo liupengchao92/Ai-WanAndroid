@@ -29,10 +29,12 @@ import com.gradle.aicodeapp.ui.pages.MinePage
 import com.gradle.aicodeapp.ui.pages.NavigationPage
 import com.gradle.aicodeapp.ui.pages.ProjectPage
 import com.gradle.aicodeapp.ui.pages.RegisterPage
+import com.gradle.aicodeapp.ui.pages.SearchPage
 import com.gradle.aicodeapp.ui.pages.SquarePage
 import com.gradle.aicodeapp.ui.viewmodel.CollectViewModel
 import com.gradle.aicodeapp.ui.viewmodel.HomeViewModel
 import com.gradle.aicodeapp.ui.viewmodel.ProjectViewModel
+import com.gradle.aicodeapp.ui.viewmodel.SearchViewModel
 import com.gradle.aicodeapp.ui.viewmodel.SquareViewModel
 import java.net.URLEncoder
 import java.net.URLDecoder
@@ -162,6 +164,9 @@ fun AppNavigation(
                             navController.navigate("${NavigationRoutes.ARTICLE_DETAIL}/$encodedUrl?${NavigationArguments.ARTICLE_TITLE}=$encodedTitle")
                         }
                     },
+                    onSearchClick = {
+                        navController.navigate(NavigationRoutes.SEARCH)
+                    },
                     paddingValues = paddingValues
                 )
             }
@@ -274,6 +279,23 @@ fun AppNavigation(
                     onBackClick = { navController.popBackStack() },
                     onSubmit = { id, newTitle, newAuthor, newLink ->
                         viewModel.updateCollectArticle(id, newTitle, newAuthor, newLink)
+                        navController.popBackStack()
+                    }
+                )
+            }
+
+            composable(NavigationRoutes.SEARCH) {
+                val viewModel: SearchViewModel = hiltViewModel()
+                SearchPage(
+                    viewModel = viewModel,
+                    onArticleClick = { url, title ->
+                        if (url.isNotBlank()) {
+                            val encodedUrl = URLEncoder.encode(url, StandardCharsets.UTF_8.toString())
+                            val encodedTitle = URLEncoder.encode(title, StandardCharsets.UTF_8.toString())
+                            navController.navigate("${NavigationRoutes.ARTICLE_DETAIL}/$encodedUrl?${NavigationArguments.ARTICLE_TITLE}=$encodedTitle")
+                        }
+                    },
+                    onBackClick = {
                         navController.popBackStack()
                     }
                 )

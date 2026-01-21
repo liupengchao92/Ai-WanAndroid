@@ -17,9 +17,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -30,16 +33,28 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import com.gradle.aicodeapp.data.UserManager
 import com.gradle.aicodeapp.ui.theme.Shapes
 import com.gradle.aicodeapp.ui.theme.Spacing
+import javax.inject.Inject
 
 @Composable
 fun MinePage(
+    userManager: UserManager,
     onLogout: () -> Unit,
     onNavigateToCollect: () -> Unit = {},
     paddingValues: PaddingValues = PaddingValues(0.dp)
@@ -56,7 +71,9 @@ fun MinePage(
     ) {
         Spacer(modifier = Modifier.height(Spacing.ExtraLarge))
 
-        UserHeader()
+        UserHeader(
+            userManager = userManager
+        )
 
         Spacer(modifier = Modifier.height(Spacing.Large))
 
@@ -75,7 +92,18 @@ fun MinePage(
 }
 
 @Composable
-private fun UserHeader() {
+private fun UserHeader(
+    userManager: UserManager
+) {
+    val username = userManager.getUsername()
+    val nickname = userManager.getNickname()
+    val icon = userManager.getIcon()
+    val userId = userManager.getUserId()
+    val isLoggedIn = userManager.isLoggedIn()
+
+    val displayName = nickname ?: username ?: "未登录"
+    val displayAvatar = icon
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -91,30 +119,90 @@ private fun UserHeader() {
                 .padding(Spacing.ExtraLarge),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Surface(
-                modifier = Modifier
-                    .size(Spacing.IconHuge)
-                    .clip(CircleShape),
-                color = MaterialTheme.colorScheme.primaryContainer
-            ) {
-                Icon(
-                imageVector = Icons.Default.Person,
-                contentDescription = "用户头像",
-                modifier = Modifier
-                    .size(Spacing.IconExtraLarge)
-                    .padding(Spacing.Medium),
-                tint = MaterialTheme.colorScheme.primary
-            )
+            if (displayAvatar != null) {
+                Surface(
+                    modifier = Modifier
+                        .size(Spacing.IconHuge)
+                        .clip(CircleShape),
+                    color = MaterialTheme.colorScheme.primaryContainer
+                ) {
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(displayAvatar)
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = "用户头像",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+            } else {
+                Surface(
+                    modifier = Modifier
+                        .size(Spacing.IconHuge)
+                        .clip(CircleShape),
+                    color = MaterialTheme.colorScheme.primaryContainer
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = "用户头像",
+                        modifier = Modifier
+                            .size(Spacing.IconExtraLarge)
+                            .padding(Spacing.Medium),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(Spacing.Medium))
 
             Text(
-                text = "用户中心",
+                text = displayName,
                 style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
+
+            Spacer(modifier = Modifier.height(Spacing.Small))
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(Spacing.Small)
+            ) {
+                if (isLoggedIn) {
+                    Icon(
+                        imageVector = Icons.Default.CheckCircle,
+                        contentDescription = "已认证",
+                        modifier = Modifier.size(Spacing.IconSmall),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+
+                    Text(
+                        text = "已登录",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+
+                if (userId != null) {
+                    Text(
+                        text = "ID: ${maskUserId(userId)}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
         }
+    }
+}
+
+private fun maskUserId(userId: Int): String {
+    val userIdStr = userId.toString()
+    return when {
+        userIdStr.length <= 2 -> userIdStr
+        userIdStr.length <= 4 -> "${userIdStr.first()}***${userIdStr.last()}"
+        else -> "${userIdStr.take(2)}***${userIdStr.takeLast(2)}"
     }
 }
 
@@ -148,7 +236,7 @@ private fun MenuSection(
             )
 
             MenuItem(
-                icon = Icons.Default.Person,
+                icon = Icons.Default.List,
                 title = "我的文章",
                 onClick = {}
             )
@@ -159,7 +247,7 @@ private fun MenuSection(
             )
 
             MenuItem(
-                icon = Icons.Default.Person,
+                icon = Icons.Default.Settings,
                 title = "设置",
                 onClick = {}
             )
@@ -173,18 +261,29 @@ private fun MenuItem(
     title: String,
     onClick: () -> Unit
 ) {
+    var isPressed by remember { mutableStateOf(false) }
+    
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .clickable(
+                onClick = {
+                    isPressed = true
+                    onClick()
+                }
+            )
             .padding(Spacing.Medium),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
             imageVector = icon,
             contentDescription = title,
-            modifier = Modifier.size(Spacing.IconMedium),
-            tint = MaterialTheme.colorScheme.primary
+            modifier = Modifier.size(Spacing.IconLarge),
+            tint = if (isPressed) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                MaterialTheme.colorScheme.onSurface
+            }
         )
 
         Spacer(modifier = Modifier.width(Spacing.Medium))
@@ -192,7 +291,11 @@ private fun MenuItem(
         Text(
             text = title,
             style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurface,
+            color = if (isPressed) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                MaterialTheme.colorScheme.onSurface
+            },
             modifier = Modifier.weight(1f)
         )
 
