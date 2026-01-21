@@ -196,6 +196,7 @@ fun AppNavigation(
 
             composable(NavigationRoutes.MINE) {
                 MinePage(
+                    userManager = userManager,
                     onLogout = {
                         userManager.clearUserInfo()
                         navController.navigate(NavigationRoutes.LOGIN) {
@@ -237,27 +238,30 @@ fun AppNavigation(
             }
 
             composable(
-                route = "${NavigationRoutes.COLLECT_EDIT}/{${NavigationArguments.ARTICLE_ID}}/{title}/{author}/{link}",
+                route = "${NavigationRoutes.COLLECT_EDIT}/{${NavigationArguments.ARTICLE_ID}}?title={title}&author={author}&link={link}",
                 arguments = listOf(
                     navArgument(NavigationArguments.ARTICLE_ID) { type = NavType.IntType },
-                    navArgument("title") { type = NavType.StringType },
-                    navArgument("author") { type = NavType.StringType },
-                    navArgument("link") { type = NavType.StringType }
+                    navArgument("title") { type = NavType.StringType; nullable = true },
+                    navArgument("author") { type = NavType.StringType; nullable = true },
+                    navArgument("link") { type = NavType.StringType; nullable = true }
                 )
             ) { backStackEntry ->
                 val articleId = backStackEntry.arguments?.getInt(NavigationArguments.ARTICLE_ID) ?: 0
                 val title = try {
-                    URLDecoder.decode(backStackEntry.arguments?.getString("title") ?: "", StandardCharsets.UTF_8.toString())
+                    val encodedTitle = backStackEntry.arguments?.getString("title") ?: ""
+                    URLDecoder.decode(encodedTitle, StandardCharsets.UTF_8.toString())
                 } catch (e: Exception) {
                     ""
                 }
                 val author = try {
-                    URLDecoder.decode(backStackEntry.arguments?.getString("author") ?: "", StandardCharsets.UTF_8.toString())
+                    val encodedAuthor = backStackEntry.arguments?.getString("author") ?: ""
+                    URLDecoder.decode(encodedAuthor, StandardCharsets.UTF_8.toString())
                 } catch (e: Exception) {
                     ""
                 }
                 val link = try {
-                    URLDecoder.decode(backStackEntry.arguments?.getString("link") ?: "", StandardCharsets.UTF_8.toString())
+                    val encodedLink = backStackEntry.arguments?.getString("link") ?: ""
+                    URLDecoder.decode(encodedLink, StandardCharsets.UTF_8.toString())
                 } catch (e: Exception) {
                     ""
                 }

@@ -17,7 +17,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -95,10 +94,23 @@ fun CollectPage(
                         )
                     }
                 },
+                actions = {
+                    IconButton(
+                        onClick = {
+                            navController.navigate(NavigationRoutes.COLLECT_ADD)
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "添加收藏"
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color(0xFFF0F0F0),
                     titleContentColor = Color.Black,
-                    navigationIconContentColor = Color.Black
+                    navigationIconContentColor = Color.Black,
+                    actionIconContentColor = Color.Black
                 )
             )
         }
@@ -153,7 +165,7 @@ fun CollectPage(
                                     val encodedTitle = URLEncoder.encode(article.title, StandardCharsets.UTF_8.toString())
                                     val encodedAuthor = URLEncoder.encode(article.author ?: "", StandardCharsets.UTF_8.toString())
                                     val encodedLink = URLEncoder.encode(article.link, StandardCharsets.UTF_8.toString())
-                                    navController.navigate("${NavigationRoutes.COLLECT_EDIT}/${article.id}/$encodedTitle/$encodedAuthor/$encodedLink")
+                                    navController.navigate("${NavigationRoutes.COLLECT_EDIT}/${article.id}?title=$encodedTitle&author=$encodedAuthor&link=$encodedLink")
                                 },
                                 onDeleteClick = {
                                     articleToDelete = article.id
@@ -186,20 +198,6 @@ fun CollectPage(
                             }
                         }
                     }
-                }
-
-                FloatingActionButton(
-                    onClick = {
-                        navController.navigate(NavigationRoutes.COLLECT_ADD)
-                    },
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(16.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "添加收藏"
-                    )
                 }
             }
         }
