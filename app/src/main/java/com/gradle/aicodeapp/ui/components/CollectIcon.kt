@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,7 +35,7 @@ fun CollectIcon(
     val interactionSource = remember { MutableInteractionSource() }
 
     val iconColor by animateColorAsState(
-        targetValue = if (isCollected) Color.Red else Color.Gray,
+        targetValue = if (isCollected) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
         animationSpec = tween(durationMillis = 300),
         label = "iconColor"
     )

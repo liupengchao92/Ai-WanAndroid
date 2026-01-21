@@ -69,8 +69,11 @@ fun ArticleItem(
                 .fillMaxWidth()
                 .padding(Spacing.CardPadding)
         ) {
-            if (isTop) {
-                TopBadge()
+            if (isTop || article.fresh) {
+                BadgeRow(
+                    isTop = isTop,
+                    isFresh = article.fresh
+                )
                 Spacer(modifier = Modifier.height(Spacing.Small))
             }
 
@@ -127,6 +130,24 @@ fun ArticleItem(
 }
 
 @Composable
+private fun BadgeRow(
+    isTop: Boolean,
+    isFresh: Boolean
+) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(Spacing.Small),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (isTop) {
+            TopBadge()
+        }
+        if (isFresh) {
+            FreshBadge()
+        }
+    }
+}
+
+@Composable
 private fun TopBadge() {
     Surface(
         modifier = Modifier
@@ -143,6 +164,29 @@ private fun TopBadge() {
                 text = "置顶",
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onErrorContainer,
+                fontWeight = FontWeight.Bold
+            )
+        }
+    }
+}
+
+@Composable
+private fun FreshBadge() {
+    Surface(
+        modifier = Modifier
+            .width(48.dp)
+            .height(24.dp),
+        shape = Shapes.Small,
+        color = MaterialTheme.colorScheme.primaryContainer
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "新",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
                 fontWeight = FontWeight.Bold
             )
         }

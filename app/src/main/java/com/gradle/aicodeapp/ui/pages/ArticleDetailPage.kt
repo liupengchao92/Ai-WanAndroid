@@ -15,6 +15,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -35,6 +36,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
 import com.gradle.aicodeapp.R
+import com.gradle.aicodeapp.ui.theme.Success
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -94,9 +96,9 @@ fun ArticleDetailPage(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFFF0F0F0),
-                    titleContentColor = Color.Black,
-                    navigationIconContentColor = Color.Black
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface
                 )
             )
         }
@@ -113,7 +115,7 @@ fun ArticleDetailPage(
                 ) {
                     Text(
                         text = errorMessage,
-                        color = Color.Red
+                        color = MaterialTheme.colorScheme.error
                     )
                 }
             } else {
@@ -121,8 +123,8 @@ fun ArticleDetailPage(
                     LinearProgressIndicator(
                         progress = { loadingProgress / 100f },
                         modifier = Modifier.fillMaxWidth(),
-                        color = Color(0xFF09BB07),
-                        trackColor = Color.LightGray
+                        color = Success,
+                        trackColor = MaterialTheme.colorScheme.surfaceVariant
                     )
                 }
 
@@ -196,7 +198,7 @@ fun ArticleDetailPage(
                         ) {
                             Text(
                                 text = errorMessage,
-                                color = Color.Red
+                                color = MaterialTheme.colorScheme.error
                             )
                         }
                     }

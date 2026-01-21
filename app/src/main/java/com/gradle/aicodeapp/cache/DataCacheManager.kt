@@ -123,6 +123,7 @@ object CacheKeys {
     const val PROJECT_PROJECTS = "project_projects"
     const val NAVIGATION_DATA = "navigation_data"
     const val COLLECT_LIST = "collect_list"
+    const val SEARCH_ARTICLES = "search_articles"
     
     fun getHomeArticlesKey(page: Int): String {
         return "${HOME_ARTICLES}_$page"
@@ -138,6 +139,10 @@ object CacheKeys {
     
     fun getCollectListKey(page: Int): String {
         return "${COLLECT_LIST}_$page"
+    }
+    
+    fun getSearchArticlesKey(keyword: String, page: Int): String {
+        return "${SEARCH_ARTICLES}_${keyword}_$page"
     }
 }
 

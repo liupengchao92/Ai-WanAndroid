@@ -93,6 +93,20 @@ class NetworkRepository @Inject constructor(
     }
 
     /**
+     * 搜索文章
+     * @param page 页码，从0开始
+     * @param keyword 搜索关键词
+     */
+    suspend fun searchArticles(page: Int, keyword: String): Result<ApiResponse<ArticleListResponse>> {
+        return try {
+            val response = apiService.searchArticles(page, keyword)
+            handleApiResponse(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    /**
      * 登录
      * @param username 用户名
      * @param password 密码

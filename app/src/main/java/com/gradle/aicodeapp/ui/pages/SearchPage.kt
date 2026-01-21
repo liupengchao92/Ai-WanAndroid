@@ -7,59 +7,70 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.gradle.aicodeapp.ui.components.ArticleItem
-import com.gradle.aicodeapp.ui.components.ArticleItemSkeleton
-import com.gradle.aicodeapp.ui.components.SearchBox
-import com.gradle.aicodeapp.ui.viewmodel.CollectViewModel
-import com.gradle.aicodeapp.ui.viewmodel.SquareViewModel
+import com.gradle.aicodeapp.ui.components.SearchInput
 import com.gradle.aicodeapp.ui.theme.Spacing
+import com.gradle.aicodeapp.ui.viewmodel.CollectViewModel
+import com.gradle.aicodeapp.ui.viewmodel.SearchViewModel
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SquarePage(
-    viewModel: SquareViewModel,
+fun SearchPage(
+    viewModel: SearchViewModel,
     collectViewModel: CollectViewModel = hiltViewModel(),
     onArticleClick: (String, String) -> Unit = { _, _ -> },
-    onSearchClick: () -> Unit = {},
-    paddingValues: PaddingValues = PaddingValues(0.dp),
+    onBackClick: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val collectUiState by collectViewModel.uiState.collectAsState()
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
+    var searchQuery by remember { mutableStateOf("") }
 
     val isAtBottom by remember {
         derivedStateOf {
@@ -75,17 +86,13 @@ fun SquarePage(
         }
     }
 
-    LaunchedEffect(key1 = Unit) {
-        viewModel.loadData()
-    }
-
     LaunchedEffect(isAtBottom) {
         if (isAtBottom && uiState.hasMore && !uiState.isLoading) {
             viewModel.loadMore()
         }
     }
 
-    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = uiState.isRefreshing)
+    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = uiState.isLoading)
 
     val scrollToTop: () -> Unit = {
         coroutineScope.launch {
@@ -96,34 +103,40 @@ fun SquarePage(
         }
     }
 
-    if (uiState.isLoading && uiState.articles.isEmpty()) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                state = listState
-            ) {
-                item {
-                    Spacer(
-                        Modifier
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { },
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "返回"
+                        )
+                    }
+                },
+                actions = {
+                    SearchInput(
+                        modifier = Modifier
                             .fillMaxWidth()
-                            .height(paddingValues.calculateTopPadding())
+                            .padding(end = Spacing.Small),
+                        query = searchQuery,
+                        onQueryChange = { searchQuery = it },
+                        onSearch = { query ->
+                            viewModel.searchArticles(query)
+                        },
+                        onCancel = {
+                            onBackClick()
+                        }
                     )
-
-                    SearchBox(onClick = onSearchClick)
-
-                    Spacer(modifier = Modifier.height(Spacing.Small))
-                }
-
-                items(5) {
-                    ArticleItemSkeleton()
-                }
-            }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface
+                )
+            )
         }
-    } else {
+    ) { paddingValues ->
         Box(modifier = Modifier.fillMaxSize()) {
             if (uiState.errorMessage != null) {
                 Snackbar(
@@ -157,7 +170,11 @@ fun SquarePage(
 
             SwipeRefresh(
                 state = swipeRefreshState,
-                onRefresh = { viewModel.refreshData() },
+                onRefresh = { 
+                    if (searchQuery.isNotBlank()) {
+                        viewModel.searchArticles(searchQuery)
+                    }
+                },
                 modifier = Modifier.fillMaxSize()
             ) {
                 if (uiState.isLoading && uiState.articles.isEmpty()) {
@@ -167,11 +184,16 @@ fun SquarePage(
                             .padding(paddingValues),
                         contentAlignment = Alignment.Center
                     ) {
-                        androidx.compose.foundation.layout.Column(
+                        Column(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             CircularProgressIndicator()
-                            Text(text = "加载中...", modifier = Modifier.padding(top = 16.dp))
+                            Spacer(modifier = Modifier.height(Spacing.Small))
+                            Text(
+                                text = "搜索中...",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
                     }
                 } else if (uiState.articles.isEmpty() && !uiState.isLoading) {
@@ -181,18 +203,11 @@ fun SquarePage(
                             .padding(paddingValues),
                         contentAlignment = Alignment.Center
                     ) {
-                        androidx.compose.foundation.layout.Column(
+                        Column(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.List,
-                                contentDescription = null,
-                                modifier = Modifier.size(64.dp),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Spacer(modifier = Modifier.height(Spacing.Medium))
                             Text(
-                                text = "暂无文章",
+                                text = if (uiState.currentQuery.isBlank()) "输入关键词搜索文章" else "未找到相关文章",
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -210,16 +225,11 @@ fun SquarePage(
                                     .fillMaxWidth()
                                     .height(paddingValues.calculateTopPadding())
                             )
-
-                            SearchBox(onClick = onSearchClick)
-
-                            Spacer(modifier = Modifier.height(Spacing.Small))
                         }
 
                         items(uiState.articles) { article ->
                             ArticleItem(
                                 article = article,
-                                isSquare = true,
                                 onClick = { onArticleClick(article.link, article.title) },
                                 onCollectClick = { shouldCollect ->
                                     if (shouldCollect) {
@@ -227,7 +237,6 @@ fun SquarePage(
                                     } else {
                                         collectViewModel.uncollectArticle(article.id)
                                     }
-                                    viewModel.updateArticleCollectStatus(article.id, shouldCollect)
                                 }
                             )
                         }

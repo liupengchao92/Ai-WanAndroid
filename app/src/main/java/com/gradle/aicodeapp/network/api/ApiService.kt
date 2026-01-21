@@ -61,6 +61,17 @@ interface ApiService {
     ): ApiResponse<ArticleListResponse>
 
     /**
+     * 搜索文章
+     * @param page 页码，从0开始
+     * @param k 搜索关键词
+     */
+    @GET("article/query/{page}/json")
+    suspend fun searchArticles(
+        @Path("page") page: Int,
+        @Query("k") keyword: String
+    ): ApiResponse<ArticleListResponse>
+
+    /**
      * 登录
      * @param username 用户名
      * @param password 密码
