@@ -1,0 +1,6 @@
+skill_name: "compose_ui_modernization_expert"
+version: "2.0"
+domain: "Jetpack Compose / 声明式UI设计"
+short_description: "针对Compose项目的现代化UI优化，涵盖Material Design 3、性能重组、状态管理与交互动画"
+tags: ["Jetpack Compose", "Material3", "Kotlin", "状态管理", "重组优化", "动画"]
+priority: "high"

@@ -1,5 +1,6 @@
 package com.gradle.aicodeapp.ui.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -17,6 +18,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -26,15 +29,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.gradle.aicodeapp.network.model.Banner
+import com.gradle.aicodeapp.ui.theme.Animations
+import com.gradle.aicodeapp.ui.theme.Shapes
+import com.gradle.aicodeapp.ui.theme.Sizes
+import com.gradle.aicodeapp.ui.theme.Spacing
 import kotlinx.coroutines.delay
 
 @Composable
@@ -50,7 +60,7 @@ fun BannerCarousel(
 
     LaunchedEffect(key1 = banners.size) {
         while (true) {
-            delay(3000)
+            delay(Animations.BannerAutoScrollDelay)
             currentIndex = (currentIndex + 1) % banners.size
             lazyListState.animateScrollToItem(currentIndex)
         }
@@ -59,18 +69,19 @@ fun BannerCarousel(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .height(200.dp)
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .height(Sizes.BannerHeight.dp)
+            .padding(horizontal = Spacing.ScreenPadding, vertical = Spacing.Small)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
+                .clip(Shapes.Medium)
         ) {
             LazyRow(
                 state = lazyListState,
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                horizontalArrangement = Arrangement.spacedBy(Spacing.Medium)
             ) {
                 items(banners) {
                     BannerItem(banner = it, onBannerClick = onBannerClick)
@@ -81,11 +92,11 @@ fun BannerCarousel(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 8.dp),
+                .padding(top = Spacing.Small),
             contentAlignment = Alignment.Center
         ) {
             LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                horizontalArrangement = Arrangement.spacedBy(Spacing.Small)
             ) {
                 items(banners.size) {
                     Indicator(
@@ -107,8 +118,8 @@ fun BannerItem(
 
     Card(
         modifier = Modifier
-            .width(300.dp)
-            .height(180.dp)
+            .width(Sizes.BannerWidth.dp)
+            .height(Sizes.BannerItemHeight.dp)
             .clickable(
                 interactionSource = interactionSource,
                 indication = rememberRipple(bounded = true),
@@ -118,9 +129,10 @@ fun BannerItem(
                     }
                 }
             ),
-        shape = RoundedCornerShape(12.dp),
+        shape = Shapes.Medium,
         elevation = CardDefaults.cardElevation(
-            defaultElevation = if (isPressed) 8.dp else 4.dp
+            defaultElevation = Spacing.ElevationLow,
+            pressedElevation = Spacing.ElevationMedium
         )
     ) {
         Box(
@@ -133,20 +145,31 @@ fun BannerItem(
                     .build(),
                 contentDescription = banner.desc,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxWidth().height(180.dp)
+                modifier = Modifier.fillMaxWidth().height(Sizes.BannerItemHeight.dp)
             )
 
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(12.dp)
                     .align(Alignment.BottomStart)
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                Color.Transparent,
+                                Color.Black.copy(alpha = 0.7f)
+                            )
+                        )
+                    )
+                    .padding(Spacing.CardPadding)
             ) {
                 Text(
                     text = banner.title,
                     color = Color.White,
                     fontSize = 16.sp,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Start,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.titleSmall
                 )
             }
         }
@@ -157,19 +180,11 @@ fun BannerItem(
 fun Indicator(
     isActive: Boolean
 ) {
-    Box(
+    Surface(
         modifier = Modifier
-            .width(if (isActive) 16.dp else 6.dp)
-            .height(6.dp)
-            .padding(2.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Card(
-            modifier = Modifier.fillMaxWidth().height(4.dp),
-            shape = RoundedCornerShape(2.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = if (isActive) Color.Blue else Color.Gray
-            )
-        ) {}
-    }
+            .width(if (isActive) 24.dp else 8.dp)
+            .height(6.dp),
+        shape = Shapes.ExtraSmall,
+        color = if (isActive) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant
+    ) {}
 }

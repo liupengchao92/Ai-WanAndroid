@@ -17,5 +17,6 @@ object NavigationRoutes {
 object NavigationArguments {
     const val ARTICLE_URL = "articleUrl"
     const val ARTICLE_ID = "articleId"
+    const val ARTICLE_TITLE = "articleTitle"
     const val COLLECT_ID = "collectId"
 }

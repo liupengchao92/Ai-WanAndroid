@@ -35,7 +35,7 @@ import com.gradle.aicodeapp.ui.viewmodel.ProjectViewModel
 @Composable
 fun ProjectPage(
     viewModel: ProjectViewModel,
-    onArticleClick: (String) -> Unit = {},
+    onArticleClick: (String, String) -> Unit = { _, _ -> },
     paddingValues: PaddingValues = PaddingValues(0.dp)
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -117,7 +117,7 @@ fun ProjectPage(
                     items(uiState.projects) { project ->
                         ProjectItem(
                             article = project,
-                            onClick = { onArticleClick(project.link) }
+                            onClick = { onArticleClick(project.link, project.title) }
                         )
                     }
 

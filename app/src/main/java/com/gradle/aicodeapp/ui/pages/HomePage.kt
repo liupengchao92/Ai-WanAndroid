@@ -7,7 +7,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -22,7 +25,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.gradle.aicodeapp.ui.components.ArticleItem
+import com.gradle.aicodeapp.ui.components.ArticleItemSkeleton
 import com.gradle.aicodeapp.ui.components.BannerCarousel
+import com.gradle.aicodeapp.ui.components.BannerSkeleton
 import com.gradle.aicodeapp.ui.viewmodel.CollectViewModel
 import com.gradle.aicodeapp.ui.viewmodel.HomeViewModel
 import androidx.compose.foundation.layout.PaddingValues
@@ -35,7 +40,7 @@ import dagger.hilt.android.AndroidEntryPoint
 fun HomePage(
     viewModel: HomeViewModel,
     collectViewModel: CollectViewModel = hiltViewModel(),
-    onArticleClick: (String) -> Unit = {},
+    onArticleClick: (String, String) -> Unit = { _, _ -> },
     paddingValues: PaddingValues = PaddingValues(0.dp)
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -63,23 +68,35 @@ fun HomePage(
     val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = uiState.isRefreshing)
 
     if (uiState.isLoading && uiState.banners.isEmpty() && uiState.articles.isEmpty()) {
-        androidx.compose.foundation.layout.Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues),
-            verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(paddingValues)
         ) {
-            CircularProgressIndicator()
-            Text(text = "加载中...", modifier = Modifier.padding(top = 16.dp))
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                state = listState
+            ) {
+                item {
+                    Spacer(Modifier.fillMaxWidth().height(paddingValues.calculateTopPadding()))
+                }
+
+                item {
+                    BannerSkeleton()
+                }
+
+                items(5) {
+                    ArticleItemSkeleton()
+                }
+            }
         }
     } else {
         Box(modifier = Modifier.fillMaxSize()) {
             if (uiState.errorMessage != null) {
-                androidx.compose.material3.Snackbar(
+                Snackbar(
                     modifier = Modifier.padding(8.dp),
                     action = {
-                        androidx.compose.material3.TextButton(
+                        TextButton(
                             onClick = { viewModel.clearError() }
                         ) {
                             Text(text = "关闭")
@@ -91,10 +108,10 @@ fun HomePage(
             }
 
             if (collectUiState.errorMessage != null) {
-                androidx.compose.material3.Snackbar(
+                Snackbar(
                     modifier = Modifier.padding(8.dp),
                     action = {
-                        androidx.compose.material3.TextButton(
+                        TextButton(
                             onClick = { collectViewModel.clearError() }
                         ) {
                             Text(text = "关闭")
@@ -123,7 +140,7 @@ fun HomePage(
                         if (uiState.banners.isNotEmpty()) {
                             BannerCarousel(
                                 banners = uiState.banners,
-                                onBannerClick = onArticleClick
+                                onBannerClick = { url -> onArticleClick(url, "") }
                             )
                         }
                     }
@@ -132,14 +149,14 @@ fun HomePage(
                         ArticleItem(
                             article = article,
                             isTop = true,
-                            onClick = { onArticleClick(article.link) },
+                            onClick = { onArticleClick(article.link, article.title) },
                             onCollectClick = { shouldCollect ->
                                 if (shouldCollect) {
                                     collectViewModel.collectArticle(article.id)
                                 } else {
                                     collectViewModel.uncollectArticle(article.id)
                                 }
-                                viewModel.refreshArticles()
+                                viewModel.updateArticleCollectStatus(article.id, shouldCollect)
                             }
                         )
                     }
@@ -147,37 +164,40 @@ fun HomePage(
                     items(uiState.articles) { article ->
                         ArticleItem(
                             article = article,
-                            onClick = { onArticleClick(article.link) },
+                            onClick = { onArticleClick(article.link, article.title) },
                             onCollectClick = { shouldCollect ->
                                 if (shouldCollect) {
                                     collectViewModel.collectArticle(article.id)
                                 } else {
                                     collectViewModel.uncollectArticle(article.id)
                                 }
-                                viewModel.refreshArticles()
+                                viewModel.updateArticleCollectStatus(article.id, shouldCollect)
                             }
                         )
                     }
 
                     item {
                         if (uiState.isLoading && (uiState.banners.isNotEmpty() || uiState.articles.isNotEmpty())) {
-                            androidx.compose.foundation.layout.Column(
+                            Box(
                                 modifier = Modifier
-                                    .fillMaxSize()
+                                    .fillMaxWidth()
                                     .padding(16.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
+                                contentAlignment = Alignment.Center
                             ) {
                                 CircularProgressIndicator()
-                                Text(text = "加载中...", modifier = Modifier.padding(top = 8.dp))
                             }
                         } else if (!uiState.hasMore && uiState.articles.isNotEmpty()) {
-                            androidx.compose.foundation.layout.Column(
+                            Box(
                                 modifier = Modifier
-                                    .fillMaxSize()
+                                    .fillMaxWidth()
                                     .padding(16.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
+                                contentAlignment = Alignment.Center
                             ) {
-                                Text(text = "没有更多数据了", modifier = Modifier.padding(top = 8.dp))
+                                Text(
+                                    text = "没有更多数据了",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
                             }
                         }
                     }

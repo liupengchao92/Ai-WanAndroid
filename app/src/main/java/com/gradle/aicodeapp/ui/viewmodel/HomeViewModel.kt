@@ -216,4 +216,31 @@ class HomeViewModel @Inject constructor(
             errorMessage = null
         )
     }
+
+    fun updateArticleCollectStatus(articleId: Int, isCollected: Boolean) {
+        val currentState = _uiState.value
+        
+        val updatedTopArticles = currentState.topArticles.map { article ->
+            if (article.id == articleId) {
+                article.copy(collect = isCollected)
+            } else {
+                article
+            }
+        }
+        
+        val updatedArticles = currentState.articles.map { article ->
+            if (article.id == articleId) {
+                article.copy(collect = isCollected)
+            } else {
+                article
+            }
+        }
+        
+        _uiState.value = currentState.copy(
+            topArticles = updatedTopArticles,
+            articles = updatedArticles
+        )
+        
+        android.util.Log.d(TAG, "Article collect status updated: articleId=$articleId, isCollected=$isCollected")
+    }
 }

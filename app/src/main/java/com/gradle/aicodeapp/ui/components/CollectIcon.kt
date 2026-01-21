@@ -18,6 +18,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 
@@ -26,7 +27,7 @@ fun CollectIcon(
     isCollected: Boolean,
     onCollectClick: () -> Unit,
     modifier: Modifier = Modifier,
-    iconSize: Int = 24
+    iconSize: Dp = 24.dp
 ) {
     var isAnimating by remember { mutableStateOf(false) }
     var lastClickTime by remember { mutableStateOf(0L) }
@@ -62,7 +63,7 @@ fun CollectIcon(
         contentDescription = if (isCollected) "取消收藏" else "收藏",
         tint = iconColor,
         modifier = modifier
-            .size(iconSize.dp)
+            .size(iconSize)
             .scale(iconScale)
             .clickable(
                 interactionSource = interactionSource,

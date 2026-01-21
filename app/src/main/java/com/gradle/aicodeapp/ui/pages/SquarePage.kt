@@ -24,7 +24,9 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -39,15 +41,17 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.gradle.aicodeapp.ui.components.ArticleItem
+import com.gradle.aicodeapp.ui.components.ArticleItemSkeleton
 import com.gradle.aicodeapp.ui.viewmodel.CollectViewModel
 import com.gradle.aicodeapp.ui.viewmodel.SquareViewModel
+import com.gradle.aicodeapp.ui.theme.Spacing
 import kotlinx.coroutines.launch
 
 @Composable
 fun SquarePage(
     viewModel: SquareViewModel,
     collectViewModel: CollectViewModel = hiltViewModel(),
-    onArticleClick: (String) -> Unit = {},
+    onArticleClick: (String, String) -> Unit = { _, _ -> },
     paddingValues: PaddingValues = PaddingValues(0.dp),
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -91,23 +95,35 @@ fun SquarePage(
     }
 
     if (uiState.isLoading && uiState.articles.isEmpty()) {
-        androidx.compose.foundation.layout.Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues),
-            verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(paddingValues)
         ) {
-            CircularProgressIndicator()
-            Text(text = "加载中...", modifier = Modifier.padding(top = 16.dp))
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                state = listState
+            ) {
+                item {
+                    Spacer(
+                        Modifier
+                            .fillMaxWidth()
+                            .height(paddingValues.calculateTopPadding())
+                    )
+                }
+
+                items(5) {
+                    ArticleItemSkeleton()
+                }
+            }
         }
     } else {
         Box(modifier = Modifier.fillMaxSize()) {
             if (uiState.errorMessage != null) {
-                androidx.compose.material3.Snackbar(
+                Snackbar(
                     modifier = Modifier.padding(8.dp),
                     action = {
-                        androidx.compose.material3.TextButton(
+                        TextButton(
                             onClick = { viewModel.clearError() }
                         ) {
                             Text(text = "关闭")
@@ -119,10 +135,10 @@ fun SquarePage(
             }
 
             if (collectUiState.errorMessage != null) {
-                androidx.compose.material3.Snackbar(
+                Snackbar(
                     modifier = Modifier.padding(8.dp),
                     action = {
-                        androidx.compose.material3.TextButton(
+                        TextButton(
                             onClick = { collectViewModel.clearError() }
                         ) {
                             Text(text = "关闭")
@@ -138,26 +154,43 @@ fun SquarePage(
                 onRefresh = { viewModel.refreshData() },
                 modifier = Modifier.fillMaxSize()
             ) {
-                if (uiState.articles.isEmpty() && !uiState.isLoading) {
-                    androidx.compose.foundation.layout.Column(
+                if (uiState.isLoading && uiState.articles.isEmpty()) {
+                    Box(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(paddingValues),
-                        verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        contentAlignment = Alignment.Center
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.List,
-                            contentDescription = null,
-                            modifier = Modifier.size(64.dp),
-                            tint = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            text = "暂无文章",
-                            modifier = Modifier.padding(top = 16.dp),
-                            style = androidx.compose.material3.MaterialTheme.typography.bodyLarge,
-                            color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                        androidx.compose.foundation.layout.Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            CircularProgressIndicator()
+                            Text(text = "加载中...", modifier = Modifier.padding(top = 16.dp))
+                        }
+                    }
+                } else if (uiState.articles.isEmpty() && !uiState.isLoading) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        androidx.compose.foundation.layout.Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.List,
+                                contentDescription = null,
+                                modifier = Modifier.size(64.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(modifier = Modifier.height(Spacing.Medium))
+                            Text(
+                                text = "暂无文章",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
                 } else {
                     LazyColumn(
@@ -173,47 +206,43 @@ fun SquarePage(
                             )
                         }
 
-
                         items(uiState.articles) { article ->
                             ArticleItem(
                                 article = article,
                                 isSquare = true,
-                                onClick = { onArticleClick(article.link) },
+                                onClick = { onArticleClick(article.link, article.title) },
                                 onCollectClick = { shouldCollect ->
                                     if (shouldCollect) {
                                         collectViewModel.collectArticle(article.id)
                                     } else {
                                         collectViewModel.uncollectArticle(article.id)
                                     }
-                                    viewModel.refreshArticles()
+                                    viewModel.updateArticleCollectStatus(article.id, shouldCollect)
                                 }
                             )
                         }
 
                         item {
                             if (uiState.isLoading && uiState.articles.isNotEmpty()) {
-                                androidx.compose.foundation.layout.Column(
+                                Box(
                                     modifier = Modifier
-                                        .fillMaxSize()
+                                        .fillMaxWidth()
                                         .padding(16.dp),
-                                    horizontalAlignment = Alignment.CenterHorizontally
+                                    contentAlignment = Alignment.Center
                                 ) {
                                     CircularProgressIndicator()
-                                    Text(
-                                        text = "加载中...",
-                                        modifier = Modifier.padding(top = 8.dp)
-                                    )
                                 }
                             } else if (!uiState.hasMore && uiState.articles.isNotEmpty()) {
-                                androidx.compose.foundation.layout.Column(
+                                Box(
                                     modifier = Modifier
-                                        .fillMaxSize()
+                                        .fillMaxWidth()
                                         .padding(16.dp),
-                                    horizontalAlignment = Alignment.CenterHorizontally
+                                    contentAlignment = Alignment.Center
                                 ) {
                                     Text(
                                         text = "没有更多数据了",
-                                        modifier = Modifier.padding(top = 8.dp)
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
                             }

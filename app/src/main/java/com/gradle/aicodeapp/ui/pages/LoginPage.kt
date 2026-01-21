@@ -8,15 +8,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -39,6 +43,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.gradle.aicodeapp.ui.theme.Shapes
+import com.gradle.aicodeapp.ui.theme.Spacing
 import com.gradle.aicodeapp.ui.viewmodel.LoginViewModel
 import kotlinx.coroutines.launch
 
@@ -52,6 +58,7 @@ fun LoginPage(
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
+    val scrollState = rememberScrollState()
 
     LaunchedEffect(uiState.isSuccess) {
         if (uiState.isSuccess) {
@@ -70,16 +77,20 @@ fun LoginPage(
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
-        snackbarHost = { SnackbarHost(snackbarHostState) }
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(24.dp),
+                .padding(Spacing.ScreenPadding)
+                .verticalScroll(scrollState),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
+            Spacer(modifier = Modifier.height(Spacing.ExtraHuge))
+
             Text(
                 text = "欢迎登录",
                 style = MaterialTheme.typography.headlineMedium,
@@ -87,7 +98,7 @@ fun LoginPage(
                 color = MaterialTheme.colorScheme.primary
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(Spacing.Small))
 
             Text(
                 text = "AiCodeApp",
@@ -95,7 +106,7 @@ fun LoginPage(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(Spacing.ExtraHuge))
 
             OutlinedTextField(
                 value = uiState.username,
@@ -105,16 +116,25 @@ fun LoginPage(
                     Icon(
                         imageVector = Icons.Default.Email,
                         contentDescription = "用户名图标",
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(Spacing.IconMedium),
+                        tint = MaterialTheme.colorScheme.primary
                     )
                 },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                enabled = !uiState.isLoading
+                enabled = !uiState.isLoading,
+                shape = Shapes.Medium,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                    disabledBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(Spacing.Medium))
 
             var passwordVisible by rememberSaveable { mutableStateOf(false) }
 
@@ -126,11 +146,15 @@ fun LoginPage(
                     Icon(
                         imageVector = Icons.Default.Lock,
                         contentDescription = "密码图标",
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(Spacing.IconMedium),
+                        tint = MaterialTheme.colorScheme.primary
                     )
                 },
                 trailingIcon = {
-                    TextButton(onClick = { passwordVisible = !passwordVisible }) {
+                    TextButton(
+                        onClick = { passwordVisible = !passwordVisible },
+                        enabled = !uiState.isLoading
+                    ) {
                         Text(if (passwordVisible) "隐藏" else "显示")
                     }
                 },
@@ -138,36 +162,59 @@ fun LoginPage(
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                enabled = !uiState.isLoading
+                enabled = !uiState.isLoading,
+                shape = Shapes.Medium,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                    disabledBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(Spacing.ExtraLarge))
 
             Button(
                 onClick = { viewModel.login() },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp),
-                enabled = !uiState.isLoading
+                    .height(Spacing.ButtonHeight),
+                enabled = !uiState.isLoading,
+                shape = Shapes.Medium,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    disabledContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                    disabledContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
             ) {
                 if (uiState.isLoading) {
                     CircularProgressIndicator(
-                        modifier = Modifier.size(24.dp),
+                        modifier = Modifier.size(Spacing.IconMedium),
                         color = MaterialTheme.colorScheme.onPrimary
                     )
                 } else {
-                    Text("登录", style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        "登录",
+                        style = MaterialTheme.typography.titleMedium
+                    )
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(Spacing.Medium))
 
             TextButton(
                 onClick = onNavigateToRegister,
                 enabled = !uiState.isLoading
             ) {
-                Text("还没有账号？立即注册")
+                Text(
+                    "还没有账号？立即注册",
+                    style = MaterialTheme.typography.bodyMedium
+                )
             }
+
+            Spacer(modifier = Modifier.weight(1f))
         }
     }
 }

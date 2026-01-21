@@ -140,10 +140,11 @@ fun AppNavigation(
                 val viewModel: HomeViewModel = hiltViewModel()
                 HomePage(
                     viewModel = viewModel,
-                    onArticleClick = { url ->
+                    onArticleClick = { url, title ->
                         if (url.isNotBlank()) {
                             val encodedUrl = URLEncoder.encode(url, StandardCharsets.UTF_8.toString())
-                            navController.navigate("${NavigationRoutes.ARTICLE_DETAIL}/$encodedUrl")
+                            val encodedTitle = URLEncoder.encode(title, StandardCharsets.UTF_8.toString())
+                            navController.navigate("${NavigationRoutes.ARTICLE_DETAIL}/$encodedUrl?${NavigationArguments.ARTICLE_TITLE}=$encodedTitle")
                         }
                     },
                     paddingValues = paddingValues
@@ -154,10 +155,11 @@ fun AppNavigation(
                 val viewModel: SquareViewModel = hiltViewModel()
                 SquarePage(
                     viewModel = viewModel,
-                    onArticleClick = { url ->
+                    onArticleClick = { url, title ->
                         if (url.isNotBlank()) {
                             val encodedUrl = URLEncoder.encode(url, StandardCharsets.UTF_8.toString())
-                            navController.navigate("${NavigationRoutes.ARTICLE_DETAIL}/$encodedUrl")
+                            val encodedTitle = URLEncoder.encode(title, StandardCharsets.UTF_8.toString())
+                            navController.navigate("${NavigationRoutes.ARTICLE_DETAIL}/$encodedUrl?${NavigationArguments.ARTICLE_TITLE}=$encodedTitle")
                         }
                     },
                     paddingValues = paddingValues
@@ -168,10 +170,11 @@ fun AppNavigation(
                 val viewModel: ProjectViewModel = hiltViewModel()
                 ProjectPage(
                     viewModel = viewModel,
-                    onArticleClick = { url ->
+                    onArticleClick = { url, title ->
                         if (url.isNotBlank()) {
                             val encodedUrl = URLEncoder.encode(url, StandardCharsets.UTF_8.toString())
-                            navController.navigate("${NavigationRoutes.ARTICLE_DETAIL}/$encodedUrl")
+                            val encodedTitle = URLEncoder.encode(title, StandardCharsets.UTF_8.toString())
+                            navController.navigate("${NavigationRoutes.ARTICLE_DETAIL}/$encodedUrl?${NavigationArguments.ARTICLE_TITLE}=$encodedTitle")
                         }
                     },
                     paddingValues = paddingValues
@@ -180,10 +183,11 @@ fun AppNavigation(
 
             composable(NavigationRoutes.NAVIGATION) {
                 NavigationPage(
-                    onArticleClick = { url ->
+                    onArticleClick = { url, title ->
                         if (url.isNotBlank()) {
                             val encodedUrl = URLEncoder.encode(url, StandardCharsets.UTF_8.toString())
-                            navController.navigate("${NavigationRoutes.ARTICLE_DETAIL}/$encodedUrl")
+                            val encodedTitle = URLEncoder.encode(title, StandardCharsets.UTF_8.toString())
+                            navController.navigate("${NavigationRoutes.ARTICLE_DETAIL}/$encodedUrl?${NavigationArguments.ARTICLE_TITLE}=$encodedTitle")
                         }
                     },
                     paddingValues = paddingValues
@@ -210,10 +214,11 @@ fun AppNavigation(
                 CollectPage(
                     viewModel = viewModel,
                     navController = navController,
-                    onArticleClick = { url ->
+                    onArticleClick = { url, title ->
                         if (url.isNotBlank()) {
                             val encodedUrl = URLEncoder.encode(url, StandardCharsets.UTF_8.toString())
-                            navController.navigate("${NavigationRoutes.ARTICLE_DETAIL}/$encodedUrl")
+                            val encodedTitle = URLEncoder.encode(title, StandardCharsets.UTF_8.toString())
+                            navController.navigate("${NavigationRoutes.ARTICLE_DETAIL}/$encodedUrl?${NavigationArguments.ARTICLE_TITLE}=$encodedTitle")
                         }
                     },
                     paddingValues = paddingValues
@@ -271,9 +276,10 @@ fun AppNavigation(
             }
 
             composable(
-                route = "${NavigationRoutes.ARTICLE_DETAIL}/{${NavigationArguments.ARTICLE_URL}}",
+                route = "${NavigationRoutes.ARTICLE_DETAIL}/{${NavigationArguments.ARTICLE_URL}}?${NavigationArguments.ARTICLE_TITLE}={${NavigationArguments.ARTICLE_TITLE}}",
                 arguments = listOf(
-                    navArgument(NavigationArguments.ARTICLE_URL) { type = NavType.StringType }
+                    navArgument(NavigationArguments.ARTICLE_URL) { type = NavType.StringType },
+                    navArgument(NavigationArguments.ARTICLE_TITLE) { type = NavType.StringType; nullable = true }
                 )
             ) { backStackEntry ->
                 val encodedUrl = backStackEntry.arguments?.getString(NavigationArguments.ARTICLE_URL) ?: ""
@@ -282,9 +288,16 @@ fun AppNavigation(
                 } catch (e: Exception) {
                     encodedUrl
                 }
+                val encodedTitle = backStackEntry.arguments?.getString(NavigationArguments.ARTICLE_TITLE) ?: ""
+                val articleTitle = try {
+                    URLDecoder.decode(encodedTitle, StandardCharsets.UTF_8.toString())
+                } catch (e: Exception) {
+                    encodedTitle
+                }
                 val viewModel: CollectViewModel = hiltViewModel()
                 ArticleDetailPage(
                     articleUrl = articleUrl,
+                    articleTitle = articleTitle,
                     onBackClick = {
                         navController.popBackStack()
                     },

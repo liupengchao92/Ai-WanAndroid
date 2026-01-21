@@ -41,6 +41,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun ArticleDetailPage(
     articleUrl: String,
+    articleTitle: String = "",
     articleId: Int? = null,
     onBackClick: () -> Unit,
     onCollectClick: (Int) -> Unit = {},
@@ -67,7 +68,13 @@ fun ArticleDetailPage(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("文章详情") },
+                title = { 
+                    Text(
+                        text = if (articleTitle.isNotBlank()) articleTitle else "文章详情",
+                        maxLines = 1,
+                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(

@@ -48,7 +48,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun NavigationPage(
-    onArticleClick: (String) -> Unit,
+    onArticleClick: (String, String) -> Unit = { _, _ -> },
     paddingValues: PaddingValues = PaddingValues(0.dp),
     viewModel: NavigationViewModel = hiltViewModel()
 ) {
@@ -229,7 +229,7 @@ fun NavigationGroupItem(
 fun RightContentPanel(
     groups: List<com.gradle.aicodeapp.network.model.NavigationGroup>,
     listState: LazyListState,
-    onArticleClick: (String) -> Unit,
+    onArticleClick: (String, String) -> Unit = { _, _ -> },
     paddingValues: PaddingValues = PaddingValues(0.dp),
     modifier: Modifier = Modifier
 ) {
@@ -253,7 +253,7 @@ fun RightContentPanel(
 @Composable
 fun NavigationContentGroup(
     group: com.gradle.aicodeapp.network.model.NavigationGroup,
-    onArticleClick: (String) -> Unit,
+    onArticleClick: (String, String) -> Unit = { _, _ -> },
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -270,7 +270,7 @@ fun NavigationContentGroup(
         group.articles.forEach { article ->
             NavigationArticleItem(
                 article = article,
-                onClick = { onArticleClick(article.link) }
+                onClick = { onArticleClick(article.link, article.title) }
             )
         }
     }
@@ -279,7 +279,7 @@ fun NavigationContentGroup(
 @Composable
 fun NavigationArticleItem(
     article: com.gradle.aicodeapp.network.model.NavigationArticle,
-    onClick: () -> Unit
+    onClick: () -> Unit = {}
 ) {
     Box(
         modifier = Modifier

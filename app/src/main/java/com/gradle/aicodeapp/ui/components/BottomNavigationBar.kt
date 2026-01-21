@@ -1,19 +1,21 @@
 package com.gradle.aicodeapp.ui.components
 
 import androidx.annotation.DrawableRes
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Build
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import com.gradle.aicodeapp.R
+import com.gradle.aicodeapp.ui.theme.Spacing
 
 data class BottomNavItem(
     val title: String,
@@ -25,7 +27,11 @@ fun BottomNavigationBar(
     selectedItem: Int,
     onItemSelected: (Int) -> Unit,
 ) {
-    BottomAppBar {
+    BottomAppBar(
+        modifier = Modifier.fillMaxWidth(),
+        containerColor = MaterialTheme.colorScheme.surface,
+        tonalElevation = Spacing.ElevationLow
+    ) {
         val items = listOf(
             BottomNavItem("首页", R.drawable.ic_home),
             BottomNavItem("广场", R.drawable.ic_square),
@@ -35,6 +41,8 @@ fun BottomNavigationBar(
         )
 
         items.forEachIndexed { index, item ->
+            val interactionSource = remember { MutableInteractionSource() }
+
             NavigationBarItem(
                 selected = selectedItem == index,
                 onClick = { onItemSelected(index) },
@@ -44,7 +52,15 @@ fun BottomNavigationBar(
                         contentDescription = item.title
                     )
                 },
-                label = { Text(item.title) }
+                label = { Text(item.title) },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                    selectedTextColor = MaterialTheme.colorScheme.primary,
+                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    indicatorColor = MaterialTheme.colorScheme.primaryContainer
+                ),
+                interactionSource = interactionSource
             )
         }
     }

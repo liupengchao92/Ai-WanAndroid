@@ -32,7 +32,7 @@ import com.gradle.aicodeapp.network.model.Article
 @Composable
 fun ProjectItem(
     article: Article,
-    onClick: () -> Unit
+    onClick: () -> Unit = {}
 ) {
     Card(
         modifier = Modifier
