@@ -105,7 +105,9 @@ fun CollectItem(
 
                 Row {
                     IconButton(
-                        onClick = onEditClick,
+                        onClick = {
+                            onEditClick()
+                        },
                         modifier = Modifier.size(40.dp)
                     ) {
                         Icon(
@@ -116,7 +118,9 @@ fun CollectItem(
                     }
 
                     IconButton(
-                        onClick = onDeleteClick,
+                        onClick = {
+                            onDeleteClick()
+                        },
                         modifier = Modifier.size(40.dp)
                     ) {
                         Icon(
