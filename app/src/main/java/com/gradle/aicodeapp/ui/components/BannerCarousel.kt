@@ -76,7 +76,7 @@ fun BannerCarousel(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
-                .clip(Shapes.Medium)
+                .clip(Shapes.Small)
         ) {
             LazyRow(
                 state = lazyListState,
@@ -129,7 +129,7 @@ fun BannerItem(
                     }
                 }
             ),
-        shape = Shapes.Medium,
+        shape = Shapes.Small,
         elevation = CardDefaults.cardElevation(
             defaultElevation = Spacing.ElevationLow,
             pressedElevation = Spacing.ElevationMedium
