@@ -21,6 +21,7 @@ import com.gradle.aicodeapp.data.UserManager
 import com.gradle.aicodeapp.ui.components.BottomNavigationBar
 import com.gradle.aicodeapp.ui.components.GlobalErrorHandler
 import com.gradle.aicodeapp.ui.pages.ArticleDetailPage
+import com.gradle.aicodeapp.ui.pages.CoinPage
 import com.gradle.aicodeapp.ui.pages.CollectAddPage
 import com.gradle.aicodeapp.ui.pages.CollectEditPage
 import com.gradle.aicodeapp.ui.pages.CollectPage
@@ -220,6 +221,9 @@ fun AppNavigation(
                     onNavigateToCollect = {
                         navController.navigate(NavigationRoutes.COLLECT)
                     },
+                    onNavigateToCoin = {
+                        navController.navigate(NavigationRoutes.COIN)
+                    },
                     paddingValues = paddingValues
                 )
             }
@@ -235,6 +239,20 @@ fun AppNavigation(
                             val encodedTitle = URLEncoder.encode(title, StandardCharsets.UTF_8.toString())
                             navController.navigate("${NavigationRoutes.ARTICLE_DETAIL}/$encodedUrl?${NavigationArguments.ARTICLE_TITLE}=$encodedTitle")
                         }
+                    },
+                    paddingValues = paddingValues
+                )
+            }
+
+            composable(NavigationRoutes.COIN) {
+                CoinPage(
+                    onNavigateToLogin = {
+                        navController.navigate(NavigationRoutes.LOGIN) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    },
+                    onNavigateBack = {
+                        navController.popBackStack()
                     },
                     paddingValues = paddingValues
                 )

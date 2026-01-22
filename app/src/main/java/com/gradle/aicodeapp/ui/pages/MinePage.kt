@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
@@ -57,6 +58,7 @@ fun MinePage(
     userManager: UserManager,
     onLogout: () -> Unit,
     onNavigateToCollect: () -> Unit = {},
+    onNavigateToCoin: () -> Unit = {},
     paddingValues: PaddingValues = PaddingValues(0.dp)
 ) {
     val scrollState = rememberScrollState()
@@ -78,7 +80,8 @@ fun MinePage(
         Spacer(modifier = Modifier.height(Spacing.Large))
 
         MenuSection(
-            onNavigateToCollect = onNavigateToCollect
+            onNavigateToCollect = onNavigateToCollect,
+            onNavigateToCoin = onNavigateToCoin
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -208,7 +211,8 @@ private fun maskUserId(userId: Int): String {
 
 @Composable
 private fun MenuSection(
-    onNavigateToCollect: () -> Unit
+    onNavigateToCollect: () -> Unit,
+    onNavigateToCoin: () -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -224,6 +228,17 @@ private fun MenuSection(
                 .fillMaxWidth()
                 .padding(Spacing.Small)
         ) {
+            MenuItem(
+                icon = Icons.Default.Star,
+                title = "我的积分",
+                onClick = onNavigateToCoin
+            )
+
+            Divider(
+                modifier = Modifier.padding(horizontal = Spacing.Medium),
+                color = MaterialTheme.colorScheme.outlineVariant
+            )
+
             MenuItem(
                 icon = Icons.Default.Favorite,
                 title = "我的收藏",

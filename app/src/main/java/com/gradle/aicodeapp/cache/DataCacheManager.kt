@@ -125,6 +125,9 @@ object CacheKeys {
     const val COLLECT_LIST = "collect_list"
     const val SEARCH_ARTICLES = "search_articles"
     const val HOT_KEYS = "hot_keys"
+    const val POPULAR_WENDA = "popular_wenda"
+    const val POPULAR_COLUMN = "popular_column"
+    const val POPULAR_ROUTE = "popular_route"
     
     fun getHomeArticlesKey(page: Int): String {
         return "${HOME_ARTICLES}_$page"
@@ -158,6 +161,7 @@ object CacheConfig {
             key.contains("categories") -> LONG_EXPIRE_TIME
             key.contains("navigation") -> LONG_EXPIRE_TIME
             key.contains("hot_keys") -> LONG_EXPIRE_TIME
+            key.contains("popular") -> LONG_EXPIRE_TIME
             key.contains("articles") -> SHORT_EXPIRE_TIME
             key.contains("projects") -> SHORT_EXPIRE_TIME
             else -> DEFAULT_EXPIRE_TIME

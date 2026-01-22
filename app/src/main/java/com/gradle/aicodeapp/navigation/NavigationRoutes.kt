@@ -13,6 +13,7 @@ object NavigationRoutes {
     const val COLLECT_EDIT = "collect_edit"
     const val COLLECT_ADD = "collect_add"
     const val SEARCH = "search"
+    const val COIN = "coin"
 }
 
 object NavigationArguments {

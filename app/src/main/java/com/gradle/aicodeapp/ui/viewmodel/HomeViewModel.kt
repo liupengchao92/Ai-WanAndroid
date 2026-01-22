@@ -7,6 +7,9 @@ import com.gradle.aicodeapp.cache.CacheKeys
 import com.gradle.aicodeapp.cache.DataCacheManager
 import com.gradle.aicodeapp.network.model.Article
 import com.gradle.aicodeapp.network.model.Banner
+import com.gradle.aicodeapp.network.model.PopularColumn
+import com.gradle.aicodeapp.network.model.PopularRoute
+import com.gradle.aicodeapp.network.model.PopularWenda
 import com.gradle.aicodeapp.network.repository.NetworkRepository
 import com.gradle.aicodeapp.ui.state.HomeUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -244,5 +247,74 @@ class HomeViewModel @Inject constructor(
         )
         
         android.util.Log.d(TAG, "Article collect status updated: articleId=$articleId, isCollected=$isCollected")
+    }
+
+    suspend fun getPopularWenda(): List<PopularWenda> {
+        val cacheKey = CacheKeys.POPULAR_WENDA
+        val expireTime = CacheConfig.getExpireTime(cacheKey)
+        
+        val cachedData = cacheManager.get<List<PopularWenda>>(cacheKey)
+        if (cachedData != null) {
+            android.util.Log.d(TAG, "Popular wenda loaded from cache: ${cachedData.size}")
+            return cachedData
+        }
+
+        val result = networkRepository.getPopularWenda()
+        if (result.isSuccess) {
+            val response = result.getOrNull()
+            if (response?.errorCode == 0) {
+                val data = response.data ?: emptyList()
+                cacheManager.put(cacheKey, data, expireTime)
+                android.util.Log.d(TAG, "Popular wenda loaded from network: ${data.size}")
+                return data
+            }
+        }
+        return emptyList()
+    }
+
+    suspend fun getPopularColumn(): List<PopularColumn> {
+        val cacheKey = CacheKeys.POPULAR_COLUMN
+        val expireTime = CacheConfig.getExpireTime(cacheKey)
+        
+        val cachedData = cacheManager.get<List<PopularColumn>>(cacheKey)
+        if (cachedData != null) {
+            android.util.Log.d(TAG, "Popular column loaded from cache: ${cachedData.size}")
+            return cachedData
+        }
+
+        val result = networkRepository.getPopularColumn()
+        if (result.isSuccess) {
+            val response = result.getOrNull()
+            if (response?.errorCode == 0) {
+                val data = response.data ?: emptyList()
+                cacheManager.put(cacheKey, data, expireTime)
+                android.util.Log.d(TAG, "Popular column loaded from network: ${data.size}")
+                return data
+            }
+        }
+        return emptyList()
+    }
+
+    suspend fun getPopularRoute(): List<PopularRoute> {
+        val cacheKey = CacheKeys.POPULAR_ROUTE
+        val expireTime = CacheConfig.getExpireTime(cacheKey)
+        
+        val cachedData = cacheManager.get<List<PopularRoute>>(cacheKey)
+        if (cachedData != null) {
+            android.util.Log.d(TAG, "Popular route loaded from cache: ${cachedData.size}")
+            return cachedData
+        }
+
+        val result = networkRepository.getPopularRoute()
+        if (result.isSuccess) {
+            val response = result.getOrNull()
+            if (response?.errorCode == 0) {
+                val data = response.data ?: emptyList()
+                cacheManager.put(cacheKey, data, expireTime)
+                android.util.Log.d(TAG, "Popular route loaded from network: ${data.size}")
+                return data
+            }
+        }
+        return emptyList()
     }
 }

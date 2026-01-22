@@ -4,9 +4,18 @@ import com.gradle.aicodeapp.network.model.ApiResponse
 import com.gradle.aicodeapp.network.model.Article
 import com.gradle.aicodeapp.network.model.ArticleListResponse
 import com.gradle.aicodeapp.network.model.Banner
+import com.gradle.aicodeapp.network.model.CoinRecordResponse
+import com.gradle.aicodeapp.network.model.CoinRankResponse
+import com.gradle.aicodeapp.network.model.CoinUserInfo
 import com.gradle.aicodeapp.network.model.Friend
 import com.gradle.aicodeapp.network.model.LoginResponse
 import com.gradle.aicodeapp.network.model.NavigationGroup
+import com.gradle.aicodeapp.network.model.PopularColumn
+import com.gradle.aicodeapp.network.model.PopularColumnResponse
+import com.gradle.aicodeapp.network.model.PopularRoute
+import com.gradle.aicodeapp.network.model.PopularRouteResponse
+import com.gradle.aicodeapp.network.model.PopularWenda
+import com.gradle.aicodeapp.network.model.PopularWendaResponse
 import com.gradle.aicodeapp.network.model.ProjectCategory
 import com.gradle.aicodeapp.network.model.RegisterResponse
 import retrofit2.http.Field
@@ -192,6 +201,28 @@ interface ApiService {
         @Field("author") author: String,
         @Field("link") link: String
     ): ApiResponse<Any>
+
+    @GET("popular/wenda/json")
+    suspend fun getPopularWenda(): PopularWendaResponse
+
+    @GET("popular/column/json")
+    suspend fun getPopularColumn(): PopularColumnResponse
+
+    @GET("popular/route/json")
+    suspend fun getPopularRoute(): PopularRouteResponse
+
+    @GET("coin/rank/{page}/json")
+    suspend fun getCoinRank(
+        @Path("page") page: Int
+    ): ApiResponse<CoinRankResponse>
+
+    @GET("lg/coin/userinfo/json")
+    suspend fun getCoinUserInfo(): ApiResponse<CoinUserInfo>
+
+    @GET("lg/coin/list/{page}/json")
+    suspend fun getCoinRecordList(
+        @Path("page") page: Int
+    ): ApiResponse<CoinRecordResponse>
 
     // 可以添加更多API方法
 }

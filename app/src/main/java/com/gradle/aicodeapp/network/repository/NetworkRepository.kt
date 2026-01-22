@@ -6,9 +6,18 @@ import com.gradle.aicodeapp.network.model.ApiResponse
 import com.gradle.aicodeapp.network.model.Article
 import com.gradle.aicodeapp.network.model.ArticleListResponse
 import com.gradle.aicodeapp.network.model.Banner
+import com.gradle.aicodeapp.network.model.CoinRecordResponse
+import com.gradle.aicodeapp.network.model.CoinRankResponse
+import com.gradle.aicodeapp.network.model.CoinUserInfo
 import com.gradle.aicodeapp.network.model.Friend
 import com.gradle.aicodeapp.network.model.LoginResponse
 import com.gradle.aicodeapp.network.model.NavigationGroup
+import com.gradle.aicodeapp.network.model.PopularColumn
+import com.gradle.aicodeapp.network.model.PopularColumnResponse
+import com.gradle.aicodeapp.network.model.PopularRoute
+import com.gradle.aicodeapp.network.model.PopularRouteResponse
+import com.gradle.aicodeapp.network.model.PopularWenda
+import com.gradle.aicodeapp.network.model.PopularWendaResponse
 import com.gradle.aicodeapp.network.model.ProjectCategory
 import com.gradle.aicodeapp.network.model.RegisterResponse
 import javax.inject.Inject
@@ -185,6 +194,48 @@ class NetworkRepository @Inject constructor(
         link: String
     ): Result<ApiResponse<Any>> {
         return safeApiCall { apiService.updateCollectArticle(id, title, author, link) }
+    }
+
+    suspend fun getPopularWenda(): Result<PopularWendaResponse> {
+        return try {
+            val response = apiService.getPopularWenda()
+            Result.success(response)
+        } catch (e: Exception) {
+            ErrorHandler.handleError(e)
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getPopularColumn(): Result<PopularColumnResponse> {
+        return try {
+            val response = apiService.getPopularColumn()
+            Result.success(response)
+        } catch (e: Exception) {
+            ErrorHandler.handleError(e)
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getPopularRoute(): Result<PopularRouteResponse> {
+        return try {
+            val response = apiService.getPopularRoute()
+            Result.success(response)
+        } catch (e: Exception) {
+            ErrorHandler.handleError(e)
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getCoinRank(page: Int): Result<ApiResponse<CoinRankResponse>> {
+        return safeApiCall { apiService.getCoinRank(page) }
+    }
+
+    suspend fun getCoinUserInfo(): Result<ApiResponse<CoinUserInfo>> {
+        return safeApiCall { apiService.getCoinUserInfo() }
+    }
+
+    suspend fun getCoinRecordList(page: Int): Result<ApiResponse<CoinRecordResponse>> {
+        return safeApiCall { apiService.getCoinRecordList(page) }
     }
 
     /**

@@ -28,6 +28,7 @@ import com.gradle.aicodeapp.ui.components.ArticleItem
 import com.gradle.aicodeapp.ui.components.ArticleItemSkeleton
 import com.gradle.aicodeapp.ui.components.BannerCarousel
 import com.gradle.aicodeapp.ui.components.BannerSkeleton
+import com.gradle.aicodeapp.ui.components.PopularCardsSection
 import com.gradle.aicodeapp.ui.viewmodel.CollectViewModel
 import com.gradle.aicodeapp.ui.viewmodel.HomeViewModel
 import androidx.compose.foundation.layout.PaddingValues
@@ -143,6 +144,18 @@ fun HomePage(
                                 onBannerClick = { url -> onArticleClick(url, "") }
                             )
                         }
+                    }
+
+                    item {
+                        PopularCardsSection(
+                            viewModel = viewModel,
+                            onWendaClick = { url, title -> onArticleClick(url, title) },
+                            onColumnClick = { url, title -> onArticleClick(url, title) },
+                            onRouteClick = { url, title -> onArticleClick(url, title) },
+                            onViewMoreWenda = { onArticleClick("https://wanandroid.com/wenda", "热门问答") },
+                            onViewMoreColumn = { onArticleClick("https://wanandroid.com/chapter", "专栏") },
+                            onViewMoreRoute = { onArticleClick("https://wanandroid.com/show", "学习路线") }
+                        )
                     }
 
                     items(uiState.topArticles) { article ->
