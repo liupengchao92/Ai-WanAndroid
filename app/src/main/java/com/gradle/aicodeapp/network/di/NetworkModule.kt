@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.gradle.aicodeapp.data.UserManager
 import com.gradle.aicodeapp.network.api.ApiService
+import com.gradle.aicodeapp.network.interceptor.GlobalErrorInterceptor
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -41,12 +42,20 @@ object NetworkModule {
 
     @Provides
     @Singleton
+    fun provideGlobalErrorInterceptor(gson: Gson): GlobalErrorInterceptor {
+        return GlobalErrorInterceptor(gson)
+    }
+
+    @Provides
+    @Singleton
     fun provideOkHttpClient(
         loggingInterceptor: HttpLoggingInterceptor,
+        globalErrorInterceptor: GlobalErrorInterceptor,
         userManager: UserManager
     ): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(loggingInterceptor)
+            .addInterceptor(globalErrorInterceptor)
             .addInterceptor { chain ->
                 val original = chain.request()
                 val cookie = userManager.getCookie()

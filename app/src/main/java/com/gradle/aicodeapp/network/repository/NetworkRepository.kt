@@ -1,6 +1,7 @@
 package com.gradle.aicodeapp.network.repository
 
 import com.gradle.aicodeapp.network.api.ApiService
+import com.gradle.aicodeapp.network.exception.ErrorHandler
 import com.gradle.aicodeapp.network.model.ApiResponse
 import com.gradle.aicodeapp.network.model.Article
 import com.gradle.aicodeapp.network.model.ArticleListResponse
@@ -23,60 +24,35 @@ class NetworkRepository @Inject constructor(
      * @param page 页码，从0开始
      */
     suspend fun getHomeArticles(page: Int): Result<ApiResponse<ArticleListResponse>> {
-        return try {
-            val response = apiService.getHomeArticles(page)
-            handleApiResponse(response)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+        return safeApiCall { apiService.getHomeArticles(page) }
     }
 
     /**
      * 获取首页Banner
      */
     suspend fun getBanners(): Result<ApiResponse<List<Banner>>> {
-        return try {
-            val response = apiService.getBanners()
-            handleApiResponse(response)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+        return safeApiCall { apiService.getBanners() }
     }
 
     /**
      * 获取常用网站
      */
     suspend fun getFriends(): Result<ApiResponse<List<Friend>>> {
-        return try {
-            val response = apiService.getFriends()
-            handleApiResponse(response)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+        return safeApiCall { apiService.getFriends() }
     }
 
     /**
      * 获取搜索热词
      */
     suspend fun getHotKeys(): Result<ApiResponse<List<Friend>>> {
-        return try {
-            val response = apiService.getHotKeys()
-            handleApiResponse(response)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+        return safeApiCall { apiService.getHotKeys() }
     }
 
     /**
      * 获取置顶文章
      */
     suspend fun getTopArticles(): Result<ApiResponse<List<Article>>> {
-        return try {
-            val response = apiService.getTopArticles()
-            handleApiResponse(response)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+        return safeApiCall { apiService.getTopArticles() }
     }
 
     /**
@@ -84,12 +60,7 @@ class NetworkRepository @Inject constructor(
      * @param page 页码，从0开始
      */
     suspend fun getSquareArticles(page: Int): Result<ApiResponse<ArticleListResponse>> {
-        return try {
-            val response = apiService.getSquareArticles(page)
-            handleApiResponse(response)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+        return safeApiCall { apiService.getSquareArticles(page) }
     }
 
     /**
@@ -98,12 +69,7 @@ class NetworkRepository @Inject constructor(
      * @param keyword 搜索关键词
      */
     suspend fun searchArticles(page: Int, keyword: String): Result<ApiResponse<ArticleListResponse>> {
-        return try {
-            val response = apiService.searchArticles(page, keyword)
-            handleApiResponse(response)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+        return safeApiCall { apiService.searchArticles(page, keyword) }
     }
 
     /**
@@ -112,12 +78,7 @@ class NetworkRepository @Inject constructor(
      * @param password 密码
      */
     suspend fun login(username: String, password: String): Result<ApiResponse<LoginResponse>> {
-        return try {
-            val response = apiService.login(username, password)
-            handleApiResponse(response)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+        return safeApiCall { apiService.login(username, password) }
     }
 
     /**
@@ -131,36 +92,21 @@ class NetworkRepository @Inject constructor(
         password: String,
         repassword: String
     ): Result<ApiResponse<RegisterResponse>> {
-        return try {
-            val response = apiService.register(username, password, repassword)
-            handleApiResponse(response)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+        return safeApiCall { apiService.register(username, password, repassword) }
     }
 
     /**
      * 退出登录
      */
     suspend fun logout(): Result<ApiResponse<Any>> {
-        return try {
-            val response = apiService.logout()
-            handleApiResponse(response)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+        return safeApiCall { apiService.logout() }
     }
 
     /**
      * 获取项目分类
      */
     suspend fun getProjectCategories(): Result<ApiResponse<List<ProjectCategory>>> {
-        return try {
-            val response = apiService.getProjectCategories()
-            handleApiResponse(response)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+        return safeApiCall { apiService.getProjectCategories() }
     }
 
     /**
@@ -169,24 +115,14 @@ class NetworkRepository @Inject constructor(
      * @param cid 分类id
      */
     suspend fun getProjectList(page: Int, cid: Int): Result<ApiResponse<ArticleListResponse>> {
-        return try {
-            val response = apiService.getProjectList(page, cid)
-            handleApiResponse(response)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+        return safeApiCall { apiService.getProjectList(page, cid) }
     }
 
     /**
      * 获取导航数据
      */
     suspend fun getNavigationData(): Result<ApiResponse<List<NavigationGroup>>> {
-        return try {
-            val response = apiService.getNavigationData()
-            handleApiResponse(response)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+        return safeApiCall { apiService.getNavigationData() }
     }
 
     /**
@@ -194,12 +130,7 @@ class NetworkRepository @Inject constructor(
      * @param id 文章ID
      */
     suspend fun collectArticle(id: Int): Result<ApiResponse<Any>> {
-        return try {
-            val response = apiService.collectArticle(id)
-            handleApiResponse(response)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+        return safeApiCall { apiService.collectArticle(id) }
     }
 
     /**
@@ -213,12 +144,7 @@ class NetworkRepository @Inject constructor(
         author: String,
         link: String
     ): Result<ApiResponse<Any>> {
-        return try {
-            val response = apiService.collectOutsideArticle(title, author, link)
-            handleApiResponse(response)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+        return safeApiCall { apiService.collectOutsideArticle(title, author, link) }
     }
 
     /**
@@ -226,12 +152,7 @@ class NetworkRepository @Inject constructor(
      * @param id 文章ID
      */
     suspend fun uncollectArticle(id: Int): Result<ApiResponse<Any>> {
-        return try {
-            val response = apiService.uncollectArticle(id)
-            handleApiResponse(response)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+        return safeApiCall { apiService.uncollectArticle(id) }
     }
 
     /**
@@ -239,12 +160,7 @@ class NetworkRepository @Inject constructor(
      * @param id 收藏ID
      */
     suspend fun uncollectOutsideArticle(id: Int): Result<ApiResponse<Any>> {
-        return try {
-            val response = apiService.uncollectOutsideArticle(id)
-            handleApiResponse(response)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+        return safeApiCall { apiService.uncollectOutsideArticle(id) }
     }
 
     /**
@@ -252,12 +168,7 @@ class NetworkRepository @Inject constructor(
      * @param page 页码，从0开始
      */
     suspend fun getCollectList(page: Int): Result<ApiResponse<ArticleListResponse>> {
-        return try {
-            val response = apiService.getCollectList(page)
-            handleApiResponse(response)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+        return safeApiCall { apiService.getCollectList(page) }
     }
 
     /**
@@ -273,24 +184,21 @@ class NetworkRepository @Inject constructor(
         author: String,
         link: String
     ): Result<ApiResponse<Any>> {
-        return try {
-            val response = apiService.updateCollectArticle(id, title, author, link)
-            handleApiResponse(response)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+        return safeApiCall { apiService.updateCollectArticle(id, title, author, link) }
     }
 
     /**
-     * 处理API响应
-     * @param response API响应
-     * @param T 响应数据类型
+     * 安全的API调用，统一处理异常
+     * @param apiCall API调用函数
+     * @return Result对象，成功时包含API响应，失败时包含异常
      */
-    private fun <T> handleApiResponse(response: ApiResponse<T>): Result<ApiResponse<T>> {
-        return if (response.isSuccess()) {
+    private suspend fun <T> safeApiCall(apiCall: suspend () -> ApiResponse<T>): Result<ApiResponse<T>> {
+        return try {
+            val response = apiCall()
             Result.success(response)
-        } else {
-            Result.failure(Exception(response.errorMsg))
+        } catch (e: Exception) {
+            ErrorHandler.handleError(e)
+            Result.failure(e)
         }
     }
 

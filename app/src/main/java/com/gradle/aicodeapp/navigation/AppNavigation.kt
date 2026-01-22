@@ -19,6 +19,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import com.gradle.aicodeapp.data.UserManager
 import com.gradle.aicodeapp.ui.components.BottomNavigationBar
+import com.gradle.aicodeapp.ui.components.GlobalErrorHandler
 import com.gradle.aicodeapp.ui.pages.ArticleDetailPage
 import com.gradle.aicodeapp.ui.pages.CollectAddPage
 import com.gradle.aicodeapp.ui.pages.CollectEditPage
@@ -105,6 +106,14 @@ fun AppNavigation(
             }
         }
     ) { paddingValues ->
+        GlobalErrorHandler(
+            onNavigateToLogin = {
+                navController.navigate(NavigationRoutes.LOGIN) {
+                    popUpTo(0) { inclusive = true }
+                }
+            }
+        )
+
         NavHost(
             navController = navController,
             startDestination = startDestination,
