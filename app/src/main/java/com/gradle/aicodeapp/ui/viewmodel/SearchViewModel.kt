@@ -6,6 +6,7 @@ import com.gradle.aicodeapp.cache.CacheConfig
 import com.gradle.aicodeapp.cache.CacheKeys
 import com.gradle.aicodeapp.cache.DataCacheManager
 import com.gradle.aicodeapp.network.model.Article
+import com.gradle.aicodeapp.network.model.Friend
 import com.gradle.aicodeapp.network.repository.NetworkRepository
 import com.gradle.aicodeapp.ui.state.SearchUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,7 +24,41 @@ class SearchViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(SearchUiState())
     val uiState: StateFlow<SearchUiState> = _uiState
 
+    private val _hotKeys = MutableStateFlow<List<Friend>>(emptyList())
+    val hotKeys: StateFlow<List<Friend>> = _hotKeys
+
     private val TAG = "SearchViewModel"
+
+    init {
+        loadHotKeys()
+    }
+
+    fun loadHotKeys() {
+        viewModelScope.launch {
+            val cacheKey = CacheKeys.HOT_KEYS
+            val expireTime = CacheConfig.getExpireTime(cacheKey)
+            
+            val cachedHotKeys = cacheManager.get<List<Friend>>(cacheKey)
+            if (cachedHotKeys != null) {
+                _hotKeys.value = cachedHotKeys
+                android.util.Log.d(TAG, "Hot keys loaded from cache: ${cachedHotKeys.size}")
+                return@launch
+            }
+
+            val hotKeysResult = networkRepository.getHotKeys()
+            if (hotKeysResult.isSuccess) {
+                val response = hotKeysResult.getOrNull()
+                if (response?.isSuccess() == true) {
+                    val keys = response.data ?: emptyList()
+                    _hotKeys.value = keys
+                    cacheManager.put(cacheKey, keys, expireTime)
+                    android.util.Log.d(TAG, "Hot keys loaded from network: ${keys.size}")
+                }
+            } else {
+                android.util.Log.e(TAG, "Failed to load hot keys: ${hotKeysResult.exceptionOrNull()?.message}")
+            }
+        }
+    }
 
     fun searchArticles(query: String) {
         if (query.isBlank()) {

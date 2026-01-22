@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.gradle.aicodeapp.ui.components.ProjectItem
+import com.gradle.aicodeapp.ui.components.ProjectItemSkeleton
 import com.gradle.aicodeapp.ui.viewmodel.ProjectViewModel
 
 @Composable
@@ -63,15 +64,31 @@ fun ProjectPage(
     val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = uiState.isRefreshing)
 
     if (uiState.isLoading && uiState.categories.isEmpty()) {
-        androidx.compose.foundation.layout.Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues),
-            verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(paddingValues)
         ) {
-            CircularProgressIndicator()
-            Text(text = "加载中...", modifier = Modifier.padding(top = 16.dp))
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                state = listState
+            ) {
+                item {
+                    Spacer(Modifier.fillMaxWidth().height(paddingValues.calculateTopPadding()))
+                }
+
+                item {
+                    ProjectCategoryTabs(
+                        categories = listOf(),
+                        selectedIndex = 0,
+                        onCategorySelected = {}
+                    )
+                }
+
+                items(5) {
+                    ProjectItemSkeleton()
+                }
+            }
         }
     } else {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -155,6 +172,10 @@ fun ProjectCategoryTabs(
     selectedIndex: Int,
     onCategorySelected: (Int) -> Unit
 ) {
+    if (categories.isEmpty()) {
+        return
+    }
+
     ScrollableTabRow(
         selectedTabIndex = selectedIndex,
         containerColor = MaterialTheme.colorScheme.surface,

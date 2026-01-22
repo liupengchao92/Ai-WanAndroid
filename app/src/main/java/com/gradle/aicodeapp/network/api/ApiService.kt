@@ -65,10 +65,11 @@ interface ApiService {
      * @param page 页码，从0开始
      * @param k 搜索关键词
      */
-    @GET("article/query/{page}/json")
+    @FormUrlEncoded
+    @POST("article/query/{page}/json")
     suspend fun searchArticles(
         @Path("page") page: Int,
-        @Query("k") keyword: String
+        @Field("k") keyword: String
     ): ApiResponse<ArticleListResponse>
 
     /**

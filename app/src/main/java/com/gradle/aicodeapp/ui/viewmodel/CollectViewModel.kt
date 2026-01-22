@@ -37,10 +37,6 @@ class CollectViewModel @Inject constructor(
         
         val currentState = _uiState.value
         
-        if (currentState.articles.isNotEmpty()) {
-            return
-        }
-        
         _uiState.value = currentState.copy(
             isLoading = true,
             errorMessage = null

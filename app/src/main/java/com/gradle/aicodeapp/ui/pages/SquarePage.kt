@@ -160,21 +160,7 @@ fun SquarePage(
                 onRefresh = { viewModel.refreshData() },
                 modifier = Modifier.fillMaxSize()
             ) {
-                if (uiState.isLoading && uiState.articles.isEmpty()) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(paddingValues),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        androidx.compose.foundation.layout.Column(
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            CircularProgressIndicator()
-                            Text(text = "加载中...", modifier = Modifier.padding(top = 16.dp))
-                        }
-                    }
-                } else if (uiState.articles.isEmpty() && !uiState.isLoading) {
+                if (uiState.articles.isEmpty() && !uiState.isLoading) {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()

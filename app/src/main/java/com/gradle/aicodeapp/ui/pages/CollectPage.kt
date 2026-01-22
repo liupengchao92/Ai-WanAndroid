@@ -43,6 +43,7 @@ import com.gradle.aicodeapp.R
 import com.gradle.aicodeapp.navigation.NavigationArguments
 import com.gradle.aicodeapp.navigation.NavigationRoutes
 import com.gradle.aicodeapp.ui.components.CollectItem
+import com.gradle.aicodeapp.ui.components.CollectItemSkeleton
 import com.gradle.aicodeapp.ui.viewmodel.CollectViewModel
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -115,15 +116,23 @@ fun CollectPage(
         }
     ) { scaffoldPadding ->
         if (uiState.isLoading && uiState.articles.isEmpty()) {
-            androidx.compose.foundation.layout.Column(
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(scaffoldPadding),
-                verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .padding(scaffoldPadding)
             ) {
-                CircularProgressIndicator()
-                Text(text = "加载中...", modifier = Modifier.padding(top = 16.dp))
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    state = listState
+                ) {
+                    item {
+                        Spacer(Modifier.fillMaxWidth().height(scaffoldPadding.calculateTopPadding()))
+                    }
+
+                    items(5) {
+                        CollectItemSkeleton()
+                    }
+                }
             }
         } else {
             Box(modifier = Modifier.fillMaxSize()) {

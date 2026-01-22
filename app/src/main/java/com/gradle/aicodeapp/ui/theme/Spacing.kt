@@ -39,6 +39,7 @@ object Spacing {
     val CornerRadiusLarge: Dp = 12.dp
     val CornerRadiusExtraLarge: Dp = 16.dp
     val CornerRadiusFull: Dp = 28.dp
+    val CornerRadiusSearch: Dp = 24.dp
 
     val ContentPaddingValues: PaddingValues = PaddingValues(
         horizontal = ScreenPadding,

@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -42,21 +43,25 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.gradle.aicodeapp.ui.components.FlowLayout
 import com.gradle.aicodeapp.ui.state.NavigationUiState
+import com.gradle.aicodeapp.ui.theme.Spacing
 import com.gradle.aicodeapp.ui.viewmodel.NavigationViewModel
 import kotlinx.coroutines.launch
+import kotlin.math.abs
+import kotlin.random.Random
 
 @Composable
 fun NavigationPage(
     onArticleClick: (String, String) -> Unit = { _, _ -> },
     paddingValues: PaddingValues = PaddingValues(0.dp),
-    viewModel: NavigationViewModel = hiltViewModel()
+    viewModel: NavigationViewModel = hiltViewModel(),
 ) {
     val uiState = viewModel.uiState.collectAsState().value
     val coroutineScope = rememberCoroutineScope()
     val leftListState = rememberLazyListState()
     val rightListState = rememberLazyListState()
-    
+
     var selectedGroupIndex by remember { mutableIntStateOf(0) }
     var isScrolling by remember { mutableStateOf(false) }
 
@@ -109,15 +114,18 @@ fun NavigationPage(
                 CircularProgressIndicator()
             }
         }
+
         uiState.errorMessage != null -> {
             ErrorView(
                 message = uiState.errorMessage,
                 onRetry = { viewModel.loadNavigationData() }
             )
         }
+
         uiState.navigationGroups.isEmpty() -> {
             EmptyView()
         }
+
         else -> {
             Row(
                 modifier = Modifier.fillMaxSize()
@@ -169,7 +177,7 @@ fun LeftNavigationPanel(
     selectedIndex: Int,
     listState: LazyListState,
     onGroupClick: (Int) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     LazyColumn(
         state = listState,
@@ -191,7 +199,7 @@ fun LeftNavigationPanel(
 fun NavigationGroupItem(
     name: String,
     isSelected: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     val backgroundColor = if (isSelected) {
         MaterialTheme.colorScheme.primaryContainer
@@ -231,7 +239,7 @@ fun RightContentPanel(
     listState: LazyListState,
     onArticleClick: (String, String) -> Unit = { _, _ -> },
     paddingValues: PaddingValues = PaddingValues(0.dp),
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     LazyColumn(
         state = listState,
@@ -254,8 +262,14 @@ fun RightContentPanel(
 fun NavigationContentGroup(
     group: com.gradle.aicodeapp.network.model.NavigationGroup,
     onArticleClick: (String, String) -> Unit = { _, _ -> },
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
+    val articleColors = remember(group.articles) {
+        group.articles.associate { article ->
+            article to generateRandomColor()
+        }
+    }
+
     Column(
         modifier = modifier
     ) {
@@ -266,53 +280,52 @@ fun NavigationContentGroup(
             color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(bottom = 12.dp)
         )
-
-        group.articles.forEach { article ->
-            NavigationArticleItem(
-                article = article,
-                onClick = { onArticleClick(article.link, article.title) }
-            )
+        FlowLayout(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalSpacing = Spacing.Small,
+            verticalSpacing = Spacing.Small
+        ) {
+            group.articles.forEach { article ->
+                NavigationArticleItem(
+                    article = article,
+                    color = articleColors[article] ?: MaterialTheme.colorScheme.primary,
+                    onClick = { onArticleClick(article.link, article.title) }
+                )
+            }
         }
     }
+}
+
+fun generateRandomColor(): Color {
+    val hue = Random.nextInt(0, 360)
+    val saturation = Random.nextInt(60, 90)
+    val lightness = Random.nextInt(45, 65)
+    return Color.hsv(hue.toFloat(), saturation / 100f, lightness / 100f)
 }
 
 @Composable
 fun NavigationArticleItem(
     article: com.gradle.aicodeapp.network.model.NavigationArticle,
-    onClick: () -> Unit = {}
+    color: Color = MaterialTheme.colorScheme.primary,
+    onClick: () -> Unit = {},
 ) {
     Box(
         modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
+            .wrapContentWidth()
+            .clip(RoundedCornerShape(24.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
             .clickable(onClick = onClick)
-            .padding(vertical = 10.dp, horizontal = 12.dp)
+            .padding(vertical = 8.dp, horizontal = 12.dp)
     ) {
-        Column {
-            Text(
-                text = article.title,
-                fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Medium,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            if (!article.desc.isNullOrEmpty()) {
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Text(
-                    text = article.desc,
-                    fontSize = 12.sp,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-        }
+        Text(
+            text = article.title,
+            fontSize = 14.sp,
+            color = color,
+            fontWeight = FontWeight.Medium,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.wrapContentWidth()
+        )
     }
 
     Spacer(modifier = Modifier.height(8.dp))
@@ -321,7 +334,7 @@ fun NavigationArticleItem(
 @Composable
 fun ErrorView(
     message: String,
-    onRetry: () -> Unit
+    onRetry: () -> Unit,
 ) {
     Box(
         modifier = Modifier.fillMaxSize(),

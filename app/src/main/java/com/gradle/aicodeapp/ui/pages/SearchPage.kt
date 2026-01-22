@@ -52,6 +52,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.gradle.aicodeapp.ui.components.ArticleItem
+import com.gradle.aicodeapp.ui.components.HotKeyTags
 import com.gradle.aicodeapp.ui.components.SearchInput
 import com.gradle.aicodeapp.ui.theme.Spacing
 import com.gradle.aicodeapp.ui.viewmodel.CollectViewModel
@@ -67,6 +68,7 @@ fun SearchPage(
     onBackClick: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val hotKeys by viewModel.hotKeys.collectAsState()
     val collectUiState by collectViewModel.uiState.collectAsState()
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
@@ -83,6 +85,12 @@ fun SearchPage(
     val showScrollToTopButton by remember {
         derivedStateOf {
             listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 200
+        }
+    }
+
+    LaunchedEffect(searchQuery) {
+        if (searchQuery.isBlank()) {
+            viewModel.clearResults()
         }
     }
 
@@ -117,9 +125,7 @@ fun SearchPage(
                 },
                 actions = {
                     SearchInput(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(end = Spacing.Small),
+                        modifier = Modifier.weight(1f),
                         query = searchQuery,
                         onQueryChange = { searchQuery = it },
                         onSearch = { query ->
@@ -197,19 +203,18 @@ fun SearchPage(
                         }
                     }
                 } else if (uiState.articles.isEmpty() && !uiState.isLoading) {
-                    Box(
+                    Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(paddingValues),
-                        contentAlignment = Alignment.Center
+                            .padding(paddingValues)
                     ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                text = if (uiState.currentQuery.isBlank()) "输入关键词搜索文章" else "未找到相关文章",
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                        if (searchQuery.isBlank()) {
+                            HotKeyTags(
+                                hotKeys = hotKeys,
+                                onHotKeyClick = { keyword ->
+                                    searchQuery = keyword
+                                    viewModel.searchArticles(keyword)
+                                }
                             )
                         }
                     }

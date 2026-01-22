@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -128,6 +129,165 @@ fun BannerSkeleton(
         SkeletonBox(
             modifier = Modifier.fillMaxSize()
         )
+    }
+}
+
+@Composable
+fun ProjectItemSkeleton(
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            SkeletonBox(
+                modifier = Modifier
+                    .width(80.dp)
+                    .height(100.dp)
+                    .clip(RoundedCornerShape(8.dp))
+            )
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
+                SkeletonBox(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(20.dp)
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                SkeletonBox(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(20.dp)
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                SkeletonBox(
+                    modifier = Modifier
+                        .fillMaxWidth(0.8f)
+                        .height(16.dp)
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row {
+                    SkeletonBox(
+                        modifier = Modifier
+                            .width(60.dp)
+                            .height(12.dp)
+                    )
+
+                    Spacer(modifier = Modifier.width(12.dp))
+
+                    SkeletonBox(
+                        modifier = Modifier
+                            .width(8.dp)
+                            .height(12.dp)
+                    )
+
+                    Spacer(modifier = Modifier.width(12.dp))
+
+                    SkeletonBox(
+                        modifier = Modifier
+                            .width(50.dp)
+                            .height(12.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun CollectItemSkeleton(
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        shape = RoundedCornerShape(8.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(
+                    modifier = Modifier.weight(1f),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        SkeletonBox(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(20.dp)
+                        )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            SkeletonBox(
+                                modifier = Modifier
+                                    .width(80.dp)
+                                    .height(12.dp)
+                            )
+
+                            Spacer(modifier = Modifier.width(12.dp))
+
+                            SkeletonBox(
+                                modifier = Modifier
+                                    .width(60.dp)
+                                    .height(12.dp)
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Row {
+                    SkeletonBox(
+                        modifier = Modifier
+                            .size(40.dp)
+                    )
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    SkeletonBox(
+                        modifier = Modifier
+                            .size(40.dp)
+                    )
+                }
+            }
+        }
     }
 }
 

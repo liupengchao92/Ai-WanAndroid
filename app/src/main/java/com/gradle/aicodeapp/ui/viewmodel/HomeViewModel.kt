@@ -170,6 +170,7 @@ class HomeViewModel @Inject constructor(
             
             _uiState.value = _uiState.value.copy(
                 currentPage = 0,
+                isLoading = true,
                 isRefreshing = true,
                 banners = emptyList(),
                 topArticles = emptyList(),
@@ -189,6 +190,7 @@ class HomeViewModel @Inject constructor(
             
             _uiState.value = _uiState.value.copy(
                 currentPage = 0,
+                isLoading = true,
                 isRefreshing = true,
                 topArticles = emptyList(),
                 articles = emptyList()
