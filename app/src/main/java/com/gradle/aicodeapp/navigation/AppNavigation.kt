@@ -32,6 +32,7 @@ import com.gradle.aicodeapp.ui.pages.NavigationPage
 import com.gradle.aicodeapp.ui.pages.ProjectPage
 import com.gradle.aicodeapp.ui.pages.RegisterPage
 import com.gradle.aicodeapp.ui.pages.SearchPage
+import com.gradle.aicodeapp.ui.pages.SettingsPage
 import com.gradle.aicodeapp.ui.pages.SquarePage
 import com.gradle.aicodeapp.ui.viewmodel.CollectViewModel
 import com.gradle.aicodeapp.ui.viewmodel.HomeViewModel
@@ -212,17 +213,14 @@ fun AppNavigation(
             composable(NavigationRoutes.MINE) {
                 MinePage(
                     userManager = userManager,
-                    onLogout = {
-                        userManager.clearUserInfo()
-                        navController.navigate(NavigationRoutes.LOGIN) {
-                            popUpTo(0) { inclusive = true }
-                        }
-                    },
                     onNavigateToCollect = {
                         navController.navigate(NavigationRoutes.COLLECT)
                     },
                     onNavigateToCoin = {
                         navController.navigate(NavigationRoutes.COIN)
+                    },
+                    onNavigateToSettings = {
+                        navController.navigate(NavigationRoutes.SETTINGS)
                     },
                     paddingValues = paddingValues
                 )
@@ -253,6 +251,21 @@ fun AppNavigation(
                     },
                     onNavigateBack = {
                         navController.popBackStack()
+                    },
+                    paddingValues = paddingValues
+                )
+            }
+
+            composable(NavigationRoutes.SETTINGS) {
+                SettingsPage(
+                    onBackClick = {
+                        navController.popBackStack()
+                    },
+                    onLogout = {
+                        userManager.clearUserInfo()
+                        navController.navigate(NavigationRoutes.LOGIN) {
+                            popUpTo(0) { inclusive = true }
+                        }
                     },
                     paddingValues = paddingValues
                 )

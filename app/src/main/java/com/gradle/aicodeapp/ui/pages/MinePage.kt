@@ -18,7 +18,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Star
@@ -56,9 +55,9 @@ import javax.inject.Inject
 @Composable
 fun MinePage(
     userManager: UserManager,
-    onLogout: () -> Unit,
     onNavigateToCollect: () -> Unit = {},
     onNavigateToCoin: () -> Unit = {},
+    onNavigateToSettings: () -> Unit = {},
     paddingValues: PaddingValues = PaddingValues(0.dp)
 ) {
     val scrollState = rememberScrollState()
@@ -81,13 +80,8 @@ fun MinePage(
 
         MenuSection(
             onNavigateToCollect = onNavigateToCollect,
-            onNavigateToCoin = onNavigateToCoin
-        )
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        LogoutButton(
-            onLogout = onLogout
+            onNavigateToCoin = onNavigateToCoin,
+            onNavigateToSettings = onNavigateToSettings
         )
 
         Spacer(modifier = Modifier.height(Spacing.Medium))
@@ -212,7 +206,8 @@ private fun maskUserId(userId: Int): String {
 @Composable
 private fun MenuSection(
     onNavigateToCollect: () -> Unit,
-    onNavigateToCoin: () -> Unit
+    onNavigateToCoin: () -> Unit,
+    onNavigateToSettings: () -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -264,7 +259,7 @@ private fun MenuSection(
             MenuItem(
                 icon = Icons.Default.Settings,
                 title = "设置",
-                onClick = {}
+                onClick = onNavigateToSettings
             )
         }
     }
@@ -276,16 +271,11 @@ private fun MenuItem(
     title: String,
     onClick: () -> Unit
 ) {
-    var isPressed by remember { mutableStateOf(false) }
-    
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(
-                onClick = {
-                    isPressed = true
-                    onClick()
-                }
+                onClick = onClick
             )
             .padding(Spacing.Medium),
         verticalAlignment = Alignment.CenterVertically
@@ -294,11 +284,7 @@ private fun MenuItem(
             imageVector = icon,
             contentDescription = title,
             modifier = Modifier.size(Spacing.IconLarge),
-            tint = if (isPressed) {
-                MaterialTheme.colorScheme.primary
-            } else {
-                MaterialTheme.colorScheme.onSurface
-            }
+            tint = MaterialTheme.colorScheme.primary
         )
 
         Spacer(modifier = Modifier.width(Spacing.Medium))
@@ -306,11 +292,7 @@ private fun MenuItem(
         Text(
             text = title,
             style = MaterialTheme.typography.bodyLarge,
-            color = if (isPressed) {
-                MaterialTheme.colorScheme.primary
-            } else {
-                MaterialTheme.colorScheme.onSurface
-            },
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.weight(1f)
         )
 
@@ -319,35 +301,6 @@ private fun MenuItem(
             contentDescription = "进入",
             modifier = Modifier.size(Spacing.IconMedium),
             tint = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
-}
-
-@Composable
-private fun LogoutButton(
-    onLogout: () -> Unit
-) {
-    Button(
-        onClick = onLogout,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = Spacing.ScreenPadding)
-            .height(Spacing.ButtonHeight),
-        shape = Shapes.Medium,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.errorContainer,
-            contentColor = MaterialTheme.colorScheme.onErrorContainer
-        )
-    ) {
-        Icon(
-            imageVector = Icons.Default.ExitToApp,
-            contentDescription = "退出登录",
-            modifier = Modifier.size(Spacing.IconMedium)
-        )
-        Spacer(modifier = Modifier.width(Spacing.Small))
-        Text(
-            text = "退出登录",
-            style = MaterialTheme.typography.titleMedium
         )
     }
 }

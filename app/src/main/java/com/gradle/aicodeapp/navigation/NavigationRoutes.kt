@@ -14,6 +14,7 @@ object NavigationRoutes {
     const val COLLECT_ADD = "collect_add"
     const val SEARCH = "search"
     const val COIN = "coin"
+    const val SETTINGS = "settings"
 }
 
 object NavigationArguments {
