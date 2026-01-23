@@ -9,6 +9,7 @@ import com.gradle.aicodeapp.network.model.Article
 import com.gradle.aicodeapp.network.model.Friend
 import com.gradle.aicodeapp.network.repository.NetworkRepository
 import com.gradle.aicodeapp.ui.state.SearchUiState
+import com.gradle.aicodeapp.utils.LogUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -41,7 +42,7 @@ class SearchViewModel @Inject constructor(
             val cachedHotKeys = cacheManager.get<List<Friend>>(cacheKey)
             if (cachedHotKeys != null) {
                 _hotKeys.value = cachedHotKeys
-                android.util.Log.d(TAG, "Hot keys loaded from cache: ${cachedHotKeys.size}")
+                LogUtils.d(TAG, "Hot keys loaded from cache: ${cachedHotKeys.size}")
                 return@launch
             }
 
@@ -52,10 +53,10 @@ class SearchViewModel @Inject constructor(
                     val keys = response.data ?: emptyList()
                     _hotKeys.value = keys
                     cacheManager.put(cacheKey, keys, expireTime)
-                    android.util.Log.d(TAG, "Hot keys loaded from network: ${keys.size}")
+                    LogUtils.d(TAG, "Hot keys loaded from network: ${keys.size}")
                 }
             } else {
-                android.util.Log.e(TAG, "Failed to load hot keys: ${hotKeysResult.exceptionOrNull()?.message}")
+                LogUtils.e(TAG, "Failed to load hot keys: ${hotKeysResult.exceptionOrNull()?.message}")
             }
         }
     }
@@ -96,7 +97,7 @@ class SearchViewModel @Inject constructor(
                 isLoading = false,
                 hasMore = cachedArticles.isNotEmpty()
             )
-            android.util.Log.d(TAG, "Search results loaded from cache: ${cachedArticles.size}")
+            LogUtils.d(TAG, "Search results loaded from cache: ${cachedArticles.size}")
             return
         }
 
@@ -120,7 +121,7 @@ class SearchViewModel @Inject constructor(
                 if (newArticles.isNotEmpty()) {
                     cacheManager.put(cacheKey, newArticles, expireTime)
                 }
-                android.util.Log.d(TAG, "Search results loaded from network: ${newArticles.size}")
+                LogUtils.d(TAG, "Search results loaded from network: ${newArticles.size}")
             } else {
                 _uiState.value = _uiState.value.copy(
                     errorMessage = "搜索失败: ${response?.errorMsg}",

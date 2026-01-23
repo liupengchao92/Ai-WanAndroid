@@ -8,6 +8,7 @@ import com.gradle.aicodeapp.cache.DataCacheManager
 import com.gradle.aicodeapp.network.model.Article
 import com.gradle.aicodeapp.network.repository.NetworkRepository
 import com.gradle.aicodeapp.ui.state.ProjectUiState
+import com.gradle.aicodeapp.utils.LogUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -53,7 +54,7 @@ class ProjectViewModel @Inject constructor(
                 categories = cachedCategories,
                 isLoading = false
             )
-            android.util.Log.d(TAG, "Project categories loaded from cache: ${cachedCategories.size}")
+            LogUtils.d(TAG, "Project categories loaded from cache: ${cachedCategories.size}")
             
             if (selectedCategory != null) {
                 loadProjects(selectedCategory.id)
@@ -72,7 +73,7 @@ class ProjectViewModel @Inject constructor(
                     isLoading = false
                 )
                 cacheManager.put(cacheKey, categories, expireTime)
-                android.util.Log.d(TAG, "Project categories loaded from network: ${categories.size}")
+                LogUtils.d(TAG, "Project categories loaded from network: ${categories.size}")
                 
                 if (selectedCategory != null) {
                     loadProjects(selectedCategory.id)
@@ -122,7 +123,7 @@ class ProjectViewModel @Inject constructor(
                 isRefreshing = false,
                 hasMore = cachedProjects.size > 0
             )
-            android.util.Log.d(TAG, "Projects loaded from cache: ${cachedProjects.size}")
+            LogUtils.d(TAG, "Projects loaded from cache: ${cachedProjects.size}")
             return
         }
 
@@ -144,7 +145,7 @@ class ProjectViewModel @Inject constructor(
                     hasMore = response.data?.over != true
                 )
                 cacheManager.put(cacheKey, newProjects, expireTime)
-                android.util.Log.d(TAG, "Projects loaded from network: ${newProjects.size}")
+                LogUtils.d(TAG, "Projects loaded from network: ${newProjects.size}")
             } else {
                 _uiState.value = _uiState.value.copy(
                     errorMessage = "获取项目失败: ${response?.errorMsg}",

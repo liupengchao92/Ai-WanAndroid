@@ -7,6 +7,7 @@ import com.gradle.aicodeapp.cache.CacheKeys
 import com.gradle.aicodeapp.cache.DataCacheManager
 import com.gradle.aicodeapp.network.repository.NetworkRepository
 import com.gradle.aicodeapp.ui.state.NavigationUiState
+import com.gradle.aicodeapp.utils.LogUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -49,7 +50,7 @@ class NavigationViewModel @Inject constructor(
                 navigationGroups = cachedData,
                 isLoading = false
             )
-            android.util.Log.d(TAG, "Navigation data loaded from cache: ${cachedData.size}")
+            LogUtils.d(TAG, "Navigation data loaded from cache: ${cachedData.size}")
             return
         }
 
@@ -62,7 +63,7 @@ class NavigationViewModel @Inject constructor(
                     isLoading = false
                 )
                 cacheManager.put(cacheKey, response.data ?: emptyList(), expireTime)
-                android.util.Log.d(TAG, "Navigation data loaded from network: ${(response.data?.size ?: 0)}")
+                LogUtils.d(TAG, "Navigation data loaded from network: ${(response.data?.size ?: 0)}")
             } else {
                 _uiState.value = _uiState.value.copy(
                     errorMessage = "获取导航数据失败: ${response?.errorMsg}",

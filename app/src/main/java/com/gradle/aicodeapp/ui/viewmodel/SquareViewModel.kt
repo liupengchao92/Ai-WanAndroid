@@ -8,6 +8,7 @@ import com.gradle.aicodeapp.cache.DataCacheManager
 import com.gradle.aicodeapp.network.model.Article
 import com.gradle.aicodeapp.network.repository.NetworkRepository
 import com.gradle.aicodeapp.ui.state.SquareUiState
+import com.gradle.aicodeapp.utils.LogUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -60,7 +61,7 @@ class SquareViewModel @Inject constructor(
                 isRefreshing = false,
                 hasMore = cachedArticles.isNotEmpty()
             )
-            android.util.Log.d(TAG, "Square articles loaded from cache: ${cachedArticles.size}")
+            LogUtils.d(TAG, "Square articles loaded from cache: ${cachedArticles.size}")
             return
         }
 
@@ -82,7 +83,7 @@ class SquareViewModel @Inject constructor(
                     hasMore = response.data?.over != true
                 )
                 cacheManager.put(cacheKey, newArticles, expireTime)
-                android.util.Log.d(TAG, "Square articles loaded from network: ${newArticles.size}")
+                LogUtils.d(TAG, "Square articles loaded from network: ${newArticles.size}")
             } else {
                 _uiState.value = _uiState.value.copy(
                     errorMessage = "获取文章失败: ${response?.errorMsg}",
@@ -161,6 +162,6 @@ class SquareViewModel @Inject constructor(
             articles = updatedArticles
         )
         
-        android.util.Log.d(TAG, "Article collect status updated: articleId=$articleId, isCollected=$isCollected")
+        LogUtils.d(TAG, "Article collect status updated: articleId=$articleId, isCollected=$isCollected")
     }
 }

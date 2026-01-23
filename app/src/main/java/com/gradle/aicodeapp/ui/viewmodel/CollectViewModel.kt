@@ -10,6 +10,7 @@ import com.gradle.aicodeapp.network.exception.ErrorHandler
 import com.gradle.aicodeapp.network.model.Article
 import com.gradle.aicodeapp.network.repository.NetworkRepository
 import com.gradle.aicodeapp.ui.state.CollectUiState
+import com.gradle.aicodeapp.utils.LogUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -66,7 +67,7 @@ class CollectViewModel @Inject constructor(
                 isRefreshing = false,
                 hasMore = cachedArticles.size > 0
             )
-            android.util.Log.d(TAG, "Collect list loaded from cache: ${cachedArticles.size}")
+            LogUtils.d(TAG, "Collect list loaded from cache: ${cachedArticles.size}")
             return
         }
 
@@ -88,7 +89,7 @@ class CollectViewModel @Inject constructor(
                     hasMore = response.data?.over != true
                 )
                 cacheManager.put(cacheKey, newArticles, expireTime)
-                android.util.Log.d(TAG, "Collect list loaded from network: ${newArticles.size}")
+                LogUtils.d(TAG, "Collect list loaded from network: ${newArticles.size}")
             } else {
                 _uiState.value = _uiState.value.copy(
                     errorMessage = "获取收藏列表失败: ${response?.errorMsg}",
@@ -122,13 +123,13 @@ class CollectViewModel @Inject constructor(
             if (result.isSuccess) {
                 val response = result.getOrNull()
                 if (response?.isSuccess() == true) {
-                    android.util.Log.d(TAG, "Article collected successfully: $articleId")
+                    LogUtils.d(TAG, "Article collected successfully: $articleId")
                     _uiState.value = _uiState.value.copy(
                         errorMessage = null
                     )
                 } else {
                     val errorMsg = "收藏失败: ${response?.errorMsg}"
-                    android.util.Log.e(TAG, errorMsg)
+                    LogUtils.e(TAG, errorMsg)
                     _uiState.value = _uiState.value.copy(
                         errorMessage = errorMsg
                     )
@@ -143,7 +144,7 @@ class CollectViewModel @Inject constructor(
                 }
             } else {
                 val errorMsg = "网络错误: ${result.exceptionOrNull()?.message}"
-                android.util.Log.e(TAG, errorMsg)
+                LogUtils.e(TAG, errorMsg)
                 _uiState.value = _uiState.value.copy(
                     errorMessage = errorMsg
                 )
@@ -165,7 +166,7 @@ class CollectViewModel @Inject constructor(
             if (result.isSuccess) {
                 val response = result.getOrNull()
                 if (response?.isSuccess() == true) {
-                    android.util.Log.d(TAG, "Outside article collected successfully")
+                    LogUtils.d(TAG, "Outside article collected successfully")
                     _uiState.value = _uiState.value.copy(
                         errorMessage = null
                     )
@@ -199,13 +200,13 @@ class CollectViewModel @Inject constructor(
             if (result.isSuccess) {
                 val response = result.getOrNull()
                 if (response?.isSuccess() == true) {
-                    android.util.Log.d(TAG, "Article uncollected successfully: $articleId")
+                    LogUtils.d(TAG, "Article uncollected successfully: $articleId")
                     _uiState.value = _uiState.value.copy(
                         errorMessage = null
                     )
                 } else {
                     val errorMsg = "取消收藏失败: ${response?.errorMsg}"
-                    android.util.Log.e(TAG, errorMsg)
+                    LogUtils.e(TAG, errorMsg)
                     _uiState.value = _uiState.value.copy(
                         errorMessage = errorMsg
                     )
@@ -220,7 +221,7 @@ class CollectViewModel @Inject constructor(
                 }
             } else {
                 val errorMsg = "网络错误: ${result.exceptionOrNull()?.message}"
-                android.util.Log.e(TAG, errorMsg)
+                LogUtils.e(TAG, errorMsg)
                 _uiState.value = _uiState.value.copy(
                     errorMessage = errorMsg
                 )
@@ -242,7 +243,7 @@ class CollectViewModel @Inject constructor(
             if (result.isSuccess) {
                 val response = result.getOrNull()
                 if (response?.isSuccess() == true) {
-                    android.util.Log.d(TAG, "Outside article uncollected successfully: $collectId")
+                    LogUtils.d(TAG, "Outside article uncollected successfully: $collectId")
                     _uiState.value = _uiState.value.copy(
                         errorMessage = null
                     )
@@ -265,7 +266,7 @@ class CollectViewModel @Inject constructor(
             if (result.isSuccess) {
                 val response = result.getOrNull()
                 if (response?.isSuccess() == true) {
-                    android.util.Log.d(TAG, "Collect article updated successfully: $articleId")
+                    LogUtils.d(TAG, "Collect article updated successfully: $articleId")
                     _uiState.value = _uiState.value.copy(
                         errorMessage = null
                     )

@@ -12,6 +12,7 @@ import com.gradle.aicodeapp.network.model.PopularRoute
 import com.gradle.aicodeapp.network.model.PopularWenda
 import com.gradle.aicodeapp.network.repository.NetworkRepository
 import com.gradle.aicodeapp.ui.state.HomeUiState
+import com.gradle.aicodeapp.utils.LogUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -61,7 +62,7 @@ class HomeViewModel @Inject constructor(
         val cachedBanners = cacheManager.get<List<Banner>>(cacheKey)
         if (cachedBanners != null) {
             _uiState.value = _uiState.value.copy(banners = cachedBanners)
-            android.util.Log.d(TAG, "Banners loaded from cache: ${cachedBanners.size}")
+            LogUtils.d(TAG, "Banners loaded from cache: ${cachedBanners.size}")
             return
         }
 
@@ -72,7 +73,7 @@ class HomeViewModel @Inject constructor(
                 val banners = response.data ?: emptyList()
                 _uiState.value = _uiState.value.copy(banners = banners)
                 cacheManager.put(cacheKey, banners, expireTime)
-                android.util.Log.d(TAG, "Banners loaded from network: ${banners.size}")
+                LogUtils.d(TAG, "Banners loaded from network: ${banners.size}")
             } else {
                 _uiState.value = _uiState.value.copy(
                     errorMessage = "获取Banner失败: ${response?.errorMsg}"
@@ -92,7 +93,7 @@ class HomeViewModel @Inject constructor(
         val cachedArticles = cacheManager.get<List<Article>>(cacheKey)
         if (cachedArticles != null) {
             _uiState.value = _uiState.value.copy(topArticles = cachedArticles)
-            android.util.Log.d(TAG, "Top articles loaded from cache: ${cachedArticles.size}")
+            LogUtils.d(TAG, "Top articles loaded from cache: ${cachedArticles.size}")
             return
         }
 
@@ -103,7 +104,7 @@ class HomeViewModel @Inject constructor(
                 val articles = response.data ?: emptyList()
                 _uiState.value = _uiState.value.copy(topArticles = articles)
                 cacheManager.put(cacheKey, articles, expireTime)
-                android.util.Log.d(TAG, "Top articles loaded from network: ${articles.size}")
+                LogUtils.d(TAG, "Top articles loaded from network: ${articles.size}")
             }
         }
     }
@@ -126,7 +127,7 @@ class HomeViewModel @Inject constructor(
                 isRefreshing = false,
                 hasMore = cachedArticles.isNotEmpty()
             )
-            android.util.Log.d(TAG, "Home articles loaded from cache: ${cachedArticles.size}")
+            LogUtils.d(TAG, "Home articles loaded from cache: ${cachedArticles.size}")
             return
         }
 
@@ -148,7 +149,7 @@ class HomeViewModel @Inject constructor(
                     hasMore = response.data?.over != true
                 )
                 cacheManager.put(cacheKey, newArticles, expireTime)
-                android.util.Log.d(TAG, "Home articles loaded from network: ${newArticles.size}")
+                LogUtils.d(TAG, "Home articles loaded from network: ${newArticles.size}")
             } else {
                 _uiState.value = _uiState.value.copy(
                     errorMessage = "获取文章失败: ${response?.errorMsg}",
@@ -246,7 +247,7 @@ class HomeViewModel @Inject constructor(
             articles = updatedArticles
         )
         
-        android.util.Log.d(TAG, "Article collect status updated: articleId=$articleId, isCollected=$isCollected")
+        LogUtils.d(TAG, "Article collect status updated: articleId=$articleId, isCollected=$isCollected")
     }
 
     suspend fun getPopularWenda(): List<PopularWenda> {
@@ -255,7 +256,7 @@ class HomeViewModel @Inject constructor(
         
         val cachedData = cacheManager.get<List<PopularWenda>>(cacheKey)
         if (cachedData != null) {
-            android.util.Log.d(TAG, "Popular wenda loaded from cache: ${cachedData.size}")
+            LogUtils.d(TAG, "Popular wenda loaded from cache: ${cachedData.size}")
             return cachedData
         }
 
@@ -265,7 +266,7 @@ class HomeViewModel @Inject constructor(
             if (response?.errorCode == 0) {
                 val data = response.data ?: emptyList()
                 cacheManager.put(cacheKey, data, expireTime)
-                android.util.Log.d(TAG, "Popular wenda loaded from network: ${data.size}")
+                LogUtils.d(TAG, "Popular wenda loaded from network: ${data.size}")
                 return data
             }
         }
@@ -278,7 +279,7 @@ class HomeViewModel @Inject constructor(
         
         val cachedData = cacheManager.get<List<PopularColumn>>(cacheKey)
         if (cachedData != null) {
-            android.util.Log.d(TAG, "Popular column loaded from cache: ${cachedData.size}")
+            LogUtils.d(TAG, "Popular column loaded from cache: ${cachedData.size}")
             return cachedData
         }
 
@@ -288,7 +289,7 @@ class HomeViewModel @Inject constructor(
             if (response?.errorCode == 0) {
                 val data = response.data ?: emptyList()
                 cacheManager.put(cacheKey, data, expireTime)
-                android.util.Log.d(TAG, "Popular column loaded from network: ${data.size}")
+                LogUtils.d(TAG, "Popular column loaded from network: ${data.size}")
                 return data
             }
         }
@@ -301,7 +302,7 @@ class HomeViewModel @Inject constructor(
         
         val cachedData = cacheManager.get<List<PopularRoute>>(cacheKey)
         if (cachedData != null) {
-            android.util.Log.d(TAG, "Popular route loaded from cache: ${cachedData.size}")
+            LogUtils.d(TAG, "Popular route loaded from cache: ${cachedData.size}")
             return cachedData
         }
 
@@ -311,7 +312,7 @@ class HomeViewModel @Inject constructor(
             if (response?.errorCode == 0) {
                 val data = response.data ?: emptyList()
                 cacheManager.put(cacheKey, data, expireTime)
-                android.util.Log.d(TAG, "Popular route loaded from network: ${data.size}")
+                LogUtils.d(TAG, "Popular route loaded from network: ${data.size}")
                 return data
             }
         }

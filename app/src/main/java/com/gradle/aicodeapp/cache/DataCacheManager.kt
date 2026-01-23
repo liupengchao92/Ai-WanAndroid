@@ -1,6 +1,6 @@
 package com.gradle.aicodeapp.cache
 
-import android.util.Log
+import com.gradle.aicodeapp.utils.LogUtils
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.util.concurrent.ConcurrentHashMap
@@ -26,14 +26,14 @@ class DataCacheManager {
             val entry = cacheMap[key] as? CacheEntry<T>
             if (entry != null) {
                 if (entry.isExpired()) {
-                    Log.d(TAG, "Cache expired for key: $key")
+                    LogUtils.d(TAG, "Cache expired for key: $key")
                     cacheMap.remove(key)
                     return null
                 }
-                Log.d(TAG, "Cache hit for key: $key")
+                LogUtils.d(TAG, "Cache hit for key: $key")
                 return entry.data
             }
-            Log.d(TAG, "Cache miss for key: $key")
+            LogUtils.d(TAG, "Cache miss for key: $key")
             return null
         }
     }
@@ -46,21 +46,21 @@ class DataCacheManager {
                 expireTime = expireTime
             )
             cacheMap[key] = entry
-            Log.d(TAG, "Cache stored for key: $key, expireTime: ${expireTime}ms")
+            LogUtils.d(TAG, "Cache stored for key: $key, expireTime: ${expireTime}ms")
         }
     }
     
     suspend fun remove(key: String) {
         mutex.withLock {
             cacheMap.remove(key)
-            Log.d(TAG, "Cache removed for key: $key")
+            LogUtils.d(TAG, "Cache removed for key: $key")
         }
     }
     
     suspend fun clear() {
         mutex.withLock {
             cacheMap.clear()
-            Log.d(TAG, "All cache cleared")
+            LogUtils.d(TAG, "All cache cleared")
         }
     }
     
@@ -69,7 +69,7 @@ class DataCacheManager {
             val expiredKeys = cacheMap.filter { (_, entry) -> entry.isExpired() }.keys
             expiredKeys.forEach { key ->
                 cacheMap.remove(key)
-                Log.d(TAG, "Expired cache removed for key: $key")
+                LogUtils.d(TAG, "Expired cache removed for key: $key")
             }
         }
     }
