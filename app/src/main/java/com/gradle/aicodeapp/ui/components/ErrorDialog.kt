@@ -37,6 +37,10 @@ fun ErrorDialog(
             icon = Icons.Default.Info
             iconColor = Color(0xFF2196F3)
         }
+        ErrorHandler.ErrorType.COLLECT_NOT_LOGIN -> {
+            icon = Icons.Default.Info
+            iconColor = Color(0xFF2196F3)
+        }
         ErrorHandler.ErrorType.NETWORK -> {
             icon = Icons.Default.Warning
             iconColor = Color(0xFFFF9800)
@@ -101,6 +105,7 @@ fun ErrorDialog(
 private fun getErrorHint(errorType: ErrorHandler.ErrorType): String {
     return when (errorType) {
         ErrorHandler.ErrorType.NOT_LOGIN -> "请登录后重试"
+        ErrorHandler.ErrorType.COLLECT_NOT_LOGIN -> "请登录后重试"
         ErrorHandler.ErrorType.NETWORK -> "请检查网络连接后重试"
         ErrorHandler.ErrorType.TIMEOUT -> "请稍后重试"
         ErrorHandler.ErrorType.SERVER -> "服务器繁忙，请稍后重试"

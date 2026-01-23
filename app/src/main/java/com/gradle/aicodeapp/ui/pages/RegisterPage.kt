@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -33,12 +34,20 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.gradle.aicodeapp.R
 import com.gradle.aicodeapp.ui.viewmodel.RegisterViewModel
 import kotlinx.coroutines.launch
 
@@ -131,8 +140,36 @@ fun RegisterPage(
                     )
                 },
                 trailingIcon = {
-                    TextButton(onClick = { passwordVisible = !passwordVisible }) {
-                        Text(if (passwordVisible) "隐藏" else "显示")
+                    @OptIn(ExperimentalAnimationApi::class)
+                    IconButton(
+                        onClick = { passwordVisible = !passwordVisible },
+                        enabled = !uiState.isLoading,
+                        modifier = Modifier.size(44.dp)
+                    ) {
+                        AnimatedVisibility(
+                            visible = passwordVisible,
+                            enter = fadeIn() + scaleIn(initialScale = 0.8f),
+                            exit = fadeOut() + scaleOut(targetScale = 0.8f)
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_eye_open),
+                                contentDescription = "隐藏密码",
+                                modifier = Modifier.size(24.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        AnimatedVisibility(
+                            visible = !passwordVisible,
+                            enter = fadeIn() + scaleIn(initialScale = 0.8f),
+                            exit = fadeOut() + scaleOut(targetScale = 0.8f)
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_eye_closed),
+                                contentDescription = "显示密码",
+                                modifier = Modifier.size(24.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
                 },
                 visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -159,8 +196,36 @@ fun RegisterPage(
                     )
                 },
                 trailingIcon = {
-                    TextButton(onClick = { repasswordVisible = !repasswordVisible }) {
-                        Text(if (repasswordVisible) "隐藏" else "显示")
+                    @OptIn(ExperimentalAnimationApi::class)
+                    IconButton(
+                        onClick = { repasswordVisible = !repasswordVisible },
+                        enabled = !uiState.isLoading,
+                        modifier = Modifier.size(44.dp)
+                    ) {
+                        AnimatedVisibility(
+                            visible = repasswordVisible,
+                            enter = fadeIn() + scaleIn(initialScale = 0.8f),
+                            exit = fadeOut() + scaleOut(targetScale = 0.8f)
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_eye_open),
+                                contentDescription = "隐藏密码",
+                                modifier = Modifier.size(24.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        AnimatedVisibility(
+                            visible = !repasswordVisible,
+                            enter = fadeIn() + scaleIn(initialScale = 0.8f),
+                            exit = fadeOut() + scaleOut(targetScale = 0.8f)
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_eye_closed),
+                                contentDescription = "显示密码",
+                                modifier = Modifier.size(24.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
                 },
                 visualTransformation = if (repasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),

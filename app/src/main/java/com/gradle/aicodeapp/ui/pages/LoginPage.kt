@@ -11,9 +11,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -42,7 +49,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.painterResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.gradle.aicodeapp.R
+import com.gradle.aicodeapp.data.PendingActionManager
 import com.gradle.aicodeapp.ui.theme.Shapes
 import com.gradle.aicodeapp.ui.theme.Spacing
 import com.gradle.aicodeapp.ui.viewmodel.LoginViewModel
@@ -101,7 +111,7 @@ fun LoginPage(
             Spacer(modifier = Modifier.height(Spacing.Small))
 
             Text(
-                text = "AiCodeApp",
+                text = "WanAndroid",
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -151,11 +161,36 @@ fun LoginPage(
                     )
                 },
                 trailingIcon = {
-                    TextButton(
+                    @OptIn(ExperimentalAnimationApi::class)
+                    IconButton(
                         onClick = { passwordVisible = !passwordVisible },
-                        enabled = !uiState.isLoading
+                        enabled = !uiState.isLoading,
+                        modifier = Modifier.size(44.dp)
                     ) {
-                        Text(if (passwordVisible) "隐藏" else "显示")
+                        AnimatedVisibility(
+                            visible = passwordVisible,
+                            enter = fadeIn() + scaleIn(initialScale = 0.8f),
+                            exit = fadeOut() + scaleOut(targetScale = 0.8f)
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_eye_open),
+                                contentDescription = "隐藏密码",
+                                modifier = Modifier.size(24.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        AnimatedVisibility(
+                            visible = !passwordVisible,
+                            enter = fadeIn() + scaleIn(initialScale = 0.8f),
+                            exit = fadeOut() + scaleOut(targetScale = 0.8f)
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_eye_closed),
+                                contentDescription = "显示密码",
+                                modifier = Modifier.size(24.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
                 },
                 visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),

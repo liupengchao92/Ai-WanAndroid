@@ -8,7 +8,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.gradle.aicodeapp.network.exception.ErrorHandler
 import com.gradle.aicodeapp.utils.ToastUtils
 import kotlinx.coroutines.flow.collectLatest
@@ -21,6 +20,7 @@ fun GlobalErrorHandler(
     val context = LocalContext.current
     
     var showLoginDialog by remember { mutableStateOf(false) }
+    var showCollectLoginDialog by remember { mutableStateOf(false) }
     var showErrorDialog by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
     var errorType by remember { mutableStateOf(ErrorHandler.ErrorType.UNKNOWN) }
@@ -30,6 +30,9 @@ fun GlobalErrorHandler(
             when (event.type) {
                 ErrorHandler.ErrorType.NOT_LOGIN -> {
                     showLoginDialog = true
+                }
+                ErrorHandler.ErrorType.COLLECT_NOT_LOGIN -> {
+                    showCollectLoginDialog = true
                 }
                 else -> {
                     errorMessage = event.message
@@ -47,6 +50,18 @@ fun GlobalErrorHandler(
             },
             onConfirm = {
                 showLoginDialog = false
+                onNavigateToLogin()
+            }
+        )
+    }
+
+    if (showCollectLoginDialog) {
+        CollectLoginRequiredDialog(
+            onDismiss = {
+                showCollectLoginDialog = false
+            },
+            onNavigateToLogin = {
+                showCollectLoginDialog = false
                 onNavigateToLogin()
             }
         )

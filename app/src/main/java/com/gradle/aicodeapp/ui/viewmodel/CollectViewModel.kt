@@ -6,6 +6,7 @@ import com.gradle.aicodeapp.cache.CacheConfig
 import com.gradle.aicodeapp.cache.CacheKeys
 import com.gradle.aicodeapp.cache.DataCacheManager
 import com.gradle.aicodeapp.data.UserManager
+import com.gradle.aicodeapp.network.exception.ErrorHandler
 import com.gradle.aicodeapp.network.model.Article
 import com.gradle.aicodeapp.network.repository.NetworkRepository
 import com.gradle.aicodeapp.ui.state.CollectUiState
@@ -106,8 +107,12 @@ class CollectViewModel @Inject constructor(
 
     fun collectArticle(articleId: Int) {
         if (!userManager.isLoggedIn()) {
-            _uiState.value = _uiState.value.copy(
-                errorMessage = "请先登录"
+            ErrorHandler.emitErrorEvent(
+                ErrorHandler.ErrorEvent(
+                    code = -1,
+                    message = "收藏功能需要登录，请先登录您的账号",
+                    type = ErrorHandler.ErrorType.COLLECT_NOT_LOGIN
+                )
             )
             return
         }
@@ -122,13 +127,33 @@ class CollectViewModel @Inject constructor(
                         errorMessage = null
                     )
                 } else {
+                    val errorMsg = "收藏失败: ${response?.errorMsg}"
+                    android.util.Log.e(TAG, errorMsg)
                     _uiState.value = _uiState.value.copy(
-                        errorMessage = "收藏失败: ${response?.errorMsg}"
+                        errorMessage = errorMsg
+                    )
+                    // 发送事件通知UI
+                    ErrorHandler.emitErrorEvent(
+                        ErrorHandler.ErrorEvent(
+                            code = response?.errorCode ?: -1,
+                            message = errorMsg,
+                            type = ErrorHandler.ErrorType.SERVER
+                        )
                     )
                 }
             } else {
+                val errorMsg = "网络错误: ${result.exceptionOrNull()?.message}"
+                android.util.Log.e(TAG, errorMsg)
                 _uiState.value = _uiState.value.copy(
-                    errorMessage = "网络错误: ${result.exceptionOrNull()?.message}"
+                    errorMessage = errorMsg
+                )
+                // 发送事件通知UI
+                ErrorHandler.emitErrorEvent(
+                    ErrorHandler.ErrorEvent(
+                        code = ErrorHandler.ErrorType.NETWORK.ordinal,
+                        message = errorMsg,
+                        type = ErrorHandler.ErrorType.NETWORK
+                    )
                 )
             }
         }
@@ -159,8 +184,12 @@ class CollectViewModel @Inject constructor(
 
     fun uncollectArticle(articleId: Int) {
         if (!userManager.isLoggedIn()) {
-            _uiState.value = _uiState.value.copy(
-                errorMessage = "请先登录"
+            ErrorHandler.emitErrorEvent(
+                ErrorHandler.ErrorEvent(
+                    code = -1,
+                    message = "收藏功能需要登录，请先登录您的账号",
+                    type = ErrorHandler.ErrorType.COLLECT_NOT_LOGIN
+                )
             )
             return
         }
@@ -175,13 +204,33 @@ class CollectViewModel @Inject constructor(
                         errorMessage = null
                     )
                 } else {
+                    val errorMsg = "取消收藏失败: ${response?.errorMsg}"
+                    android.util.Log.e(TAG, errorMsg)
                     _uiState.value = _uiState.value.copy(
-                        errorMessage = "取消收藏失败: ${response?.errorMsg}"
+                        errorMessage = errorMsg
+                    )
+                    // 发送事件通知UI
+                    ErrorHandler.emitErrorEvent(
+                        ErrorHandler.ErrorEvent(
+                            code = response?.errorCode ?: -1,
+                            message = errorMsg,
+                            type = ErrorHandler.ErrorType.SERVER
+                        )
                     )
                 }
             } else {
+                val errorMsg = "网络错误: ${result.exceptionOrNull()?.message}"
+                android.util.Log.e(TAG, errorMsg)
                 _uiState.value = _uiState.value.copy(
-                    errorMessage = "网络错误: ${result.exceptionOrNull()?.message}"
+                    errorMessage = errorMsg
+                )
+                // 发送事件通知UI
+                ErrorHandler.emitErrorEvent(
+                    ErrorHandler.ErrorEvent(
+                        code = ErrorHandler.ErrorType.NETWORK.ordinal,
+                        message = errorMsg,
+                        type = ErrorHandler.ErrorType.NETWORK
+                    )
                 )
             }
         }

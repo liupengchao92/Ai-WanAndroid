@@ -251,6 +251,15 @@ private fun UserInfoCard(
 
                     Spacer(modifier = Modifier.height(Spacing.ExtraLarge))
 
+                    Text(
+                        text = coinUserInfo?.username ?: "未登录",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+
+                    Spacer(modifier = Modifier.height(Spacing.Large))
+
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly
@@ -265,12 +274,6 @@ private fun UserInfoCard(
                             label = "当前排名",
                             value = "#${coinUserInfo?.rank ?: "-"}",
                             color = MaterialTheme.colorScheme.secondary
-                        )
-
-                        CoinInfoItem(
-                            label = "用户名",
-                            value = coinUserInfo?.username ?: "未登录",
-                            color = MaterialTheme.colorScheme.tertiary
                         )
                     }
                 }

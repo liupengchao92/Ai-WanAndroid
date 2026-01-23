@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 
 object ErrorHandler {
 
-    private val _errorEvent = MutableSharedFlow<ErrorEvent>()
+    private val _errorEvent = MutableSharedFlow<ErrorEvent>(replay = 1, extraBufferCapacity = 1)
     val errorEvent = _errorEvent.asSharedFlow()
 
     data class ErrorEvent(
@@ -17,6 +17,7 @@ object ErrorHandler {
 
     enum class ErrorType {
         NOT_LOGIN,
+        COLLECT_NOT_LOGIN,
         NETWORK,
         TIMEOUT,
         SERVER,
@@ -87,6 +88,10 @@ object ErrorHandler {
             }
         }
 
+        _errorEvent.tryEmit(errorEvent)
+    }
+
+    fun emitErrorEvent(errorEvent: ErrorEvent) {
         _errorEvent.tryEmit(errorEvent)
     }
 
