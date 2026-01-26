@@ -20,6 +20,12 @@ import com.gradle.aicodeapp.network.model.PopularWenda
 import com.gradle.aicodeapp.network.model.PopularWendaResponse
 import com.gradle.aicodeapp.network.model.ProjectCategory
 import com.gradle.aicodeapp.network.model.RegisterResponse
+import com.gradle.aicodeapp.network.model.Todo
+import com.gradle.aicodeapp.network.model.TodoListResponse
+import com.gradle.aicodeapp.network.model.WendaListResponse
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -206,6 +212,16 @@ class NetworkRepository @Inject constructor(
         }
     }
 
+    suspend fun getWendaList(page: Int, pageSize: Int? = null): Result<WendaListResponse> {
+        return try {
+            val response = apiService.getWendaList(page, pageSize)
+            Result.success(response)
+        } catch (e: Exception) {
+            ErrorHandler.handleError(e)
+            Result.failure(e)
+        }
+    }
+
     suspend fun getPopularColumn(): Result<PopularColumnResponse> {
         return try {
             val response = apiService.getPopularColumn()
@@ -222,6 +238,7 @@ class NetworkRepository @Inject constructor(
             Result.success(response)
         } catch (e: Exception) {
             ErrorHandler.handleError(e)
+
             Result.failure(e)
         }
     }
@@ -236,6 +253,52 @@ class NetworkRepository @Inject constructor(
 
     suspend fun getCoinRecordList(page: Int): Result<ApiResponse<CoinRecordResponse>> {
         return safeApiCall { apiService.getCoinRecordList(page) }
+    }
+
+    suspend fun addTodo(
+        title: String,
+        content: String,
+        date: Long,
+        type: Int,
+        priority: Int
+    ): Result<ApiResponse<Todo>> {
+        // Convert milliseconds to "YYYY-MM-DD" format for the API
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val dateString = dateFormat.format(Date(date))
+        return safeApiCall { apiService.addTodo(title, content, dateString, type, priority) }
+    }
+
+    suspend fun updateTodo(
+        id: Int,
+        title: String,
+        content: String,
+        date: Long,
+        type: Int,
+        priority: Int,
+        status: Int
+    ): Result<ApiResponse<Todo>> {
+        // Convert milliseconds to "YYYY-MM-DD" format for the API
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val dateString = dateFormat.format(Date(date))
+        return safeApiCall { apiService.updateTodo(id, title, content, dateString, type, priority, status) }
+    }
+
+    suspend fun deleteTodo(id: Int): Result<ApiResponse<Any>> {
+        return safeApiCall { apiService.deleteTodo(id) }
+    }
+
+    suspend fun toggleTodoStatus(id: Int, status: Int): Result<ApiResponse<Any>> {
+        return safeApiCall { apiService.toggleTodoStatus(id, status) }
+    }
+
+    suspend fun getTodoList(
+        page: Int,
+        status: Int? = null,
+        type: Int? = null,
+        priority: Int? = null,
+        orderby: Int? = null
+    ): Result<ApiResponse<TodoListResponse>> {
+        return safeApiCall { apiService.getTodoList(page, status, type, priority, orderby) }
     }
 
     /**

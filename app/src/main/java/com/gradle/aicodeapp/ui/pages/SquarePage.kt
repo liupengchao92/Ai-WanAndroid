@@ -7,6 +7,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -102,24 +103,27 @@ fun SquarePage(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                state = listState
-            ) {
-                item {
-                    Spacer(
-                        Modifier
-                            .fillMaxWidth()
-                            .height(paddingValues.calculateTopPadding())
-                    )
-
+            Column(modifier = Modifier.fillMaxSize()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            start = Spacing.ScreenPadding,
+                            end = Spacing.ScreenPadding,
+                            top = Spacing.Small,
+                            bottom = Spacing.Small
+                        )
+                ) {
                     SearchBox(onClick = onSearchClick)
-
-                    Spacer(modifier = Modifier.height(Spacing.Small))
                 }
-
-                items(5) {
-                    ArticleItemSkeleton()
+                
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    state = listState
+                ) {
+                    items(5) {
+                        ArticleItemSkeleton()
+                    }
                 }
             }
         }
@@ -155,91 +159,91 @@ fun SquarePage(
                 }
             }
 
-            SwipeRefresh(
-                state = swipeRefreshState,
-                onRefresh = { viewModel.refreshData() },
-                modifier = Modifier.fillMaxSize()
-            ) {
-                if (uiState.articles.isEmpty() && !uiState.isLoading) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(paddingValues),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        androidx.compose.foundation.layout.Column(
-                            horizontalAlignment = Alignment.CenterHorizontally
+            Column(modifier = Modifier.fillMaxSize()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            start = Spacing.ScreenPadding,
+                            end = Spacing.ScreenPadding,
+                            top = paddingValues.calculateTopPadding(),
+                            bottom = Spacing.Small
+                        )
+                ) {
+                    SearchBox(onClick = onSearchClick)
+                }
+
+                SwipeRefresh(
+                    state = swipeRefreshState,
+                    onRefresh = { viewModel.refreshData() },
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    if (uiState.articles.isEmpty() && !uiState.isLoading) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.List,
-                                contentDescription = null,
-                                modifier = Modifier.size(64.dp),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Spacer(modifier = Modifier.height(Spacing.Medium))
-                            Text(
-                                text = "暂无文章",
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                            androidx.compose.foundation.layout.Column(
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.List,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(64.dp),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Spacer(modifier = Modifier.height(Spacing.Medium))
+                                Text(
+                                    text = "暂无文章",
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
                         }
-                    }
-                } else {
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize(),
-                        state = listState
-                    ) {
-                        item {
-                            Spacer(
-                                Modifier
-                                    .fillMaxWidth()
-                                    .height(paddingValues.calculateTopPadding())
-                            )
-
-                            SearchBox(onClick = onSearchClick)
-
-                            Spacer(modifier = Modifier.height(Spacing.Small))
-                        }
-
-                        items(uiState.articles) { article ->
-                            ArticleItem(
-                                article = article,
-                                isSquare = true,
-                                onClick = { onArticleClick(article.link, article.title) },
-                                onCollectClick = { shouldCollect ->
-                                    if (shouldCollect) {
-                                        collectViewModel.collectArticle(article.id)
-                                    } else {
-                                        collectViewModel.uncollectArticle(article.id)
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            state = listState
+                        ) {
+                            items(uiState.articles) { article ->
+                                ArticleItem(
+                                    article = article,
+                                    isSquare = true,
+                                    onClick = { onArticleClick(article.link, article.title) },
+                                    onCollectClick = { shouldCollect ->
+                                        if (shouldCollect) {
+                                            collectViewModel.collectArticle(article.id)
+                                        } else {
+                                            collectViewModel.uncollectArticle(article.id)
+                                        }
+                                        viewModel.updateArticleCollectStatus(article.id, shouldCollect)
                                     }
-                                    viewModel.updateArticleCollectStatus(article.id, shouldCollect)
-                                }
-                            )
-                        }
+                                )
+                            }
 
-                        item {
-                            if (uiState.isLoading && uiState.articles.isNotEmpty()) {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(16.dp),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    CircularProgressIndicator()
-                                }
-                            } else if (!uiState.hasMore && uiState.articles.isNotEmpty()) {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(16.dp),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(
-                                        text = "没有更多数据了",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
+                            item {
+                                if (uiState.isLoading && uiState.articles.isNotEmpty()) {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(16.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        CircularProgressIndicator()
+                                    }
+                                } else if (!uiState.hasMore && uiState.articles.isNotEmpty()) {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(16.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = "没有更多数据了",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
                                 }
                             }
                         }

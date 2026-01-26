@@ -19,7 +19,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
@@ -58,6 +57,7 @@ fun MinePage(
     onNavigateToCollect: () -> Unit = {},
     onNavigateToCoin: () -> Unit = {},
     onNavigateToSettings: () -> Unit = {},
+    onNavigateToTodo: () -> Unit = {},
     paddingValues: PaddingValues = PaddingValues(0.dp)
 ) {
     val scrollState = rememberScrollState()
@@ -81,6 +81,7 @@ fun MinePage(
         MenuSection(
             onNavigateToCollect = onNavigateToCollect,
             onNavigateToCoin = onNavigateToCoin,
+            onNavigateToTodo = onNavigateToTodo,
             onNavigateToSettings = onNavigateToSettings
         )
 
@@ -207,6 +208,7 @@ private fun maskUserId(userId: Int): String {
 private fun MenuSection(
     onNavigateToCollect: () -> Unit,
     onNavigateToCoin: () -> Unit,
+    onNavigateToTodo: () -> Unit,
     onNavigateToSettings: () -> Unit
 ) {
     Card(
@@ -246,9 +248,9 @@ private fun MenuSection(
             )
 
             MenuItem(
-                icon = Icons.Default.List,
-                title = "我的文章",
-                onClick = {}
+                icon = Icons.Default.CheckCircle,
+                title = "待办事项",
+                onClick = onNavigateToTodo
             )
 
             Divider(

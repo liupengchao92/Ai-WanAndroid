@@ -25,20 +25,26 @@ import com.gradle.aicodeapp.ui.pages.CoinPage
 import com.gradle.aicodeapp.ui.pages.CollectAddPage
 import com.gradle.aicodeapp.ui.pages.CollectEditPage
 import com.gradle.aicodeapp.ui.pages.CollectPage
+import com.gradle.aicodeapp.ui.pages.ColumnListPage
 import com.gradle.aicodeapp.ui.pages.HomePage
 import com.gradle.aicodeapp.ui.pages.LoginPage
 import com.gradle.aicodeapp.ui.pages.MinePage
 import com.gradle.aicodeapp.ui.pages.NavigationPage
 import com.gradle.aicodeapp.ui.pages.ProjectPage
 import com.gradle.aicodeapp.ui.pages.RegisterPage
+import com.gradle.aicodeapp.ui.pages.RouteListPage
 import com.gradle.aicodeapp.ui.pages.SearchPage
 import com.gradle.aicodeapp.ui.pages.SettingsPage
 import com.gradle.aicodeapp.ui.pages.SquarePage
+import com.gradle.aicodeapp.ui.pages.TodoFormPage
+import com.gradle.aicodeapp.ui.pages.TodoPage
+import com.gradle.aicodeapp.ui.pages.WendaListPage
 import com.gradle.aicodeapp.ui.viewmodel.CollectViewModel
 import com.gradle.aicodeapp.ui.viewmodel.HomeViewModel
 import com.gradle.aicodeapp.ui.viewmodel.ProjectViewModel
 import com.gradle.aicodeapp.ui.viewmodel.SearchViewModel
 import com.gradle.aicodeapp.ui.viewmodel.SquareViewModel
+import com.gradle.aicodeapp.ui.viewmodel.TodoViewModel
 import java.net.URLEncoder
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
@@ -160,6 +166,15 @@ fun AppNavigation(
                             navController.navigate("${NavigationRoutes.ARTICLE_DETAIL}/$encodedUrl?${NavigationArguments.ARTICLE_TITLE}=$encodedTitle")
                         }
                     },
+                    onNavigateToWendaList = {
+                        navController.navigate(NavigationRoutes.WENDA_LIST)
+                    },
+                    onNavigateToColumnList = {
+                        navController.navigate(NavigationRoutes.COLUMN_LIST)
+                    },
+                    onNavigateToRouteList = {
+                        navController.navigate(NavigationRoutes.ROUTE_LIST)
+                    },
                     paddingValues = paddingValues
                 )
             }
@@ -219,6 +234,9 @@ fun AppNavigation(
                     onNavigateToCoin = {
                         navController.navigate(NavigationRoutes.COIN)
                     },
+                    onNavigateToTodo = {
+                        navController.navigate(NavigationRoutes.TODO)
+                    },
                     onNavigateToSettings = {
                         navController.navigate(NavigationRoutes.SETTINGS)
                     },
@@ -267,6 +285,42 @@ fun AppNavigation(
                             popUpTo(0) { inclusive = true }
                         }
                     },
+                    paddingValues = paddingValues
+                )
+            }
+
+            composable(NavigationRoutes.TODO) {
+                val viewModel: TodoViewModel = hiltViewModel()
+                TodoPage(
+                    viewModel = viewModel,
+                    onBackClick = { navController.popBackStack() },
+                    onNavigateToEdit = { todoId ->
+                        navController.navigate("${NavigationRoutes.TODO_FORM}/$todoId")
+                    },
+                    onNavigateToAdd = {
+                        navController.navigate(NavigationRoutes.TODO_FORM)
+                    },
+                    paddingValues = paddingValues
+                )
+            }
+
+            composable(
+                route = "${NavigationRoutes.TODO_FORM}/{${NavigationArguments.TODO_ID}}",
+                arguments = listOf(
+                    navArgument(NavigationArguments.TODO_ID) { type = NavType.IntType }
+                )
+            ) { backStackEntry ->
+                val todoId = backStackEntry.arguments?.getInt(NavigationArguments.TODO_ID)
+                TodoFormPage(
+                    todoId = todoId,
+                    onBackClick = { navController.popBackStack() },
+                    paddingValues = paddingValues
+                )
+            }
+
+            composable(NavigationRoutes.TODO_FORM) {
+                TodoFormPage(
+                    onBackClick = { navController.popBackStack() },
                     paddingValues = paddingValues
                 )
             }
@@ -337,6 +391,51 @@ fun AppNavigation(
                     },
                     onBackClick = {
                         navController.popBackStack()
+                    }
+                )
+            }
+
+            composable(NavigationRoutes.WENDA_LIST) {
+                WendaListPage(
+                    onBackClick = {
+                        navController.popBackStack()
+                    },
+                    onArticleClick = { url, title ->
+                        if (url.isNotBlank()) {
+                            val encodedUrl = URLEncoder.encode(url, StandardCharsets.UTF_8.toString())
+                            val encodedTitle = URLEncoder.encode(title, StandardCharsets.UTF_8.toString())
+                            navController.navigate("${NavigationRoutes.ARTICLE_DETAIL}/$encodedUrl?${NavigationArguments.ARTICLE_TITLE}=$encodedTitle")
+                        }
+                    }
+                )
+            }
+
+            composable(NavigationRoutes.COLUMN_LIST) {
+                ColumnListPage(
+                    onBackClick = {
+                        navController.popBackStack()
+                    },
+                    onColumnClick = { url, title ->
+                        if (url.isNotBlank()) {
+                            val encodedUrl = URLEncoder.encode(url, StandardCharsets.UTF_8.toString())
+                            val encodedTitle = URLEncoder.encode(title, StandardCharsets.UTF_8.toString())
+                            navController.navigate("${NavigationRoutes.ARTICLE_DETAIL}/$encodedUrl?${NavigationArguments.ARTICLE_TITLE}=$encodedTitle")
+                        }
+                    }
+                )
+            }
+
+            composable(NavigationRoutes.ROUTE_LIST) {
+                RouteListPage(
+                    onBackClick = {
+                        navController.popBackStack()
+                    },
+                    onRouteClick = { url, title ->
+                        if (url.isNotBlank()) {
+                            val encodedUrl = URLEncoder.encode(url, StandardCharsets.UTF_8.toString())
+                            val encodedTitle = URLEncoder.encode(title, StandardCharsets.UTF_8.toString())
+                            navController.navigate("${NavigationRoutes.ARTICLE_DETAIL}/$encodedUrl?${NavigationArguments.ARTICLE_TITLE}=$encodedTitle")
+                        }
                     }
                 )
             }

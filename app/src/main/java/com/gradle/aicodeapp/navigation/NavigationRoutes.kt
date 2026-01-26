@@ -15,6 +15,11 @@ object NavigationRoutes {
     const val SEARCH = "search"
     const val COIN = "coin"
     const val SETTINGS = "settings"
+    const val WENDA_LIST = "wenda_list"
+    const val COLUMN_LIST = "column_list"
+    const val ROUTE_LIST = "route_list"
+    const val TODO = "todo"
+    const val TODO_FORM = "todo_form"
 }
 
 object NavigationArguments {
@@ -22,4 +27,5 @@ object NavigationArguments {
     const val ARTICLE_ID = "articleId"
     const val ARTICLE_TITLE = "articleTitle"
     const val COLLECT_ID = "collectId"
+    const val TODO_ID = "todoId"
 }

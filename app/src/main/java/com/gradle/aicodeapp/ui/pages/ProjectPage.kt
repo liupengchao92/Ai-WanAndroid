@@ -1,6 +1,7 @@
 package com.gradle.aicodeapp.ui.pages
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -69,24 +70,20 @@ fun ProjectPage(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                state = listState
-            ) {
-                item {
-                    Spacer(Modifier.fillMaxWidth().height(paddingValues.calculateTopPadding()))
-                }
-
-                item {
-                    ProjectCategoryTabs(
-                        categories = listOf(),
-                        selectedIndex = 0,
-                        onCategorySelected = {}
-                    )
-                }
-
-                items(5) {
-                    ProjectItemSkeleton()
+            Column(modifier = Modifier.fillMaxSize()) {
+                ProjectCategoryTabs(
+                    categories = listOf(),
+                    selectedIndex = 0,
+                    onCategorySelected = {}
+                )
+                
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    state = listState
+                ) {
+                    items(5) {
+                        ProjectItemSkeleton()
+                    }
                 }
             }
         }
@@ -107,56 +104,51 @@ fun ProjectPage(
                 }
             }
 
-            SwipeRefresh(
-                state = swipeRefreshState,
-                onRefresh = { viewModel.refreshData() },
-                modifier = Modifier.fillMaxSize()
-            ) {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    state = listState
+            Column(modifier = Modifier.fillMaxSize()) {
+                ProjectCategoryTabs(
+                    categories = uiState.categories,
+                    selectedIndex = uiState.selectedCategoryIndex,
+                    onCategorySelected = { index ->
+                        viewModel.selectCategory(index)
+                    }
+                )
+
+                SwipeRefresh(
+                    state = swipeRefreshState,
+                    onRefresh = { viewModel.refreshData() },
+                    modifier = Modifier.fillMaxSize()
                 ) {
-                    item {
-                        Spacer(Modifier.fillMaxWidth().height(paddingValues.calculateTopPadding()))
-                    }
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        state = listState
+                    ) {
+                        items(uiState.projects) { project ->
+                            ProjectItem(
+                                article = project,
+                                onClick = { onArticleClick(project.link, project.title) }
+                            )
+                        }
 
-                    item {
-                        ProjectCategoryTabs(
-                            categories = uiState.categories,
-                            selectedIndex = uiState.selectedCategoryIndex,
-                            onCategorySelected = { index ->
-                                viewModel.selectCategory(index)
-                            }
-                        )
-                    }
-
-                    items(uiState.projects) { project ->
-                        ProjectItem(
-                            article = project,
-                            onClick = { onArticleClick(project.link, project.title) }
-                        )
-                    }
-
-                    item {
-                        if (uiState.isLoading && uiState.projects.isNotEmpty()) {
-                            androidx.compose.foundation.layout.Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                CircularProgressIndicator()
-                                Text(text = "加载中...", modifier = Modifier.padding(top = 8.dp))
-                            }
-                        } else if (!uiState.hasMore && uiState.projects.isNotEmpty()) {
-                            androidx.compose.foundation.layout.Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Text(text = "没有更多数据了", modifier = Modifier.padding(top = 8.dp))
+                        item {
+                            if (uiState.isLoading && uiState.projects.isNotEmpty()) {
+                                androidx.compose.foundation.layout.Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    CircularProgressIndicator()
+                                    Text(text = "加载中...", modifier = Modifier.padding(top = 8.dp))
+                                }
+                            } else if (!uiState.hasMore && uiState.projects.isNotEmpty()) {
+                                androidx.compose.foundation.layout.Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text(text = "没有更多数据了", modifier = Modifier.padding(top = 8.dp))
+                                }
                             }
                         }
                     }

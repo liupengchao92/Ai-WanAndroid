@@ -41,6 +41,9 @@ fun HomePage(
     viewModel: HomeViewModel,
     collectViewModel: CollectViewModel = hiltViewModel(),
     onArticleClick: (String, String) -> Unit = { _, _ -> },
+    onNavigateToWendaList: () -> Unit = {},
+    onNavigateToColumnList: () -> Unit = {},
+    onNavigateToRouteList: () -> Unit = {},
     paddingValues: PaddingValues = PaddingValues(0.dp)
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -151,9 +154,9 @@ fun HomePage(
                             onWendaClick = { url, title -> onArticleClick(url, title) },
                             onColumnClick = { url, title -> onArticleClick(url, title) },
                             onRouteClick = { url, title -> onArticleClick(url, title) },
-                            onViewMoreWenda = { onArticleClick("https://wanandroid.com/wenda", "热门问答") },
-                            onViewMoreColumn = { onArticleClick("https://wanandroid.com/chapter", "专栏") },
-                            onViewMoreRoute = { onArticleClick("https://wanandroid.com/show", "学习路线") }
+                            onViewMoreWenda = onNavigateToWendaList,
+                            onViewMoreColumn = onNavigateToColumnList,
+                            onViewMoreRoute = onNavigateToRouteList
                         )
                     }
 

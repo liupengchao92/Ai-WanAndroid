@@ -18,6 +18,9 @@ import com.gradle.aicodeapp.network.model.PopularWenda
 import com.gradle.aicodeapp.network.model.PopularWendaResponse
 import com.gradle.aicodeapp.network.model.ProjectCategory
 import com.gradle.aicodeapp.network.model.RegisterResponse
+import com.gradle.aicodeapp.network.model.Todo
+import com.gradle.aicodeapp.network.model.TodoListResponse
+import com.gradle.aicodeapp.network.model.WendaListResponse
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
@@ -205,6 +208,12 @@ interface ApiService {
     @GET("popular/wenda/json")
     suspend fun getPopularWenda(): PopularWendaResponse
 
+    @GET("wenda/list/{page}/json")
+    suspend fun getWendaList(
+        @Path("page") page: Int,
+        @Query("page_size") pageSize: Int? = null
+    ): WendaListResponse
+
     @GET("popular/column/json")
     suspend fun getPopularColumn(): PopularColumnResponse
 
@@ -223,6 +232,49 @@ interface ApiService {
     suspend fun getCoinRecordList(
         @Path("page") page: Int
     ): ApiResponse<CoinRecordResponse>
+
+    @FormUrlEncoded
+    @POST("lg/todo/add/json")
+    suspend fun addTodo(
+        @Field("title") title: String,
+        @Field("content") content: String,
+        @Field("date") date: String,
+        @Field("type") type: Int,
+        @Field("priority") priority: Int
+    ): ApiResponse<Todo>
+
+    @FormUrlEncoded
+    @POST("lg/todo/update/{id}/json")
+    suspend fun updateTodo(
+        @Path("id") id: Int,
+        @Field("title") title: String,
+        @Field("content") content: String,
+        @Field("date") date: String,
+        @Field("type") type: Int,
+        @Field("priority") priority: Int,
+        @Field("status") status: Int
+    ): ApiResponse<Todo>
+
+    @POST("lg/todo/delete/{id}/json")
+    suspend fun deleteTodo(
+        @Path("id") id: Int
+    ): ApiResponse<Any>
+
+    @FormUrlEncoded
+    @POST("lg/todo/done/{id}/json")
+    suspend fun toggleTodoStatus(
+        @Path("id") id: Int,
+        @Field("status") status: Int
+    ): ApiResponse<Any>
+
+    @GET("lg/todo/v2/list/{page}/json")
+    suspend fun getTodoList(
+        @Path("page") page: Int,
+        @Query("status") status: Int? = null,
+        @Query("type") type: Int? = null,
+        @Query("priority") priority: Int? = null,
+        @Query("orderby") orderby: Int? = null
+    ): ApiResponse<TodoListResponse>
 
     // 可以添加更多API方法
 }
