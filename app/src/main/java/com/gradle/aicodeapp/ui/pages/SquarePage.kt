@@ -304,24 +304,14 @@ fun SquarePage(
                 }
             }
 
-            AnimatedVisibility(
-                visible = showScrollToTopButton,
-                enter = slideInVertically(
-                    initialOffsetY = { it },
-                    animationSpec = tween(durationMillis = 300)
-                ) + fadeIn(animationSpec = tween(durationMillis = 300)),
-                exit = slideOutVertically(
-                    targetOffsetY = { it },
-                    animationSpec = tween(durationMillis = 300)
-                ) + fadeOut(animationSpec = tween(durationMillis = 300)),
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(Spacing.ScreenPadding)
-                    .padding(bottom = Spacing.ExtraHuge)
-            ) {
+            if (showScrollToTopButton) {
                 FloatingActionButton(
                     onClick = scrollToTop,
-                    modifier = Modifier.size(Spacing.FabSizeSmall),
+                    modifier = Modifier
+                        .size(Spacing.FabSizeSmall)
+                        .align(Alignment.BottomEnd)
+                        .padding(Spacing.ScreenPadding)
+                        .padding(bottom = Spacing.ExtraHuge),
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary
                 ) {
@@ -341,13 +331,7 @@ private fun ErrorSnackbar(
     message: String,
     onDismiss: () -> Unit
 ) {
-    AnimatedVisibility(
-        visible = message.isNotEmpty(),
-        enter = fadeIn(animationSpec = tween(durationMillis = 300)) + 
-                scaleIn(animationSpec = tween(durationMillis = 300)),
-        exit = fadeOut(animationSpec = tween(durationMillis = 300)) + 
-                scaleOut(animationSpec = tween(durationMillis = 300))
-    ) {
+    if (message.isNotEmpty()) {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -380,36 +364,13 @@ private fun ErrorSnackbar(
 
 @Composable
 private fun LoadingAnimation() {
-    val infiniteTransition = rememberInfiniteTransition(label = "loading")
-    val scale by infiniteTransition.animateFloat(
-        initialValue = 0.8f,
-        targetValue = 1.2f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1000, easing = EaseInOutCubic),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "scale"
-    )
-    
-    val alpha by infiniteTransition.animateFloat(
-        initialValue = 0.3f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1000, easing = EaseInOutCubic),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "alpha"
-    )
-    
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         CircularProgressIndicator(
-            modifier = Modifier
-                .size(56.dp)
-                .scale(scale),
-            color = MaterialTheme.colorScheme.primary.copy(alpha = alpha),
+            modifier = Modifier.size(56.dp),
+            color = MaterialTheme.colorScheme.primary,
             strokeWidth = 4.dp,
             trackColor = MaterialTheme.colorScheme.surfaceVariant
         )

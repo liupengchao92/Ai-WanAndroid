@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.gradle.aicodeapp.R
 import com.gradle.aicodeapp.network.model.Article
-import com.gradle.aicodeapp.ui.theme.Shapes
+import com.gradle.aicodeapp.ui.theme.CustomShapes
 import com.gradle.aicodeapp.ui.theme.Spacing
 
 @Composable
@@ -44,31 +44,21 @@ fun ProjectItem(
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 
-    val backgroundColor by animateColorAsState(
-        targetValue = when {
-            isPressed -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
-            else -> MaterialTheme.colorScheme.surface
-        },
-        label = "backgroundColor"
-    )
-
-    val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.95f else 1f,
-        animationSpec = spring(dampingRatio = 0.5f, stiffness = 200f),
-        label = "scale"
-    )
+    val backgroundColor = when {
+        isPressed -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+        else -> MaterialTheme.colorScheme.surface
+    }
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = Spacing.ScreenPadding, vertical = Spacing.Small)
-            .scale(scale)
             .clickable(
                 interactionSource = interactionSource,
                 indication = rememberRipple(bounded = true),
                 onClick = onClick
             ),
-        shape = Shapes.Medium,
+        shape = CustomShapes.Medium,
         elevation = CardDefaults.cardElevation(
             defaultElevation = Spacing.ElevationLow
         ),
@@ -91,7 +81,7 @@ fun ProjectItem(
                 modifier = Modifier
                     .width(80.dp)
                     .height(100.dp)
-                    .clip(Shapes.Small),
+                    .clip(CustomShapes.Small),
                 contentScale = ContentScale.Crop
             )
 

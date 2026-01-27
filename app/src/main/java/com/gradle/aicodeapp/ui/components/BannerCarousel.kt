@@ -47,7 +47,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.gradle.aicodeapp.network.model.Banner
 import com.gradle.aicodeapp.ui.theme.Animations
-import com.gradle.aicodeapp.ui.theme.Shapes
+import com.gradle.aicodeapp.ui.theme.CustomShapes
 import com.gradle.aicodeapp.ui.theme.Sizes
 import com.gradle.aicodeapp.ui.theme.Spacing
 import kotlinx.coroutines.delay
@@ -85,7 +85,7 @@ fun BannerCarousel(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
-                    .clip(Shapes.Small)
+                    .clip(CustomShapes.Small)
             ) {
                 LazyRow(
                     state = lazyListState,
@@ -162,7 +162,7 @@ fun BannerItem(
                         }
                     }
                 ),
-            shape = Shapes.Medium,
+            shape = CustomShapes.Medium,
             elevation = CardDefaults.cardElevation(
                 defaultElevation = Spacing.ElevationLow,
                 pressedElevation = Spacing.ElevationMedium
@@ -222,7 +222,7 @@ fun Indicator(
         modifier = Modifier
             .width(if (isActive) 24.dp else 8.dp)
             .height(6.dp),
-        shape = Shapes.ExtraSmall,
+        shape = CustomShapes.ExtraSmall,
         color = if (isActive) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant
     ) {}
 }

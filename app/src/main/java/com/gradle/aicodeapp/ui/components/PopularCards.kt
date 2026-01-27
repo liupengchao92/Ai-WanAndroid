@@ -49,7 +49,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.gradle.aicodeapp.network.model.PopularColumn
 import com.gradle.aicodeapp.network.model.PopularRoute
 import com.gradle.aicodeapp.network.model.PopularWenda
-import com.gradle.aicodeapp.ui.theme.Shapes
+import com.gradle.aicodeapp.ui.theme.CustomShapes
 import com.gradle.aicodeapp.ui.theme.Spacing
 import com.gradle.aicodeapp.ui.viewmodel.HomeViewModel
 import kotlinx.coroutines.launch
@@ -168,7 +168,7 @@ fun PopularWendaCard(
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = Shapes.Medium,
+        shape = CustomShapes.Medium,
         elevation = CardDefaults.cardElevation(
             defaultElevation = Spacing.ElevationLow
         ),
@@ -222,7 +222,7 @@ fun PopularColumnCard(
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = Shapes.Medium,
+        shape = CustomShapes.Medium,
         elevation = CardDefaults.cardElevation(
             defaultElevation = Spacing.ElevationLow
         ),
@@ -276,7 +276,7 @@ fun PopularRouteCard(
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = Shapes.Medium,
+        shape = CustomShapes.Medium,
         elevation = CardDefaults.cardElevation(
             defaultElevation = Spacing.ElevationLow
         ),
@@ -352,7 +352,7 @@ fun WendaItem(
         modifier = Modifier
             .fillMaxWidth()
             .height(30.dp)
-            .clip(Shapes.Small)
+            .clip(CustomShapes.Small)
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
@@ -400,7 +400,7 @@ fun ColumnItem(
         modifier = Modifier
             .fillMaxWidth()
             .height(30.dp)
-            .clip(Shapes.Small)
+            .clip(CustomShapes.Small)
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
@@ -448,7 +448,7 @@ fun RouteItem(
         modifier = Modifier
             .fillMaxWidth()
             .height(30.dp)
-            .clip(Shapes.Small)
+            .clip(CustomShapes.Small)
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
@@ -477,7 +477,7 @@ fun ViewMoreButton(onClick: () -> Unit) {
         modifier = Modifier
             .height(32.dp)
             .widthIn(min = 60.dp),
-        shape = Shapes.Small
+        shape = CustomShapes.Small
     ) {
         Row(
             horizontalArrangement = Arrangement.spacedBy(Spacing.ExtraSmall),

@@ -32,7 +32,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.gradle.aicodeapp.ui.theme.Shapes
+import com.gradle.aicodeapp.ui.theme.CustomShapes
 import com.gradle.aicodeapp.ui.theme.Spacing
 
 @Composable
@@ -43,7 +43,7 @@ fun ArticleItemSkeleton(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = Spacing.ScreenPadding, vertical = Spacing.Small),
-        shape = Shapes.Medium,
+        shape = CustomShapes.Medium,
         elevation = CardDefaults.cardElevation(defaultElevation = Spacing.ElevationLow),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
@@ -120,7 +120,7 @@ fun BannerSkeleton(
             .fillMaxWidth()
             .height(200.dp)
             .padding(horizontal = Spacing.ScreenPadding, vertical = Spacing.Small),
-        shape = Shapes.Medium,
+        shape = CustomShapes.Medium,
         elevation = CardDefaults.cardElevation(defaultElevation = Spacing.ElevationLow),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface

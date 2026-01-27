@@ -141,7 +141,12 @@ private fun LoadingState(paddingValues: PaddingValues) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            LoadingAnimation()
+            CircularProgressIndicator(
+                modifier = Modifier.size(Spacing.FabSize),
+                color = MaterialTheme.colorScheme.primary,
+                strokeWidth = Spacing.ExtraSmall,
+                trackColor = MaterialTheme.colorScheme.surfaceVariant
+            )
             Spacer(modifier = Modifier.height(Spacing.Large))
             Text(
                 text = "加载中...",
@@ -157,39 +162,6 @@ private fun LoadingState(paddingValues: PaddingValues) {
             )
         }
     }
-}
-
-@Composable
-private fun LoadingAnimation() {
-    val infiniteTransition = rememberInfiniteTransition(label = "loading")
-    val scale by infiniteTransition.animateFloat(
-        initialValue = 0.8f,
-        targetValue = 1.2f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1000, easing = EaseInOutCubic),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "scale"
-    )
-    
-    val alpha by infiniteTransition.animateFloat(
-        initialValue = 0.3f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1000, easing = EaseInOutCubic),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "alpha"
-    )
-    
-    CircularProgressIndicator(
-        modifier = Modifier
-            .size(Spacing.FabSize)
-            .scale(scale),
-        color = MaterialTheme.colorScheme.primary.copy(alpha = alpha),
-        strokeWidth = Spacing.ExtraSmall,
-        trackColor = MaterialTheme.colorScheme.surfaceVariant
-    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -232,21 +204,12 @@ private fun ContentState(
                     contentPadding = ResponsiveLayout.responsiveContentPadding()
                 ) {
                     item {
-                        AnimatedVisibility(
-                            visible = uiState.banners.isNotEmpty(),
-                            enter = fadeIn(animationSpec = tween(durationMillis = 300)) + 
-                                    scaleIn(animationSpec = tween(durationMillis = 300)),
-                            exit = fadeOut(animationSpec = tween(durationMillis = 300))
-                        ) {
+                        if (uiState.banners.isNotEmpty()) {
                             BannerCarousel(
                                 banners = uiState.banners,
                                 onBannerClick = { url -> onArticleClick(url, "") }
                             )
                         }
-                    }
-
-                    item {
-                        Spacer(modifier = Modifier.height(Spacing.ExtraLarge))
                     }
 
                     item {
@@ -261,44 +224,24 @@ private fun ContentState(
                         )
                     }
 
-                    item {
-                        Spacer(modifier = Modifier.height(Spacing.ExtraLarge))
-                    }
-
                     items(
                         items = uiState.topArticles,
                         key = { article -> article.id }
                     ) {
                         article ->
-                        AnimatedVisibility(
-                            visible = true,
-                            enter = fadeIn(
-                                animationSpec = tween(
-                                    durationMillis = 300,
-                                    delayMillis = 0
-                                )
-                            ) + scaleIn(
-                                animationSpec = tween(
-                                    durationMillis = 300,
-                                    delayMillis = 0
-                                ),
-                                initialScale = 0.9f
-                            )
-                        ) {
-                            ArticleItem(
-                                article = article,
-                                isTop = true,
-                                onClick = { onArticleClick(article.link, article.title) },
-                                onCollectClick = { shouldCollect ->
-                                    if (shouldCollect) {
-                                        collectViewModel.collectArticle(article.id)
-                                    } else {
-                                        collectViewModel.uncollectArticle(article.id)
-                                    }
-                                    viewModel.updateArticleCollectStatus(article.id, shouldCollect)
+                        ArticleItem(
+                            article = article,
+                            isTop = true,
+                            onClick = { onArticleClick(article.link, article.title) },
+                            onCollectClick = { shouldCollect ->
+                                if (shouldCollect) {
+                                    collectViewModel.collectArticle(article.id)
+                                } else {
+                                    collectViewModel.uncollectArticle(article.id)
                                 }
-                            )
-                        }
+                                viewModel.updateArticleCollectStatus(article.id, shouldCollect)
+                            }
+                        )
                     }
 
                     items(
@@ -306,34 +249,18 @@ private fun ContentState(
                         key = { article -> article.id }
                     ) {
                         article ->
-                        AnimatedVisibility(
-                            visible = true,
-                            enter = fadeIn(
-                                animationSpec = tween(
-                                    durationMillis = 300,
-                                    delayMillis = 50
-                                )
-                            ) + scaleIn(
-                                animationSpec = tween(
-                                    durationMillis = 300,
-                                    delayMillis = 50
-                                ),
-                                initialScale = 0.9f
-                            )
-                        ) {
-                            ArticleItem(
-                                article = article,
-                                onClick = { onArticleClick(article.link, article.title) },
-                                onCollectClick = { shouldCollect ->
-                                    if (shouldCollect) {
-                                        collectViewModel.collectArticle(article.id)
-                                    } else {
-                                        collectViewModel.uncollectArticle(article.id)
-                                    }
-                                    viewModel.updateArticleCollectStatus(article.id, shouldCollect)
+                        ArticleItem(
+                            article = article,
+                            onClick = { onArticleClick(article.link, article.title) },
+                            onCollectClick = { shouldCollect ->
+                                if (shouldCollect) {
+                                    collectViewModel.collectArticle(article.id)
+                                } else {
+                                    collectViewModel.uncollectArticle(article.id)
                                 }
-                            )
-                        }
+                                viewModel.updateArticleCollectStatus(article.id, shouldCollect)
+                            }
+                        )
                     }
 
                     item {
@@ -382,13 +309,7 @@ private fun ErrorSnackbar(
     message: String,
     onDismiss: () -> Unit
 ) {
-    AnimatedVisibility(
-        visible = message.isNotEmpty(),
-        enter = fadeIn(animationSpec = tween(durationMillis = 300)) + 
-                scaleIn(animationSpec = tween(durationMillis = 300)),
-        exit = fadeOut(animationSpec = tween(durationMillis = 300)) + 
-                scaleOut(animationSpec = tween(durationMillis = 300))
-    ) {
+    if (message.isNotEmpty()) {
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = MaterialTheme.shapes.medium,
@@ -435,17 +356,6 @@ private fun LoadingFooter(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    val infiniteTransition = rememberInfiniteTransition(label = "footerLoading")
-                    val scale by infiniteTransition.animateFloat(
-                        initialValue = 0.8f,
-                        targetValue = 1.2f,
-                        animationSpec = infiniteRepeatable(
-                            animation = tween(durationMillis = 800, easing = EaseInOutCubic),
-                            repeatMode = RepeatMode.Reverse
-                        ),
-                        label = "scale"
-                    )
-                    
                     CircularProgressIndicator(
                         modifier = Modifier.size(32.dp),
                         color = MaterialTheme.colorScheme.primary,

@@ -284,13 +284,7 @@ private fun ErrorSnackbar(
     message: String,
     onDismiss: () -> Unit
 ) {
-    AnimatedVisibility(
-        visible = message.isNotEmpty(),
-        enter = fadeIn(animationSpec = tween(durationMillis = 300)) + 
-                scaleIn(animationSpec = tween(durationMillis = 300)),
-        exit = fadeOut(animationSpec = tween(durationMillis = 300)) + 
-                scaleOut(animationSpec = tween(durationMillis = 300))
-    ) {
+    if (message.isNotEmpty()) {
         Card(
             modifier = Modifier
                 .fillMaxWidth()

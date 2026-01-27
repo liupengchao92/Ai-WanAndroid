@@ -53,7 +53,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gradle.aicodeapp.R
 import com.gradle.aicodeapp.data.PendingActionManager
-import com.gradle.aicodeapp.ui.theme.Shapes
+import com.gradle.aicodeapp.ui.theme.CustomShapes
 import com.gradle.aicodeapp.ui.theme.Spacing
 import com.gradle.aicodeapp.ui.viewmodel.LoginViewModel
 import kotlinx.coroutines.launch
@@ -134,7 +134,7 @@ fun LoginPage(
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 enabled = !uiState.isLoading,
-                shape = Shapes.Medium,
+                shape = CustomShapes.Medium,
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = MaterialTheme.colorScheme.primary,
                     unfocusedBorderColor = MaterialTheme.colorScheme.outline,
@@ -198,7 +198,7 @@ fun LoginPage(
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 enabled = !uiState.isLoading,
-                shape = Shapes.Medium,
+                shape = CustomShapes.Medium,
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = MaterialTheme.colorScheme.primary,
                     unfocusedBorderColor = MaterialTheme.colorScheme.outline,
@@ -216,7 +216,7 @@ fun LoginPage(
                     .fillMaxWidth()
                     .height(Spacing.ButtonHeight),
                 enabled = !uiState.isLoading,
-                shape = Shapes.Medium,
+                shape = CustomShapes.Medium,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary,

@@ -62,7 +62,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.gradle.aicodeapp.data.UserManager
-import com.gradle.aicodeapp.ui.theme.Shapes
+import com.gradle.aicodeapp.ui.theme.CustomShapes
 import com.gradle.aicodeapp.ui.theme.Spacing
 import javax.inject.Inject
 
@@ -331,23 +331,11 @@ private fun MenuItem(
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     
-    val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.95f else 1f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessLow
-        ),
-        label = "scale"
-    )
-    
-    val backgroundColor by animateColorAsState(
-        targetValue = if (isPressed) {
-            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
-        } else {
-            MaterialTheme.colorScheme.surface
-        },
-        label = "backgroundColor"
-    )
+    val backgroundColor = if (isPressed) {
+        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+    } else {
+        MaterialTheme.colorScheme.surface
+    }
 
     Row(
         modifier = Modifier
@@ -359,8 +347,7 @@ private fun MenuItem(
                 indication = null,
                 onClick = onClick
             )
-            .padding(Spacing.Medium)
-            .scale(scale),
+            .padding(Spacing.Medium),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Surface(

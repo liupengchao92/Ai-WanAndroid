@@ -38,7 +38,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.gradle.aicodeapp.network.model.Article
-import com.gradle.aicodeapp.ui.theme.Shapes
+import com.gradle.aicodeapp.ui.theme.CustomShapes
 import com.gradle.aicodeapp.ui.theme.Spacing
 
 
@@ -54,43 +54,28 @@ fun ArticleItem(
     val isPressed by interactionSource.collectIsPressedAsState()
     val isHovered by interactionSource.collectIsHoveredAsState()
 
-    val backgroundColor by animateColorAsState(
-        targetValue = when {
-            isPressed -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
-            isHovered -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
-            else -> MaterialTheme.colorScheme.surface
-        },
-        animationSpec = tween(durationMillis = 200),
-        label = "backgroundColor"
-    )
+    val backgroundColor = when {
+        isPressed -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+        isHovered -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+        else -> MaterialTheme.colorScheme.surface
+    }
 
-    val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.95f else 1f,
-        animationSpec = spring(dampingRatio = 0.5f, stiffness = 200f),
-        label = "scale"
-    )
-
-    val elevation by animateFloatAsState(
-        targetValue = when {
-            isPressed -> Spacing.ElevationMedium.value
-            isHovered -> Spacing.ElevationMedium.value
-            else -> Spacing.ElevationLow.value
-        },
-        animationSpec = tween(durationMillis = 200),
-        label = "elevation"
-    )
+    val elevation = when {
+        isPressed -> Spacing.ElevationMedium.value
+        isHovered -> Spacing.ElevationMedium.value
+        else -> Spacing.ElevationLow.value
+    }
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = Spacing.ScreenPadding, vertical = Spacing.Small)
-            .scale(scale)
             .clickable(
                 interactionSource = interactionSource,
                 indication = rememberRipple(bounded = true),
                 onClick = onClick
             ),
-        shape = Shapes.Medium,
+        shape = CustomShapes.Medium,
         elevation = CardDefaults.cardElevation(defaultElevation = elevation.dp),
         colors = CardDefaults.cardColors(containerColor = backgroundColor)
     ) {
@@ -185,7 +170,7 @@ private fun TopBadge() {
         modifier = Modifier
             .width(48.dp)
             .height(24.dp),
-        shape = Shapes.Small,
+        shape = CustomShapes.Small,
         color = MaterialTheme.colorScheme.errorContainer
     ) {
         Box(
@@ -208,7 +193,7 @@ private fun FreshBadge() {
         modifier = Modifier
             .width(48.dp)
             .height(24.dp),
-        shape = Shapes.Small,
+        shape = CustomShapes.Small,
         color = MaterialTheme.colorScheme.primaryContainer
     ) {
         Box(

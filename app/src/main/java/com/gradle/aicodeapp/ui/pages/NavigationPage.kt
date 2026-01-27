@@ -52,7 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gradle.aicodeapp.ui.components.FlowLayout
 import com.gradle.aicodeapp.ui.state.NavigationUiState
-import com.gradle.aicodeapp.ui.theme.Shapes
+import com.gradle.aicodeapp.ui.theme.CustomShapes
 import com.gradle.aicodeapp.ui.theme.Spacing
 import com.gradle.aicodeapp.ui.viewmodel.NavigationViewModel
 import kotlinx.coroutines.launch
@@ -238,31 +238,16 @@ fun NavigationGroupItem(
     isSelected: Boolean,
     onClick: () -> Unit,
 ) {
-    val backgroundColor by animateColorAsState(
-        targetValue = if (isSelected) {
-            MaterialTheme.colorScheme.primaryContainer
-        } else {
-            Color.Transparent
-        },
-        label = "backgroundColor"
-    )
-    val textColor by animateColorAsState(
-        targetValue = if (isSelected) {
-            MaterialTheme.colorScheme.primary
-        } else {
-            MaterialTheme.colorScheme.onSurface
-        },
-        label = "textColor"
-    )
-
-    val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
-
-    val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.95f else 1f,
-        animationSpec = spring(dampingRatio = 0.5f, stiffness = 200f),
-        label = "scale"
-    )
+    val backgroundColor = if (isSelected) {
+        MaterialTheme.colorScheme.primaryContainer
+    } else {
+        Color.Transparent
+    }
+    val textColor = if (isSelected) {
+        MaterialTheme.colorScheme.primary
+    } else {
+        MaterialTheme.colorScheme.onSurface
+    }
 
     Box(
         modifier = Modifier
@@ -271,12 +256,11 @@ fun NavigationGroupItem(
             .clip(MaterialTheme.shapes.medium)
             .background(backgroundColor)
             .clickable(
-                interactionSource = interactionSource,
+                interactionSource = remember { MutableInteractionSource() },
                 indication = rememberRipple(bounded = true),
                 onClick = onClick
             )
             .padding(vertical = Spacing.Medium, horizontal = Spacing.Medium)
-            .scale(scale)
     ) {
         Text(
             text = name,
@@ -368,19 +352,10 @@ fun NavigationArticleItem(
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 
-    val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.95f else 1f,
-        animationSpec = spring(dampingRatio = 0.5f, stiffness = 200f),
-        label = "scale"
-    )
-
-    val backgroundColor by animateColorAsState(
-        targetValue = when {
-            isPressed -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
-            else -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
-        },
-        label = "backgroundColor"
-    )
+    val backgroundColor = when {
+        isPressed -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+        else -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+    }
 
     Box(
         modifier = Modifier
@@ -393,7 +368,6 @@ fun NavigationArticleItem(
                 onClick = onClick
             )
             .padding(vertical = Spacing.Small, horizontal = Spacing.Medium)
-            .scale(scale)
     ) {
         Text(
             text = article.title,
