@@ -34,21 +34,34 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import kotlin.math.min
 import androidx.compose.ui.graphics.Color as ComposeColor
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.painterResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gradle.aicodeapp.R
@@ -56,7 +69,18 @@ import com.gradle.aicodeapp.ui.state.CoinUiState
 import com.gradle.aicodeapp.ui.theme.Spacing
 import com.gradle.aicodeapp.ui.viewmodel.CoinViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun getScreenSize(): Dp {
+    val configuration = LocalConfiguration.current
+    return minOf(configuration.screenWidthDp.dp, configuration.screenHeightDp.dp)
+}
+
+@Composable
+private fun isSmallScreen(): Boolean {
+    return getScreenSize() < 600.dp
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun CoinPage(
     viewModel: CoinViewModel = hiltViewModel(),
@@ -89,7 +113,7 @@ fun CoinPage(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 private fun CoinContentView(
     uiState: CoinUiState,
@@ -138,7 +162,7 @@ private fun CoinContentView(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(
                 horizontal = Spacing.ScreenPadding,
-                vertical = Spacing.Medium
+                vertical = Spacing.Small
             )
         ) {
             item {
@@ -146,7 +170,7 @@ private fun CoinContentView(
                     coinUserInfo = uiState.coinUserInfo,
                     isLoading = uiState.isLoading
                 )
-                Spacer(modifier = Modifier.height(Spacing.ExtraLarge))
+                Spacer(modifier = Modifier.height(Spacing.Large))
             }
 
             item {
@@ -165,12 +189,13 @@ private fun CoinContentView(
                 )
             }
 
-            if (uiState.isLoadingMore) {
-                item {
+            item {
+                AnimatedVisibility(visible = uiState.isLoadingMore) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(Spacing.Medium),
+
                         contentAlignment = Alignment.Center
                     ) {
                         CircularProgressIndicator(
@@ -181,12 +206,13 @@ private fun CoinContentView(
                 }
             }
 
-            if (!uiState.hasMoreRankData && uiState.coinRankList.isNotEmpty()) {
-                item {
+            item {
+                AnimatedVisibility(visible = !uiState.hasMoreRankData && uiState.coinRankList.isNotEmpty()) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(Spacing.Medium),
+
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
@@ -206,6 +232,10 @@ private fun UserInfoCard(
     coinUserInfo: com.gradle.aicodeapp.network.model.CoinUserInfo?,
     isLoading: Boolean
 ) {
+    val smallScreen = isSmallScreen()
+    val paddingValue = if (smallScreen) Spacing.Medium else Spacing.Large
+    val spacingValue = if (smallScreen) Spacing.Medium else Spacing.Large
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = Spacing.ElevationLow),
@@ -225,7 +255,7 @@ private fun UserInfoCard(
                         )
                     )
                 )
-                .padding(Spacing.ExtraLarge)
+                .padding(paddingValue)
         ) {
             if (isLoading && coinUserInfo == null) {
                 Box(
@@ -244,21 +274,21 @@ private fun UserInfoCard(
                 ) {
                     Text(
                         text = "我的积分",
-                        style = MaterialTheme.typography.titleLarge,
+                        style = if (smallScreen) MaterialTheme.typography.titleMedium else MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.onPrimaryContainer,
                         fontWeight = FontWeight.Bold
                     )
 
-                    Spacer(modifier = Modifier.height(Spacing.ExtraLarge))
+                    Spacer(modifier = Modifier.height(spacingValue))
 
                     Text(
                         text = coinUserInfo?.username ?: "未登录",
-                        style = MaterialTheme.typography.headlineMedium,
+                        style = if (smallScreen) MaterialTheme.typography.titleLarge else MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
 
-                    Spacer(modifier = Modifier.height(Spacing.Large))
+                    Spacer(modifier = Modifier.height(Spacing.Medium))
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -343,35 +373,43 @@ private fun RankListHeader() {
     }
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun RankListItem(
     rank: com.gradle.aicodeapp.network.model.CoinRank
 ) {
     val rankNumber = rank.rank.toIntOrNull() ?: 0
+    val smallScreen = isSmallScreen()
 
-    Row(
+    Surface(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(Spacing.Medium),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+            .fillMaxWidth(),
+        color = MaterialTheme.colorScheme.surface
     ) {
-        RankNumber(rankNumber = rankNumber)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(if (smallScreen) Spacing.Small else Spacing.Medium),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            RankNumber(rankNumber = rankNumber)
 
-        Spacer(modifier = Modifier.width(Spacing.Small))
+            Spacer(modifier = Modifier.width(if (smallScreen) 4.dp else Spacing.Small))
 
-        UserInfo(
-            username = rank.username,
-            nickname = rank.nickname,
-            modifier = Modifier.weight(0.5f)
-        )
+            UserInfo(
+                username = rank.username,
+                nickname = rank.nickname,
+                modifier = Modifier.weight(if (smallScreen) 0.55f else 0.5f)
+            )
 
-        Spacer(modifier = Modifier.width(Spacing.Small))
+            Spacer(modifier = Modifier.width(if (smallScreen) 4.dp else Spacing.Small))
 
-        CoinCount(
-            coinCount = rank.coinCount,
-            modifier = Modifier.weight(0.35f)
-        )
+            CoinCount(
+                coinCount = rank.coinCount,
+                modifier = Modifier.weight(if (smallScreen) 0.3f else 0.35f)
+            )
+        }
     }
 }
 
@@ -379,14 +417,20 @@ private fun RankListItem(
 private fun RankNumber(rankNumber: Int) {
     Box(
         modifier = Modifier
-            .size(32.dp)
+            .size(36.dp)
             .clip(CircleShape)
             .background(
                 when (rankNumber) {
-                    1 -> ComposeColor(0xFFFFD700)
-                    2 -> ComposeColor(0xFFC0C0C0)
-                    3 -> ComposeColor(0xFFCD7F32)
+                    1 -> ComposeColor(0xFFFFD700) // 金色
+                    2 -> ComposeColor(0xFFC0C0C0) // 银色
+                    3 -> ComposeColor(0xFFCD7F32) // 铜色
                     else -> MaterialTheme.colorScheme.surfaceVariant
+                }
+            )
+            .shadow(
+                elevation = when (rankNumber) {
+                    1, 2, 3 -> 4.dp
+                    else -> 2.dp
                 }
             ),
         contentAlignment = Alignment.Center
@@ -395,7 +439,7 @@ private fun RankNumber(rankNumber: Int) {
             Icon(
                 imageVector = Icons.Default.Star,
                 contentDescription = "奖杯",
-                modifier = Modifier.size(20.dp),
+                modifier = Modifier.size(22.dp),
                 tint = ComposeColor.White
             )
         } else {
@@ -459,15 +503,25 @@ private fun LoadingView() {
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(Spacing.Medium)
+            verticalArrangement = Arrangement.spacedBy(Spacing.Large)
         ) {
-            CircularProgressIndicator(
-                modifier = Modifier.size(48.dp),
-                color = MaterialTheme.colorScheme.primary
-            )
+            Box(
+                modifier = Modifier
+                    .size(80.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .padding(Spacing.Medium),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(40.dp),
+                    color = MaterialTheme.colorScheme.primary,
+                    strokeWidth = 3.dp
+                )
+            }
 
             Text(
-                text = "加载中...",
+                text = "加载积分数据...",
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -475,6 +529,7 @@ private fun LoadingView() {
     }
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun CoinErrorView(
     errorMessage: String,
@@ -486,21 +541,39 @@ private fun CoinErrorView(
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(Spacing.Medium)
+            verticalArrangement = Arrangement.spacedBy(Spacing.Large),
+            modifier = Modifier.padding(Spacing.ExtraLarge)
         ) {
+            Box(
+                modifier = Modifier
+                    .size(80.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.2f))
+                    .padding(Spacing.Medium),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Refresh,
+                    contentDescription = "错误",
+                    modifier = Modifier.size(40.dp),
+                    tint = MaterialTheme.colorScheme.error
+                )
+            }
+
             Text(
                 text = errorMessage,
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.error,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                maxLines = 2
             )
 
             androidx.compose.material3.Button(
-                onClick = onRetry,
-                colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary
-                )
-            ) {
+                    onClick = onRetry,
+                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary
+                    )
+                ) {
                 Icon(
                     imageVector = Icons.Default.Refresh,
                     contentDescription = "重试",

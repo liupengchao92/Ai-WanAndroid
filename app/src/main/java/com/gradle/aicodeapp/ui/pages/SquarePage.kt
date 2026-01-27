@@ -1,23 +1,35 @@
 package com.gradle.aicodeapp.ui.pages
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.EaseInOutCubic
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.List
@@ -37,6 +49,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
@@ -47,7 +60,13 @@ import com.gradle.aicodeapp.ui.components.SearchBox
 import com.gradle.aicodeapp.ui.viewmodel.CollectViewModel
 import com.gradle.aicodeapp.ui.viewmodel.SquareViewModel
 import com.gradle.aicodeapp.ui.theme.Spacing
+import com.gradle.aicodeapp.ui.theme.ResponsiveLayout
 import kotlinx.coroutines.launch
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Text
+import androidx.compose.material3.Surface
+import androidx.compose.ui.text.style.TextOverflow
 
 @Composable
 fun SquarePage(
@@ -102,73 +121,57 @@ fun SquarePage(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+                .background(color = MaterialTheme.colorScheme.background)
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(
-                            start = Spacing.ScreenPadding,
-                            end = Spacing.ScreenPadding,
+                        .then(ResponsiveLayout.responsivePadding(
                             top = Spacing.Small,
                             bottom = Spacing.Small
-                        )
+                        ))
                 ) {
                     SearchBox(onClick = onSearchClick)
                 }
                 
-                LazyColumn(
+                Box(
                     modifier = Modifier.fillMaxSize(),
-                    state = listState
+                    contentAlignment = Alignment.Center
                 ) {
-                    items(5) {
-                        ArticleItemSkeleton()
-                    }
+                    LoadingAnimation()
                 }
             }
         }
     } else {
         Box(modifier = Modifier.fillMaxSize()) {
             if (uiState.errorMessage != null) {
-                Snackbar(
-                    modifier = Modifier.padding(8.dp),
-                    action = {
-                        TextButton(
-                            onClick = { viewModel.clearError() }
-                        ) {
-                            Text(text = "关闭")
-                        }
-                    }
-                ) {
-                    Text(text = uiState.errorMessage ?: "")
-                }
+                ErrorSnackbar(
+                    message = uiState.errorMessage ?: "",
+                    onDismiss = { viewModel.clearError() }
+                )
             }
 
             if (collectUiState.errorMessage != null) {
-                Snackbar(
-                    modifier = Modifier.padding(8.dp),
-                    action = {
-                        TextButton(
-                            onClick = { collectViewModel.clearError() }
-                        ) {
-                            Text(text = "关闭")
-                        }
-                    }
-                ) {
-                    Text(text = collectUiState.errorMessage ?: "")
-                }
+                ErrorSnackbar(
+                    message = collectUiState.errorMessage ?: "",
+                    onDismiss = { collectViewModel.clearError() }
+                )
             }
 
-            Column(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = MaterialTheme.colorScheme.background)
+                    .padding(top = paddingValues.calculateTopPadding())
+            ) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(
-                            start = Spacing.ScreenPadding,
-                            end = Spacing.ScreenPadding,
-                            top = paddingValues.calculateTopPadding(),
+                        .then(ResponsiveLayout.responsivePadding(
+                            top = Spacing.Small,
                             bottom = Spacing.Small
-                        )
+                        ))
                 ) {
                     SearchBox(onClick = onSearchClick)
                 }
@@ -183,13 +186,13 @@ fun SquarePage(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
                         ) {
-                            androidx.compose.foundation.layout.Column(
+                            Column(
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.List,
                                     contentDescription = null,
-                                    modifier = Modifier.size(64.dp),
+                                    modifier = Modifier.size(Spacing.IconExtraLarge),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                                 Spacer(modifier = Modifier.height(Spacing.Medium))
@@ -203,9 +206,13 @@ fun SquarePage(
                     } else {
                         LazyColumn(
                             modifier = Modifier.fillMaxSize(),
-                            state = listState
+                            state = listState,
+                            contentPadding = ResponsiveLayout.responsiveContentPadding()
                         ) {
-                            items(uiState.articles) { article ->
+                            items(
+                                items = uiState.articles,
+                                key = { article -> article.id }
+                            ) { article ->
                                 ArticleItem(
                                     article = article,
                                     isSquare = true,
@@ -226,23 +233,69 @@ fun SquarePage(
                                     Box(
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .padding(16.dp),
+                                            .then(ResponsiveLayout.responsiveHorizontalPadding()),
                                         contentAlignment = Alignment.Center
                                     ) {
-                                        CircularProgressIndicator()
+                                        Column(
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                            verticalArrangement = Arrangement.Center
+                                        ) {
+                                            CircularProgressIndicator(
+                                                color = MaterialTheme.colorScheme.primary,
+                                                strokeWidth = 2.dp,
+                                                trackColor = MaterialTheme.colorScheme.surfaceVariant
+                                            )
+                                            Spacer(modifier = Modifier.height(Spacing.Small))
+                                            Text(
+                                                text = "加载中...",
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                fontWeight = FontWeight.Medium
+                                            )
+                                        }
                                     }
                                 } else if (!uiState.hasMore && uiState.articles.isNotEmpty()) {
                                     Box(
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .padding(16.dp),
+                                            .then(ResponsiveLayout.responsiveHorizontalPadding()),
                                         contentAlignment = Alignment.Center
                                     ) {
-                                        Text(
-                                            text = "没有更多数据了",
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
+                                        Surface(
+                                            shape = MaterialTheme.shapes.medium,
+                                            color = MaterialTheme.colorScheme.surfaceVariant,
+                                            modifier = Modifier.padding(horizontal = Spacing.Medium)
+                                        ) {
+                                            Row(
+                                                modifier = Modifier.padding(
+                                                    horizontal = Spacing.Medium,
+                                                    vertical = Spacing.Small
+                                                ),
+                                                horizontalArrangement = Arrangement.Center,
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                Text(
+                                                    text = "·",
+                                                    style = MaterialTheme.typography.titleMedium,
+                                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                                Spacer(modifier = Modifier.width(Spacing.Small))
+                                                Text(
+                                                    text = "已经到底了",
+                                                    style = MaterialTheme.typography.bodySmall,
+                                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                    fontWeight = FontWeight.Medium
+                                                )
+                                                Spacer(modifier = Modifier.width(Spacing.Small))
+                                                Text(
+                                                    text = "·",
+                                                    style = MaterialTheme.typography.titleMedium,
+                                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -263,21 +316,115 @@ fun SquarePage(
                 ) + fadeOut(animationSpec = tween(durationMillis = 300)),
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .padding(16.dp)
-                    .padding(bottom = 80.dp)
+                    .padding(Spacing.ScreenPadding)
+                    .padding(bottom = Spacing.ExtraHuge)
             ) {
                 FloatingActionButton(
                     onClick = scrollToTop,
-                    modifier = Modifier.size(48.dp),
-                    containerColor = MaterialTheme.colorScheme.primary
+                    modifier = Modifier.size(Spacing.FabSizeSmall),
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
                 ) {
                     Icon(
                         imageVector = Icons.Default.KeyboardArrowUp,
                         contentDescription = "返回顶部",
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(Spacing.IconMedium)
                     )
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun ErrorSnackbar(
+    message: String,
+    onDismiss: () -> Unit
+) {
+    AnimatedVisibility(
+        visible = message.isNotEmpty(),
+        enter = fadeIn(animationSpec = tween(durationMillis = 300)) + 
+                scaleIn(animationSpec = tween(durationMillis = 300)),
+        exit = fadeOut(animationSpec = tween(durationMillis = 300)) + 
+                scaleOut(animationSpec = tween(durationMillis = 300))
+    ) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(Spacing.Small),
+            shape = MaterialTheme.shapes.medium,
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.errorContainer
+            ),
+            elevation = CardDefaults.cardElevation(
+                defaultElevation = 2.dp
+            )
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(Spacing.CardPadding),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                Text(
+                    text = message,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onErrorContainer,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun LoadingAnimation() {
+    val infiniteTransition = rememberInfiniteTransition(label = "loading")
+    val scale by infiniteTransition.animateFloat(
+        initialValue = 0.8f,
+        targetValue = 1.2f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1000, easing = EaseInOutCubic),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "scale"
+    )
+    
+    val alpha by infiniteTransition.animateFloat(
+        initialValue = 0.3f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1000, easing = EaseInOutCubic),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "alpha"
+    )
+    
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        CircularProgressIndicator(
+            modifier = Modifier
+                .size(56.dp)
+                .scale(scale),
+            color = MaterialTheme.colorScheme.primary.copy(alpha = alpha),
+            strokeWidth = 4.dp,
+            trackColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+        Spacer(modifier = Modifier.height(Spacing.Large))
+        Text(
+            text = "加载中...",
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.Medium
+        )
+        Spacer(modifier = Modifier.height(Spacing.Small))
+        Text(
+            text = "正在获取最新内容",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }

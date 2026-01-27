@@ -1,10 +1,16 @@
 package com.gradle.aicodeapp.ui.components
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -22,6 +28,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -34,6 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -111,32 +119,41 @@ fun PopularCardsSection(
             }
         } else {
             val scrollState = rememberScrollState()
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(state = scrollState),
-                horizontalArrangement = Arrangement.spacedBy(Spacing.Medium)
-            ) {
-                PopularWendaCard(
-                    wendaList = wendaData,
-                    onWendaClick = onWendaClick,
-                    onViewMore = onViewMoreWenda,
-                    modifier = Modifier.width(300.dp)
-                )
+            BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+                val screenWidth = constraints.maxWidth.dp
+                val cardWidth = when {
+                    screenWidth > 600.dp -> 300.dp
+                    screenWidth > 400.dp -> screenWidth * 0.8f
+                    else -> screenWidth * 0.9f
+                }
+                
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(state = scrollState),
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.Medium)
+                ) {
+                    PopularWendaCard(
+                        wendaList = wendaData,
+                        onWendaClick = onWendaClick,
+                        onViewMore = onViewMoreWenda,
+                        modifier = Modifier.width(cardWidth)
+                    )
 
-                PopularColumnCard(
-                    columnList = columnData,
-                    onColumnClick = onColumnClick,
-                    onViewMore = onViewMoreColumn,
-                    modifier = Modifier.width(300.dp)
-                )
+                    PopularColumnCard(
+                        columnList = columnData,
+                        onColumnClick = onColumnClick,
+                        onViewMore = onViewMoreColumn,
+                        modifier = Modifier.width(cardWidth)
+                    )
 
-                PopularRouteCard(
-                    routeList = routeData,
-                    onRouteClick = onRouteClick,
-                    onViewMore = onViewMoreRoute,
-                    modifier = Modifier.width(300.dp)
-                )
+                    PopularRouteCard(
+                        routeList = routeData,
+                        onRouteClick = onRouteClick,
+                        onViewMore = onViewMoreRoute,
+                        modifier = Modifier.width(cardWidth)
+                    )
+                }
             }
         }
     }
@@ -314,14 +331,36 @@ fun WendaItem(
     title: String,
     onClick: () -> Unit,
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.95f else 1f,
+        animationSpec = spring(dampingRatio = 0.5f, stiffness = 200f),
+        label = "scale"
+    )
+
+    val backgroundColor by animateColorAsState(
+        targetValue = when {
+            isPressed -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+            else -> MaterialTheme.colorScheme.surfaceVariant
+        },
+        label = "backgroundColor"
+    )
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .height(30.dp)
             .clip(Shapes.Small)
-            .clickable(onClick = onClick)
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .padding(horizontal = Spacing.Small),
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick
+            )
+            .background(backgroundColor)
+            .padding(horizontal = Spacing.Small)
+            .scale(scale),
         verticalArrangement = Arrangement.Center
     ) {
         Text(
@@ -340,16 +379,37 @@ fun ColumnItem(
     name: String,
     onClick: () -> Unit,
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.95f else 1f,
+        animationSpec = spring(dampingRatio = 0.5f, stiffness = 200f),
+        label = "scale"
+    )
+
+    val backgroundColor by animateColorAsState(
+        targetValue = when {
+            isPressed -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+            else -> MaterialTheme.colorScheme.surfaceVariant
+        },
+        label = "backgroundColor"
+    )
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .height(30.dp)
             .clip(Shapes.Small)
-            .clickable(onClick = onClick)
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .padding(horizontal = Spacing.Small),
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick
+            )
+            .background(backgroundColor)
+            .padding(horizontal = Spacing.Small)
+            .scale(scale),
         verticalArrangement = Arrangement.Center
-
     ) {
         Text(
             text = name,
@@ -367,16 +427,37 @@ fun RouteItem(
     name: String,
     onClick: () -> Unit,
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.95f else 1f,
+        animationSpec = spring(dampingRatio = 0.5f, stiffness = 200f),
+        label = "scale"
+    )
+
+    val backgroundColor by animateColorAsState(
+        targetValue = when {
+            isPressed -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+            else -> MaterialTheme.colorScheme.surfaceVariant
+        },
+        label = "backgroundColor"
+    )
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .height(30.dp)
             .clip(Shapes.Small)
-            .clickable(onClick = onClick)
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .padding(horizontal = Spacing.Small),
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick
+            )
+            .background(backgroundColor)
+            .padding(horizontal = Spacing.Small)
+            .scale(scale),
         verticalArrangement = Arrangement.Center
-
     ) {
         Text(
             text = name,

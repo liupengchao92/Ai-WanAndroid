@@ -33,8 +33,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -113,7 +111,7 @@ fun SearchPage(
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            androidx.compose.material3.TopAppBar(
                 title = { },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
@@ -136,7 +134,7 @@ fun SearchPage(
                         }
                     )
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
+                colors = androidx.compose.material3.TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surface,
                     navigationIconContentColor = MaterialTheme.colorScheme.onSurface
                 )
@@ -146,7 +144,7 @@ fun SearchPage(
         Box(modifier = Modifier.fillMaxSize()) {
             if (uiState.errorMessage != null) {
                 Snackbar(
-                    modifier = Modifier.padding(8.dp),
+                    modifier = Modifier.padding(Spacing.Small),
                     action = {
                         TextButton(
                             onClick = { viewModel.clearError() }
@@ -161,7 +159,7 @@ fun SearchPage(
 
             if (collectUiState.errorMessage != null) {
                 Snackbar(
-                    modifier = Modifier.padding(8.dp),
+                    modifier = Modifier.padding(Spacing.Small),
                     action = {
                         TextButton(
                             onClick = { collectViewModel.clearError() }

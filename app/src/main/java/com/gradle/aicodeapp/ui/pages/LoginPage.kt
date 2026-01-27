@@ -165,7 +165,7 @@ fun LoginPage(
                     IconButton(
                         onClick = { passwordVisible = !passwordVisible },
                         enabled = !uiState.isLoading,
-                        modifier = Modifier.size(44.dp)
+                        modifier = Modifier.size(Spacing.ButtonHeightSmall)
                     ) {
                         AnimatedVisibility(
                             visible = passwordVisible,
@@ -175,7 +175,7 @@ fun LoginPage(
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_eye_open),
                                 contentDescription = "隐藏密码",
-                                modifier = Modifier.size(24.dp),
+                                modifier = Modifier.size(Spacing.IconMedium),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
@@ -187,7 +187,7 @@ fun LoginPage(
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_eye_closed),
                                 contentDescription = "显示密码",
-                                modifier = Modifier.size(24.dp),
+                                modifier = Modifier.size(Spacing.IconMedium),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }

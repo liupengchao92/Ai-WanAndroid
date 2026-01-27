@@ -1,19 +1,32 @@
 package com.gradle.aicodeapp.ui.pages
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ScrollableTabRow
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
@@ -27,11 +40,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.gradle.aicodeapp.ui.components.ProjectItem
 import com.gradle.aicodeapp.ui.components.ProjectItemSkeleton
+import com.gradle.aicodeapp.ui.theme.Spacing
+import com.gradle.aicodeapp.ui.theme.ResponsiveLayout
 import com.gradle.aicodeapp.ui.viewmodel.ProjectViewModel
 
 @Composable
@@ -69,8 +86,13 @@ fun ProjectPage(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+                .background(color = MaterialTheme.colorScheme.background)
         ) {
-            Column(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = paddingValues.calculateTopPadding())
+            ) {
                 ProjectCategoryTabs(
                     categories = listOf(),
                     selectedIndex = 0,
@@ -78,9 +100,10 @@ fun ProjectPage(
                 )
                 
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    state = listState
-                ) {
+                            modifier = Modifier.fillMaxSize(),
+                            state = listState,
+                            contentPadding = ResponsiveLayout.responsiveContentPadding()
+                        ) {
                     items(5) {
                         ProjectItemSkeleton()
                     }
@@ -90,21 +113,18 @@ fun ProjectPage(
     } else {
         Box(modifier = Modifier.fillMaxSize()) {
             if (uiState.errorMessage != null) {
-                androidx.compose.material3.Snackbar(
-                    modifier = Modifier.padding(8.dp),
-                    action = {
-                        androidx.compose.material3.TextButton(
-                            onClick = { viewModel.clearError() }
-                        ) {
-                            Text(text = "关闭")
-                        }
-                    }
-                ) {
-                    Text(text = uiState.errorMessage ?: "")
-                }
+                ErrorSnackbar(
+                    message = uiState.errorMessage ?: "",
+                    onDismiss = { viewModel.clearError() }
+                )
             }
 
-            Column(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = MaterialTheme.colorScheme.background)
+                    .padding(top = paddingValues.calculateTopPadding())
+            ) {
                 ProjectCategoryTabs(
                     categories = uiState.categories,
                     selectedIndex = uiState.selectedCategoryIndex,
@@ -120,9 +140,13 @@ fun ProjectPage(
                 ) {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
-                        state = listState
+                        state = listState,
+                        contentPadding = ResponsiveLayout.responsiveContentPadding()
                     ) {
-                        items(uiState.projects) { project ->
+                        items(
+                            items = uiState.projects,
+                            key = { project -> project.id }
+                        ) { project ->
                             ProjectItem(
                                 article = project,
                                 onClick = { onArticleClick(project.link, project.title) }
@@ -131,23 +155,69 @@ fun ProjectPage(
 
                         item {
                             if (uiState.isLoading && uiState.projects.isNotEmpty()) {
-                                androidx.compose.foundation.layout.Column(
+                                Column(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(16.dp),
-                                    horizontalAlignment = Alignment.CenterHorizontally
+                                        .then(ResponsiveLayout.responsiveHorizontalPadding()),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
                                 ) {
-                                    CircularProgressIndicator()
-                                    Text(text = "加载中...", modifier = Modifier.padding(top = 8.dp))
+                                    CircularProgressIndicator(
+                                        color = MaterialTheme.colorScheme.primary,
+                                        strokeWidth = 2.dp,
+                                        trackColor = MaterialTheme.colorScheme.surfaceVariant
+                                    )
+                                    Spacer(modifier = Modifier.height(Spacing.Small))
+                                    Text(
+                                        text = "加载中...",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        fontWeight = FontWeight.Medium,
+                                        modifier = Modifier.padding(top = Spacing.Small)
+                                    )
                                 }
                             } else if (!uiState.hasMore && uiState.projects.isNotEmpty()) {
-                                androidx.compose.foundation.layout.Column(
+                                Column(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(16.dp),
+                                        .then(ResponsiveLayout.responsiveHorizontalPadding()),
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
-                                    Text(text = "没有更多数据了", modifier = Modifier.padding(top = 8.dp))
+                                    Surface(
+                                        shape = MaterialTheme.shapes.medium,
+                                        color = MaterialTheme.colorScheme.surfaceVariant,
+                                        modifier = Modifier.padding(horizontal = Spacing.Medium)
+                                    ) {
+                                        Row(
+                                            modifier = Modifier.padding(
+                                                horizontal = Spacing.Medium,
+                                                vertical = Spacing.Small
+                                            ),
+                                            horizontalArrangement = Arrangement.Center,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Text(
+                                                text = "·",
+                                                style = MaterialTheme.typography.titleMedium,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                            Spacer(modifier = Modifier.width(Spacing.Small))
+                                            Text(
+                                                text = "已经到底了",
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                fontWeight = FontWeight.Medium
+                                            )
+                                            Spacer(modifier = Modifier.width(Spacing.Small))
+                                            Text(
+                                                text = "·",
+                                                style = MaterialTheme.typography.titleMedium,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -175,11 +245,12 @@ fun ProjectCategoryTabs(
         indicator = { tabPositions ->
             TabRowDefaults.PrimaryIndicator(
                 modifier = Modifier.tabIndicatorOffset(tabPositions[selectedIndex]),
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.primary,
+                height = Spacing.BorderWidthThick
             )
         },
         divider = {},
-        edgePadding = 16.dp,
+        edgePadding = Spacing.ScreenPadding,
         modifier = Modifier.fillMaxWidth()
     ) {
         categories.forEachIndexed { index, category ->
@@ -189,14 +260,63 @@ fun ProjectCategoryTabs(
                 text = {
                     Text(
                         text = category.name,
-                        color = if (selectedIndex == index) {
-                            MaterialTheme.colorScheme.primary
+                        style = if (selectedIndex == index) {
+                            MaterialTheme.typography.labelLarge.copy(
+                                fontWeight = FontWeight.Medium
+                            )
                         } else {
-                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                        }
+                            MaterialTheme.typography.labelLarge.copy(
+                                fontWeight = FontWeight.Normal,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                            )
+                        },
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             )
+        }
+    }
+}
+
+@Composable
+private fun ErrorSnackbar(
+    message: String,
+    onDismiss: () -> Unit
+) {
+    AnimatedVisibility(
+        visible = message.isNotEmpty(),
+        enter = fadeIn(animationSpec = tween(durationMillis = 300)) + 
+                scaleIn(animationSpec = tween(durationMillis = 300)),
+        exit = fadeOut(animationSpec = tween(durationMillis = 300)) + 
+                scaleOut(animationSpec = tween(durationMillis = 300))
+    ) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(Spacing.Small),
+            shape = MaterialTheme.shapes.medium,
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.errorContainer
+            ),
+            elevation = CardDefaults.cardElevation(
+                defaultElevation = 2.dp
+            )
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(Spacing.CardPadding),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                Text(
+                    text = message,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onErrorContainer,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         }
     }
 }

@@ -13,11 +13,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -48,6 +50,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gradle.aicodeapp.R
+import com.gradle.aicodeapp.ui.theme.Shapes
+import com.gradle.aicodeapp.ui.theme.Spacing
 import com.gradle.aicodeapp.ui.viewmodel.RegisterViewModel
 import kotlinx.coroutines.launch
 
@@ -85,7 +89,7 @@ fun RegisterPage(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(24.dp),
+                .padding(Spacing.ScreenPadding),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -96,7 +100,7 @@ fun RegisterPage(
                 color = MaterialTheme.colorScheme.primary
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(Spacing.Small))
 
             Text(
                 text = "AiCodeApp",
@@ -104,7 +108,7 @@ fun RegisterPage(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(Spacing.ExtraHuge))
 
             OutlinedTextField(
                 value = uiState.username,
@@ -114,17 +118,25 @@ fun RegisterPage(
                     Icon(
                         imageVector = Icons.Default.Email,
                         contentDescription = "用户名图标",
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(Spacing.IconMedium)
                     )
                 },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 enabled = !uiState.isLoading,
+                shape = Shapes.Medium,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                    disabledBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
+                ),
                 supportingText = { Text("用户名长度不能少于3位") }
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(Spacing.Large))
 
             var passwordVisible by rememberSaveable { mutableStateOf(false) }
 
@@ -136,7 +148,8 @@ fun RegisterPage(
                     Icon(
                         imageVector = Icons.Default.Lock,
                         contentDescription = "密码图标",
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(Spacing.IconMedium),
+                        tint = MaterialTheme.colorScheme.primary
                     )
                 },
                 trailingIcon = {
@@ -144,7 +157,7 @@ fun RegisterPage(
                     IconButton(
                         onClick = { passwordVisible = !passwordVisible },
                         enabled = !uiState.isLoading,
-                        modifier = Modifier.size(44.dp)
+                        modifier = Modifier.size(Spacing.ButtonHeightSmall)
                     ) {
                         AnimatedVisibility(
                             visible = passwordVisible,
@@ -154,7 +167,7 @@ fun RegisterPage(
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_eye_open),
                                 contentDescription = "隐藏密码",
-                                modifier = Modifier.size(24.dp),
+                                modifier = Modifier.size(Spacing.IconMedium),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
@@ -166,7 +179,7 @@ fun RegisterPage(
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_eye_closed),
                                 contentDescription = "显示密码",
-                                modifier = Modifier.size(24.dp),
+                                modifier = Modifier.size(Spacing.IconMedium),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
@@ -177,10 +190,18 @@ fun RegisterPage(
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 enabled = !uiState.isLoading,
+                shape = Shapes.Medium,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                    disabledBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
+                ),
                 supportingText = { Text("密码长度不能少于6位") }
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(Spacing.Large))
 
             var repasswordVisible by rememberSaveable { mutableStateOf(false) }
 
@@ -192,7 +213,8 @@ fun RegisterPage(
                     Icon(
                         imageVector = Icons.Default.Lock,
                         contentDescription = "确认密码图标",
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(Spacing.IconMedium),
+                        tint = MaterialTheme.colorScheme.primary
                     )
                 },
                 trailingIcon = {
@@ -200,7 +222,7 @@ fun RegisterPage(
                     IconButton(
                         onClick = { repasswordVisible = !repasswordVisible },
                         enabled = !uiState.isLoading,
-                        modifier = Modifier.size(44.dp)
+                        modifier = Modifier.size(Spacing.ButtonHeightSmall)
                     ) {
                         AnimatedVisibility(
                             visible = repasswordVisible,
@@ -210,7 +232,7 @@ fun RegisterPage(
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_eye_open),
                                 contentDescription = "隐藏密码",
-                                modifier = Modifier.size(24.dp),
+                                modifier = Modifier.size(Spacing.IconMedium),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
@@ -222,7 +244,7 @@ fun RegisterPage(
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_eye_closed),
                                 contentDescription = "显示密码",
-                                modifier = Modifier.size(24.dp),
+                                modifier = Modifier.size(Spacing.IconMedium),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
@@ -232,21 +254,36 @@ fun RegisterPage(
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                enabled = !uiState.isLoading
+                enabled = !uiState.isLoading,
+                shape = Shapes.Medium,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                    disabledBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(Spacing.ExtraLarge))
 
             Button(
                 onClick = { viewModel.register() },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp),
-                enabled = !uiState.isLoading
+                    .height(Spacing.ButtonHeight),
+                enabled = !uiState.isLoading,
+                shape = Shapes.Medium,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    disabledContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                    disabledContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
             ) {
                 if (uiState.isLoading) {
                     CircularProgressIndicator(
-                        modifier = Modifier.size(24.dp),
+                        modifier = Modifier.size(Spacing.IconMedium),
                         color = MaterialTheme.colorScheme.onPrimary
                     )
                 } else {
@@ -254,7 +291,7 @@ fun RegisterPage(
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(Spacing.Large))
 
             TextButton(
                 onClick = onNavigateToLogin,

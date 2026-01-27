@@ -1,11 +1,16 @@
 package com.gradle.aicodeapp.ui.components
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -30,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -37,7 +43,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.gradle.aicodeapp.network.model.Banner
@@ -66,42 +71,47 @@ fun BannerCarousel(
         }
     }
 
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(Sizes.BannerHeight.dp)
-            .padding(horizontal = Spacing.ScreenPadding, vertical = Spacing.Small)
-    ) {
-        Box(
+    BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
+        val maxHeight = constraints.maxHeight.dp
+        val bannerHeight = if (maxHeight > 300.dp) 200.dp else maxHeight * 0.6f
+
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)
-                .clip(Shapes.Small)
+                .height(bannerHeight)
+                .padding(horizontal = Spacing.ScreenPadding, vertical = Spacing.Small)
         ) {
-            LazyRow(
-                state = lazyListState,
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(Spacing.Medium)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .clip(Shapes.Small)
             ) {
-                items(banners) {
-                    BannerItem(banner = it, onBannerClick = onBannerClick)
+                LazyRow(
+                    state = lazyListState,
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.Medium)
+                ) {
+                    items(banners) {
+                        BannerItem(banner = it, onBannerClick = onBannerClick)
+                    }
                 }
             }
-        }
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = Spacing.Small),
-            contentAlignment = Alignment.Center
-        ) {
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(Spacing.Small)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = Spacing.Small),
+                contentAlignment = Alignment.Center
             ) {
-                items(banners.size) {
-                    Indicator(
-                        isActive = it == currentIndex
-                    )
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.Small)
+                ) {
+                    items(banners.size) {
+                        Indicator(
+                            isActive = it == currentIndex
+                        )
+                    }
                 }
             }
         }
@@ -116,61 +126,89 @@ fun BannerItem(
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 
-    Card(
-        modifier = Modifier
-            .width(Sizes.BannerWidth.dp)
-            .height(Sizes.BannerItemHeight.dp)
-            .clickable(
-                interactionSource = interactionSource,
-                indication = rememberRipple(bounded = true),
-                onClick = {
-                    if (banner.url.isNotBlank()) {
-                        onBannerClick(banner.url)
-                    }
-                }
-            ),
-        shape = Shapes.Small,
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = Spacing.ElevationLow,
-            pressedElevation = Spacing.ElevationMedium
-        )
-    ) {
-        Box(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(banner.imagePath)
-                    .crossfade(true)
-                    .build(),
-                contentDescription = banner.desc,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxWidth().height(Sizes.BannerItemHeight.dp)
-            )
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.95f else 1f,
+        animationSpec = spring(dampingRatio = 0.5f, stiffness = 200f),
+        label = "scale"
+    )
 
+    val backgroundColor by animateColorAsState(
+        targetValue = if (isPressed) {
+            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+        } else {
+            MaterialTheme.colorScheme.surface
+        },
+        label = "backgroundColor"
+    )
+
+    BoxWithConstraints {
+        val cardWidth = if (constraints.maxWidth < 400) {
+            constraints.maxWidth.dp - 32.dp // 减去左右边距
+        } else {
+            300.dp
+        }
+
+        Card(
+            modifier = Modifier
+                .width(cardWidth)
+                .height(Sizes.BannerItemHeight.dp)
+                .scale(scale)
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = rememberRipple(bounded = true),
+                    onClick = {
+                        if (banner.url.isNotBlank()) {
+                            onBannerClick(banner.url)
+                        }
+                    }
+                ),
+            shape = Shapes.Medium,
+            elevation = CardDefaults.cardElevation(
+                defaultElevation = Spacing.ElevationLow,
+                pressedElevation = Spacing.ElevationMedium
+            ),
+            colors = CardDefaults.cardColors(
+                containerColor = backgroundColor
+            )
+        ) {
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.BottomStart)
-                    .background(
-                        brush = Brush.verticalGradient(
-                            colors = listOf(
-                                Color.Transparent,
-                                Color.Black.copy(alpha = 0.7f)
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(banner.imagePath)
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = banner.desc,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxWidth().height(Sizes.BannerItemHeight.dp)
+                )
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.BottomStart)
+                        .background(
+                            brush = Brush.verticalGradient(
+                                colors = listOf(
+                                    Color.Transparent,
+                                    Color.Black.copy(alpha = 0.7f)
+                                )
                             )
                         )
+                        .padding(Spacing.CardPadding)
+                ) {
+                    Text(
+                        text = banner.title,
+                        color = Color.White,
+                        textAlign = TextAlign.Start,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.titleSmall.copy(
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.Medium
+                        )
                     )
-                    .padding(Spacing.CardPadding)
-            ) {
-                Text(
-                    text = banner.title,
-                    color = Color.White,
-                    fontSize = 16.sp,
-                    textAlign = TextAlign.Start,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    style = MaterialTheme.typography.titleSmall
-                )
+                }
             }
         }
     }

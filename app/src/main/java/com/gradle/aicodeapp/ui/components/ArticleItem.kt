@@ -1,9 +1,14 @@
 package com.gradle.aicodeapp.ui.components
 
 import android.text.TextUtils
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -34,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import com.gradle.aicodeapp.network.model.Article
 import com.gradle.aicodeapp.ui.theme.Shapes
 import com.gradle.aicodeapp.ui.theme.Spacing
+
 
 @Composable
 fun ArticleItem(
@@ -45,24 +52,47 @@ fun ArticleItem(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
+    val isHovered by interactionSource.collectIsHoveredAsState()
+
+    val backgroundColor by animateColorAsState(
+        targetValue = when {
+            isPressed -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+            isHovered -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+            else -> MaterialTheme.colorScheme.surface
+        },
+        animationSpec = tween(durationMillis = 200),
+        label = "backgroundColor"
+    )
+
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.95f else 1f,
+        animationSpec = spring(dampingRatio = 0.5f, stiffness = 200f),
+        label = "scale"
+    )
+
+    val elevation by animateFloatAsState(
+        targetValue = when {
+            isPressed -> Spacing.ElevationMedium.value
+            isHovered -> Spacing.ElevationMedium.value
+            else -> Spacing.ElevationLow.value
+        },
+        animationSpec = tween(durationMillis = 200),
+        label = "elevation"
+    )
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = Spacing.ScreenPadding, vertical = Spacing.Small)
+            .scale(scale)
             .clickable(
                 interactionSource = interactionSource,
                 indication = rememberRipple(bounded = true),
                 onClick = onClick
             ),
         shape = Shapes.Medium,
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = Spacing.ElevationLow,
-            pressedElevation = Spacing.ElevationMedium
-        ),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        )
+        elevation = CardDefaults.cardElevation(defaultElevation = elevation.dp),
+        colors = CardDefaults.cardColors(containerColor = backgroundColor)
     ) {
         Column(
             modifier = Modifier
@@ -79,7 +109,9 @@ fun ArticleItem(
 
             Text(
                 text = article.title,
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.Medium
+                ),
                 color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,

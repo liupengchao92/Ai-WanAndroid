@@ -1,9 +1,15 @@
 package com.gradle.aicodeapp.ui.pages
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -20,6 +26,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
@@ -37,19 +44,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gradle.aicodeapp.ui.components.FlowLayout
 import com.gradle.aicodeapp.ui.state.NavigationUiState
+import com.gradle.aicodeapp.ui.theme.Shapes
 import com.gradle.aicodeapp.ui.theme.Spacing
 import com.gradle.aicodeapp.ui.viewmodel.NavigationViewModel
 import kotlinx.coroutines.launch
 import kotlin.math.abs
-import kotlin.random.Random
 
 @Composable
 fun NavigationPage(
@@ -108,10 +115,27 @@ fun NavigationPage(
     when {
         uiState.isLoading -> {
             Box(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator()
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    CircularProgressIndicator(
+                        color = MaterialTheme.colorScheme.primary,
+                        strokeWidth = 4.dp,
+                        trackColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(Spacing.Large))
+                    Text(
+                        text = "加载中...",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
             }
         }
 
@@ -130,30 +154,40 @@ fun NavigationPage(
             Row(
                 modifier = Modifier.fillMaxSize()
             ) {
-                LeftNavigationPanel(
-                    groups = uiState.navigationGroups,
-                    selectedIndex = selectedGroupIndex,
-                    listState = leftListState,
-                    onGroupClick = { index ->
-                        isScrolling = true
-                        selectedGroupIndex = index
-                        viewModel.selectGroup(index)
-                        coroutineScope.launch {
-                            rightListState.animateScrollToItem(index)
-                            isScrolling = false
-                        }
-                    },
-                    modifier = Modifier
-                        .width(120.dp)
-                        .fillMaxHeight()
-                        .padding(paddingValues)
-                        .background(MaterialTheme.colorScheme.surface)
-                )
+                BoxWithConstraints(modifier = Modifier.fillMaxHeight()) {
+                    val screenWidth = constraints.maxWidth.dp
+                    val navWidth = when {
+                        screenWidth > 800.dp -> 180.dp
+                        screenWidth > 600.dp -> 160.dp
+                        screenWidth > 400.dp -> 140.dp
+                        else -> 120.dp
+                    }
+                    
+                    LeftNavigationPanel(
+                        groups = uiState.navigationGroups,
+                        selectedIndex = selectedGroupIndex,
+                        listState = leftListState,
+                        onGroupClick = { index ->
+                            isScrolling = true
+                            selectedGroupIndex = index
+                            viewModel.selectGroup(index)
+                            coroutineScope.launch {
+                                rightListState.animateScrollToItem(index)
+                                isScrolling = false
+                            }
+                        },
+                        modifier = Modifier
+                            .width(navWidth)
+                            .fillMaxHeight()
+                            .padding(paddingValues)
+                            .background(MaterialTheme.colorScheme.background)
+                    )
+                }
 
                 Divider(
                     modifier = Modifier
                         .fillMaxHeight()
-                        .width(1.dp),
+                        .width(Spacing.BorderWidthThin),
                     color = MaterialTheme.colorScheme.outlineVariant
                 )
 
@@ -182,10 +216,13 @@ fun LeftNavigationPanel(
     LazyColumn(
         state = listState,
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(4.dp),
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 8.dp)
+        verticalArrangement = Arrangement.spacedBy(Spacing.Small),
+        contentPadding = PaddingValues(vertical = Spacing.Small)
     ) {
-        itemsIndexed(groups) { index, group ->
+        itemsIndexed(
+            items = groups,
+            key = { index, group -> group.cid }
+        ) { index, group ->
             NavigationGroupItem(
                 name = group.name,
                 isSelected = index == selectedIndex,
@@ -201,31 +238,58 @@ fun NavigationGroupItem(
     isSelected: Boolean,
     onClick: () -> Unit,
 ) {
-    val backgroundColor = if (isSelected) {
-        MaterialTheme.colorScheme.primaryContainer
-    } else {
-        Color.Transparent
-    }
-    val textColor = if (isSelected) {
-        MaterialTheme.colorScheme.primary
-    } else {
-        MaterialTheme.colorScheme.onSurface
-    }
+    val backgroundColor by animateColorAsState(
+        targetValue = if (isSelected) {
+            MaterialTheme.colorScheme.primaryContainer
+        } else {
+            Color.Transparent
+        },
+        label = "backgroundColor"
+    )
+    val textColor by animateColorAsState(
+        targetValue = if (isSelected) {
+            MaterialTheme.colorScheme.primary
+        } else {
+            MaterialTheme.colorScheme.onSurface
+        },
+        label = "textColor"
+    )
+
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.95f else 1f,
+        animationSpec = spring(dampingRatio = 0.5f, stiffness = 200f),
+        label = "scale"
+    )
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp)
-            .clip(RoundedCornerShape(8.dp))
+            .padding(horizontal = Spacing.Small)
+            .clip(MaterialTheme.shapes.medium)
             .background(backgroundColor)
-            .clickable(onClick = onClick)
-            .padding(vertical = 12.dp, horizontal = 8.dp)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = rememberRipple(bounded = true),
+                onClick = onClick
+            )
+            .padding(vertical = Spacing.Medium, horizontal = Spacing.Medium)
+            .scale(scale)
     ) {
         Text(
             text = name,
-            fontSize = 14.sp,
+            style = if (isSelected) {
+                MaterialTheme.typography.labelLarge.copy(
+                    fontWeight = FontWeight.Medium
+                )
+            } else {
+                MaterialTheme.typography.bodyMedium.copy(
+                    fontWeight = FontWeight.Normal
+                )
+            },
             color = textColor,
-            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.fillMaxWidth()
@@ -243,16 +307,19 @@ fun RightContentPanel(
 ) {
     LazyColumn(
         state = listState,
-        modifier = modifier,
+        modifier = modifier.background(MaterialTheme.colorScheme.background),
         contentPadding = paddingValues
     ) {
-        itemsIndexed(groups) { index, group ->
+        itemsIndexed(
+            items = groups,
+            key = { index, group -> group.cid }
+        ) { index, group ->
             NavigationContentGroup(
                 group = group,
                 onArticleClick = onArticleClick,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .padding(vertical = Spacing.Medium)
             )
         }
     }
@@ -264,31 +331,26 @@ fun NavigationContentGroup(
     onArticleClick: (String, String) -> Unit = { _, _ -> },
     modifier: Modifier = Modifier,
 ) {
-    val articleColors = remember(group.articles) {
-        group.articles.associate { article ->
-            article to generateRandomColor()
-        }
-    }
-
     Column(
         modifier = modifier
     ) {
         Text(
             text = group.name,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.titleMedium.copy(
+                fontWeight = FontWeight.Bold
+            ),
             color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.padding(bottom = 12.dp)
+            modifier = Modifier.padding(bottom = Spacing.Medium)
         )
         FlowLayout(
             modifier = Modifier.fillMaxWidth(),
             horizontalSpacing = Spacing.Small,
             verticalSpacing = Spacing.Small
         ) {
-            group.articles.forEach { article ->
+            group.articles.forEach {
+                article ->
                 NavigationArticleItem(
                     article = article,
-                    color = articleColors[article] ?: MaterialTheme.colorScheme.primary,
                     onClick = { onArticleClick(article.link, article.title) }
                 )
             }
@@ -296,39 +358,56 @@ fun NavigationContentGroup(
     }
 }
 
-fun generateRandomColor(): Color {
-    val hue = Random.nextInt(0, 360)
-    val saturation = Random.nextInt(60, 90)
-    val lightness = Random.nextInt(45, 65)
-    return Color.hsv(hue.toFloat(), saturation / 100f, lightness / 100f)
-}
+
 
 @Composable
 fun NavigationArticleItem(
     article: com.gradle.aicodeapp.network.model.NavigationArticle,
-    color: Color = MaterialTheme.colorScheme.primary,
     onClick: () -> Unit = {},
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.95f else 1f,
+        animationSpec = spring(dampingRatio = 0.5f, stiffness = 200f),
+        label = "scale"
+    )
+
+    val backgroundColor by animateColorAsState(
+        targetValue = when {
+            isPressed -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+            else -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+        },
+        label = "backgroundColor"
+    )
+
     Box(
         modifier = Modifier
             .wrapContentWidth()
-            .clip(RoundedCornerShape(24.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
-            .clickable(onClick = onClick)
-            .padding(vertical = 8.dp, horizontal = 12.dp)
+            .clip(MaterialTheme.shapes.medium)
+            .background(backgroundColor)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = rememberRipple(bounded = true),
+                onClick = onClick
+            )
+            .padding(vertical = Spacing.Small, horizontal = Spacing.Medium)
+            .scale(scale)
     ) {
         Text(
             text = article.title,
-            fontSize = 14.sp,
-            color = color,
-            fontWeight = FontWeight.Medium,
+            style = MaterialTheme.typography.bodyMedium.copy(
+                fontWeight = FontWeight.Medium
+            ),
+            color = MaterialTheme.colorScheme.primary,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.wrapContentWidth()
         )
     }
 
-    Spacer(modifier = Modifier.height(8.dp))
+    Spacer(modifier = Modifier.height(Spacing.Small))
 }
 
 @Composable
@@ -337,20 +416,28 @@ fun ErrorView(
     onRetry: () -> Unit,
 ) {
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background),
         contentAlignment = Alignment.Center
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(Spacing.Medium)
         ) {
             Text(
                 text = message,
-                color = MaterialTheme.colorScheme.error,
-                fontSize = 14.sp
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.error
             )
-            androidx.compose.material3.Button(onClick = onRetry) {
-                Text("重试")
+            androidx.compose.material3.Button(
+                onClick = onRetry,
+                shape = MaterialTheme.shapes.medium,
+                elevation = androidx.compose.material3.ButtonDefaults.buttonElevation(
+                    defaultElevation = 2.dp
+                )
+            ) {
+                Text(text = "重试", style = MaterialTheme.typography.labelLarge)
             }
         }
     }
@@ -359,13 +446,15 @@ fun ErrorView(
 @Composable
 fun EmptyView() {
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = "暂无导航数据",
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-            fontSize = 14.sp
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }

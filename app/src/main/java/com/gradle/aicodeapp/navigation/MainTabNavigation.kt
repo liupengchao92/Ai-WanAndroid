@@ -13,6 +13,7 @@ import androidx.navigation.NavHostController
 import com.gradle.aicodeapp.ui.components.BottomNavigationBar
 
 @Composable
+@Suppress("UnusedMaterial3ScaffoldPaddingParameter")
 fun MainTabNavigation(
     navController: NavHostController,
     modifier: Modifier = Modifier
@@ -45,34 +46,11 @@ fun MainTabNavigation(
                     }
                 }
             )
+        },
+        content = {
+            // We're using navigation controller for content, so padding parameter is not needed
+            _ ->
+            Unit
         }
-    ) { paddingValues ->
-        when (selectedItem) {
-            0 -> {
-                navController.navigate(NavigationRoutes.HOME) {
-                    popUpTo(NavigationRoutes.HOME) { inclusive = true }
-                }
-            }
-            1 -> {
-                navController.navigate(NavigationRoutes.SQUARE) {
-                    popUpTo(NavigationRoutes.SQUARE) { inclusive = true }
-                }
-            }
-            2 -> {
-                navController.navigate(NavigationRoutes.PROJECT) {
-                    popUpTo(NavigationRoutes.PROJECT) { inclusive = true }
-                }
-            }
-            3 -> {
-                navController.navigate(NavigationRoutes.NAVIGATION) {
-                    popUpTo(NavigationRoutes.NAVIGATION) { inclusive = true }
-                }
-            }
-            4 -> {
-                navController.navigate(NavigationRoutes.MINE) {
-                    popUpTo(NavigationRoutes.MINE) { inclusive = true }
-                }
-            }
-        }
-    }
+    )
 }
