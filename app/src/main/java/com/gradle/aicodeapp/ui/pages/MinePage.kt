@@ -1,9 +1,22 @@
 package com.gradle.aicodeapp.ui.pages
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.with
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -32,8 +45,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
@@ -48,10 +60,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -61,10 +76,24 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import coil.request.CachePolicy
+import com.gradle.aicodeapp.R
 import com.gradle.aicodeapp.data.UserManager
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
 import com.gradle.aicodeapp.ui.theme.CustomShapes
 import com.gradle.aicodeapp.ui.theme.Spacing
 import com.gradle.aicodeapp.ui.theme.ResponsiveLayout
+import com.gradle.aicodeapp.ui.theme.Primary
+import com.gradle.aicodeapp.ui.theme.PrimaryContainer
+import com.gradle.aicodeapp.ui.theme.Secondary
+import com.gradle.aicodeapp.ui.theme.SecondaryContainer
+import com.gradle.aicodeapp.ui.theme.Tertiary
+import com.gradle.aicodeapp.ui.theme.TertiaryContainer
+import com.gradle.aicodeapp.ui.theme.Success
+import com.gradle.aicodeapp.ui.theme.SuccessContainer
+import com.gradle.aicodeapp.ui.theme.Warning
+import com.gradle.aicodeapp.ui.theme.WarningContainer
 import javax.inject.Inject
 
 @Composable
@@ -85,7 +114,8 @@ fun MinePage(
                 Brush.verticalGradient(
                     colors = listOf(
                         MaterialTheme.colorScheme.surface,
-                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+                        MaterialTheme.colorScheme.surface
                     )
                 )
             )
@@ -98,13 +128,19 @@ fun MinePage(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(Spacing.ExtraLarge))
+            Spacer(modifier = Modifier.height(Spacing.Large))
 
-            UserHeader(
+            UserHeaderCard(
                 userManager = userManager
             )
 
             Spacer(modifier = Modifier.height(Spacing.Large))
+
+          /*  QuickStatsSection(
+                userManager = userManager
+            )
+
+            Spacer(modifier = Modifier.height(Spacing.Large))*/
 
             MenuSection(
                 onNavigateToCollect = onNavigateToCollect,
@@ -113,13 +149,13 @@ fun MinePage(
                 onNavigateToSettings = onNavigateToSettings
             )
 
-            Spacer(modifier = Modifier.height(Spacing.Medium))
+            Spacer(modifier = Modifier.height(Spacing.ExtraLarge))
         }
     }
 }
 
 @Composable
-private fun UserHeader(
+private fun UserHeaderCard(
     userManager: UserManager
 ) {
     val username = userManager.getUsername()
@@ -128,15 +164,20 @@ private fun UserHeader(
     val userId = userManager.getUserId()
     val isLoggedIn = userManager.isLoggedIn()
 
-    val displayName = nickname ?: username ?: "未登录"
+    val displayName = nickname ?: username ?: "点击登录"
     val displayAvatar = icon
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .then(ResponsiveLayout.responsiveHorizontalPadding()),
+            .then(ResponsiveLayout.responsiveHorizontalPadding())
+            .shadow(
+                elevation = 8.dp,
+                shape = RoundedCornerShape(Spacing.CornerRadiusExtraLarge),
+                spotColor = Primary.copy(alpha = 0.15f)
+            ),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        shape = RoundedCornerShape(Spacing.CornerRadiusLarge),
+        shape = RoundedCornerShape(Spacing.CornerRadiusExtraLarge),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         )
@@ -144,103 +185,278 @@ private fun UserHeader(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.primaryContainer,
-                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7f)
+        ) {
+            // 顶部渐变装饰条
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(100.dp)
+                    .background(
+                        Brush.linearGradient(
+                            colors = listOf(
+                                Primary.copy(alpha = 0.8f),
+                                Secondary.copy(alpha = 0.6f),
+                                Tertiary.copy(alpha = 0.4f)
+                            ),
+                            start = androidx.compose.ui.geometry.Offset(0f, 0f),
+                            end = androidx.compose.ui.geometry.Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
                         )
                     )
-                )
-        ) {
+            )
+
+            // 装饰性圆形
+            Box(
+                modifier = Modifier
+                    .size(120.dp)
+                    .offset(x = (-30).dp, y = (-30).dp)
+                    .alpha(0.1f)
+                    .background(
+                        color = Color.White,
+                        shape = CircleShape
+                    )
+            )
+
+            Box(
+                modifier = Modifier
+                    .size(80.dp)
+                    .offset(x = 280.dp, y = 20.dp)
+                    .alpha(0.08f)
+                    .background(
+                        color = Color.White,
+                        shape = CircleShape
+                    )
+            )
+
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(Spacing.ExtraLarge),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                if (displayAvatar != null) {
-                    Surface(
-                        modifier = Modifier
-                            .size(Spacing.IconHuge)
-                            .clip(CircleShape),
-                        color = MaterialTheme.colorScheme.surface,
-                        shadowElevation = 4.dp
-                    ) {
-                        AsyncImage(
-                            model = ImageRequest.Builder(LocalContext.current)
-                                .data(displayAvatar)
-                                .crossfade(true)
-                                .build(),
-                            contentDescription = "用户头像",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
-                } else {
-                    Surface(
-                        modifier = Modifier
-                            .size(Spacing.IconHuge)
-                            .clip(CircleShape),
-                        color = MaterialTheme.colorScheme.surface,
-                        shadowElevation = 4.dp
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = "用户头像",
+                Spacer(modifier = Modifier.height(40.dp))
+
+                // 头像容器
+                Box(
+                    modifier = Modifier,
+                    contentAlignment = Alignment.BottomEnd
+                ) {
+                    AvatarImage(
+                        avatarUrl = displayAvatar,
+                        size = 100.dp
+                    )
+
+                    // 编辑图标
+                    if (isLoggedIn) {
+                        Surface(
                             modifier = Modifier
-                                .size(Spacing.IconExtraLarge)
-                                .padding(Spacing.Medium),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
+                                .size(32.dp)
+                                .offset(x = (-4).dp, y = (-4).dp),
+                            shape = CircleShape,
+                            color = Primary,
+                            shadowElevation = 4.dp
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "编辑",
+                                modifier = Modifier
+                                    .size(16.dp)
+                                    .padding(8.dp),
+                                tint = Color.White
+                            )
+                        }
                     }
                 }
 
                 Spacer(modifier = Modifier.height(Spacing.Medium))
 
+                // 用户名
                 Text(
                     text = displayName,
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 22.sp
+                    style = MaterialTheme.typography.headlineSmall.copy(
+                        fontWeight = FontWeight.Bold
                     ),
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
 
                 Spacer(modifier = Modifier.height(Spacing.Small))
 
+                // 用户状态行
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(Spacing.Small)
                 ) {
                     if (isLoggedIn) {
-                        Icon(
-                            imageVector = Icons.Default.CheckCircle,
-                            contentDescription = "已认证",
-                            modifier = Modifier.size(Spacing.IconSmall),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-
-                        Text(
-                            text = "已登录",
-                            style = MaterialTheme.typography.bodySmall.copy(
-                                fontWeight = FontWeight.Medium
-                            ),
-                            color = MaterialTheme.colorScheme.primary
-                        )
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = SuccessContainer
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(
+                                    horizontal = 10.dp,
+                                    vertical = 4.dp
+                                ),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.CheckCircle,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(14.dp),
+                                    tint = Success
+                                )
+                                Text(
+                                    text = "已登录",
+                                    style = MaterialTheme.typography.labelMedium.copy(
+                                        fontWeight = FontWeight.Medium
+                                    ),
+                                    color = Success
+                                )
+                            }
+                        }
+                    } else {
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant
+                        ) {
+                            Text(
+                                text = "未登录",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(
+                                    horizontal = 10.dp,
+                                    vertical = 4.dp
+                                )
+                            )
+                        }
                     }
 
                     if (userId != null) {
-                        Text(
-                            text = "ID: ${maskUserId(userId)}",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
-                        )
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                        ) {
+                            Text(
+                                text = "ID: ${maskUserId(userId)}",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(
+                                    horizontal = 10.dp,
+                                    vertical = 4.dp
+                                )
+                            )
+                        }
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun QuickStatsSection(
+    userManager: UserManager
+) {
+    val isLoggedIn = userManager.isLoggedIn()
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(ResponsiveLayout.responsiveHorizontalPadding()),
+        horizontalArrangement = Arrangement.spacedBy(Spacing.Medium)
+    ) {
+        StatCard(
+            icon = Icons.Default.Star,
+            value = "--",
+            label = "积分",
+            iconBackground = WarningContainer,
+            iconTint = Warning,
+            modifier = Modifier.weight(1f)
+        )
+
+        StatCard(
+            icon = Icons.Default.Favorite,
+            value = "--",
+            label = "收藏",
+            iconBackground = SecondaryContainer,
+            iconTint = Secondary,
+            modifier = Modifier.weight(1f)
+        )
+
+        StatCard(
+            icon = Icons.Default.CheckCircle,
+            value = "--",
+            label = "待办",
+            iconBackground = SuccessContainer,
+            iconTint = Success,
+            modifier = Modifier.weight(1f)
+        )
+    }
+}
+
+@Composable
+private fun StatCard(
+    icon: ImageVector,
+    value: String,
+    label: String,
+    iconBackground: Color,
+    iconTint: Color,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier
+            .shadow(
+                elevation = 4.dp,
+                shape = RoundedCornerShape(Spacing.CornerRadiusLarge),
+                spotColor = iconTint.copy(alpha = 0.1f)
+            ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        shape = RoundedCornerShape(Spacing.CornerRadiusLarge),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(Spacing.Medium),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Surface(
+                modifier = Modifier.size(40.dp),
+                shape = RoundedCornerShape(10.dp),
+                color = iconBackground
+            ) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        modifier = Modifier.size(22.dp),
+                        tint = iconTint
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(Spacing.Small))
+
+            Text(
+                text = value,
+                style = MaterialTheme.typography.titleLarge.copy(
+                    fontWeight = FontWeight.Bold
+                ),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }
@@ -264,9 +480,14 @@ private fun MenuSection(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .then(ResponsiveLayout.responsiveHorizontalPadding()),
+            .then(ResponsiveLayout.responsiveHorizontalPadding())
+            .shadow(
+                elevation = 4.dp,
+                shape = RoundedCornerShape(Spacing.CornerRadiusExtraLarge),
+                spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+            ),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        shape = RoundedCornerShape(Spacing.CornerRadiusLarge),
+        shape = RoundedCornerShape(Spacing.CornerRadiusExtraLarge),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         )
@@ -274,73 +495,105 @@ private fun MenuSection(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(Spacing.Small)
+                .padding(vertical = Spacing.Small)
         ) {
             MenuItem(
                 icon = Icons.Default.Star,
                 title = "我的积分",
                 description = "查看积分详情",
-                onClick = onNavigateToCoin
+                iconBackground = WarningContainer,
+                iconTint = Warning,
+                onClick = onNavigateToCoin,
+                isFirst = true
             )
 
-            Divider(
-                modifier = Modifier.padding(horizontal = Spacing.Medium),
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
-            )
+            MenuDivider()
 
             MenuItem(
                 icon = Icons.Default.Favorite,
                 title = "我的收藏",
                 description = "查看收藏文章",
+                iconBackground = SecondaryContainer,
+                iconTint = Secondary,
                 onClick = onNavigateToCollect
             )
 
-            Divider(
-                modifier = Modifier.padding(horizontal = Spacing.Medium),
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
-            )
+            MenuDivider()
 
             MenuItem(
                 icon = Icons.Default.CheckCircle,
                 title = "待办事项",
                 description = "管理待办任务",
+                iconBackground = SuccessContainer,
+                iconTint = Success,
                 onClick = onNavigateToTodo
             )
 
-            Divider(
-                modifier = Modifier.padding(horizontal = Spacing.Medium),
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
-            )
+            MenuDivider()
 
             MenuItem(
                 icon = Icons.Default.Settings,
                 title = "设置",
                 description = "应用设置",
-                onClick = onNavigateToSettings
+                iconBackground = PrimaryContainer,
+                iconTint = Primary,
+                onClick = onNavigateToSettings,
+                isLast = true
             )
         }
     }
 }
 
 @Composable
+private fun MenuDivider() {
+    Divider(
+        modifier = Modifier.padding(horizontal = Spacing.Large),
+        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
+        thickness = 0.5.dp
+    )
+}
+
+@Composable
 private fun MenuItem(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: ImageVector,
     title: String,
     description: String,
-    onClick: () -> Unit
+    iconBackground: Color,
+    iconTint: Color,
+    onClick: () -> Unit,
+    isFirst: Boolean = false,
+    isLast: Boolean = false
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
-    
-    val backgroundColor = if (isPressed) {
-        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
-    } else {
-        MaterialTheme.colorScheme.surface
-    }
+
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.98f else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        label = "scale"
+    )
+
+    val backgroundColor by animateColorAsState(
+        targetValue = if (isPressed) {
+            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+        } else {
+            MaterialTheme.colorScheme.surface
+        },
+        animationSpec = tween(durationMillis = 150),
+        label = "background"
+    )
+
+    val paddingTop = if (isFirst) Spacing.Medium else Spacing.Small
+    val paddingBottom = if (isLast) Spacing.Medium else Spacing.Small
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .scale(scale)
+            .padding(horizontal = Spacing.Medium)
             .clip(RoundedCornerShape(Spacing.CornerRadiusMedium))
             .background(backgroundColor)
             .clickable(
@@ -348,22 +601,30 @@ private fun MenuItem(
                 indication = null,
                 onClick = onClick
             )
-            .padding(Spacing.Medium),
+            .padding(
+                start = Spacing.Medium,
+                end = Spacing.Medium,
+                top = paddingTop,
+                bottom = paddingBottom
+            ),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Surface(
-            modifier = Modifier.size(Spacing.IconLarge),
-            shape = CircleShape,
-            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+            modifier = Modifier.size(44.dp),
+            shape = RoundedCornerShape(12.dp),
+            color = iconBackground
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = title,
-                modifier = Modifier
-                    .size(Spacing.IconMedium)
-                    .padding(Spacing.Small),
-                tint = MaterialTheme.colorScheme.primary
-            )
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = title,
+                    modifier = Modifier.size(22.dp),
+                    tint = iconTint
+                )
+            }
         }
 
         Spacer(modifier = Modifier.width(Spacing.Medium))
@@ -375,7 +636,7 @@ private fun MenuItem(
             Text(
                 text = title,
                 style = MaterialTheme.typography.bodyLarge.copy(
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.SemiBold
                 ),
                 color = MaterialTheme.colorScheme.onSurface
             )
@@ -383,15 +644,81 @@ private fun MenuItem(
             Text(
                 text = description,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
             )
         }
 
-        Icon(
-            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-            contentDescription = "进入",
-            modifier = Modifier.size(Spacing.IconMedium),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
-        )
+        Spacer(modifier = Modifier.width(Spacing.Small))
+
+        Surface(
+            shape = CircleShape,
+            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = "进入",
+                modifier = Modifier
+                    .size(28.dp)
+                    .padding(4.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+            )
+        }
+    }
+}
+
+/**
+ * 头像图片组件
+ * 支持网络图片和本地默认头像回退
+ *
+ * @param avatarUrl 用户头像URL，为null时显示默认头像
+ * @param size 头像尺寸
+ * @param contentDescription 内容描述
+ */
+@Composable
+private fun AvatarImage(
+    avatarUrl: String?,
+    size: androidx.compose.ui.unit.Dp,
+    contentDescription: String = "用户头像"
+) {
+    val context = LocalContext.current
+
+    Surface(
+        modifier = Modifier
+            .size(size)
+            .shadow(
+                elevation = 12.dp,
+                shape = CircleShape,
+                spotColor = Primary.copy(alpha = 0.3f)
+            ),
+        shape = CircleShape,
+        color = MaterialTheme.colorScheme.surface,
+        shadowElevation = 0.dp
+    ) {
+        if (avatarUrl != null) {
+            // 使用 Coil 加载网络图片，支持缓存
+            AsyncImage(
+                model = ImageRequest.Builder(context)
+                    .data(avatarUrl)
+                    .crossfade(true)
+                    // 内存缓存策略
+                    .memoryCachePolicy(CachePolicy.ENABLED)
+                    // 磁盘缓存策略
+                    .diskCachePolicy(CachePolicy.ENABLED)
+                    .placeholder(R.drawable.ic_avatar)
+                    .error(R.drawable.ic_avatar)
+                    .build(),
+                contentDescription = contentDescription,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+        } else {
+            // 显示本地默认头像
+            Image(
+                painter = painterResource(id = R.drawable.ic_avatar),
+                contentDescription = contentDescription,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
     }
 }
