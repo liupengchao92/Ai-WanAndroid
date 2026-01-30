@@ -1,6 +1,7 @@
 package com.gradle.aicodeapp.ui.state
 
 import com.gradle.aicodeapp.network.model.Article
+import com.gradle.aicodeapp.network.model.WxOfficialAccount
 
 /**
  * 广场UI状态
@@ -8,6 +9,12 @@ import com.gradle.aicodeapp.network.model.Article
 data class SquareUiState(
     // 文章列表
     val articles: List<Article> = emptyList(),
+    // 公众号列表
+    val wxOfficialAccounts: List<WxOfficialAccount> = emptyList(),
+    // 公众号加载状态
+    val isWxAccountsLoading: Boolean = false,
+    // 公众号加载错误信息
+    val wxAccountsError: String? = null,
     // 加载状态
     val isLoading: Boolean = true,
     // 刷新状态

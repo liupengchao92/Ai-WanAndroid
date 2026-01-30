@@ -35,6 +35,7 @@ import com.gradle.aicodeapp.R
 import com.gradle.aicodeapp.network.model.Article
 import com.gradle.aicodeapp.ui.theme.CustomShapes
 import com.gradle.aicodeapp.ui.theme.Spacing
+import com.gradle.aicodeapp.ui.theme.ResponsiveLayout
 
 @Composable
 fun ProjectItem(
@@ -52,7 +53,8 @@ fun ProjectItem(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = Spacing.ScreenPadding, vertical = Spacing.Small)
+            .then(ResponsiveLayout.responsiveHorizontalPadding())
+            .padding(vertical = Spacing.Small)
             .clickable(
                 interactionSource = interactionSource,
                 indication = rememberRipple(bounded = true),

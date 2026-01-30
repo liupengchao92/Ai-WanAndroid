@@ -23,6 +23,7 @@ import com.gradle.aicodeapp.network.model.RegisterResponse
 import com.gradle.aicodeapp.network.model.Todo
 import com.gradle.aicodeapp.network.model.TodoListResponse
 import com.gradle.aicodeapp.network.model.WendaListResponse
+import com.gradle.aicodeapp.network.model.WxOfficialAccountResponse
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -314,6 +315,33 @@ class NetworkRepository @Inject constructor(
             ErrorHandler.handleError(e)
             Result.failure(e)
         }
+    }
+
+    /**
+     * 获取公众号列表
+     */
+    suspend fun getWxOfficialAccounts(): Result<WxOfficialAccountResponse> {
+        return try {
+            val response = apiService.getWxOfficialAccounts()
+            Result.success(response)
+        } catch (e: Exception) {
+            ErrorHandler.handleError(e)
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * 获取公众号文章列表
+     * @param id 公众号ID
+     * @param page 页码，从1开始
+     * @param pageSize 每页数量，1-40，不传使用默认值
+     */
+    suspend fun getWxArticles(
+        id: Int,
+        page: Int,
+        pageSize: Int? = null
+    ): Result<ApiResponse<ArticleListResponse>> {
+        return safeApiCall { apiService.getWxArticles(id, page, pageSize) }
     }
 
     // 可以添加更多网络请求方法

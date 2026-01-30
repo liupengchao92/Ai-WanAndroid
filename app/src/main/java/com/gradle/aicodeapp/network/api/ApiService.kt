@@ -21,6 +21,7 @@ import com.gradle.aicodeapp.network.model.RegisterResponse
 import com.gradle.aicodeapp.network.model.Todo
 import com.gradle.aicodeapp.network.model.TodoListResponse
 import com.gradle.aicodeapp.network.model.WendaListResponse
+import com.gradle.aicodeapp.network.model.WxOfficialAccountResponse
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
@@ -275,6 +276,25 @@ interface ApiService {
         @Query("priority") priority: Int? = null,
         @Query("orderby") orderby: Int? = null
     ): ApiResponse<TodoListResponse>
+
+    /**
+     * 获取公众号列表
+     */
+    @GET("wxarticle/chapters/json")
+    suspend fun getWxOfficialAccounts(): WxOfficialAccountResponse
+
+    /**
+     * 获取公众号文章列表
+     * @param id 公众号ID
+     * @param page 页码，从1开始
+     * @param pageSize 每页数量，1-40，不传使用默认值
+     */
+    @GET("wxarticle/list/{id}/{page}/json")
+    suspend fun getWxArticles(
+        @Path("id") id: Int,
+        @Path("page") page: Int,
+        @Query("page_size") pageSize: Int? = null
+    ): ApiResponse<ArticleListResponse>
 
     // 可以添加更多API方法
 }

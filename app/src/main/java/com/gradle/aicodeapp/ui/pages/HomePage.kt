@@ -148,7 +148,7 @@ private fun LoadingState(paddingValues: PaddingValues) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = Spacing.ScreenPadding)
+                    .then(ResponsiveLayout.responsiveHorizontalPadding())
                     .height(120.dp)
             ) {
                 Column {
@@ -258,7 +258,7 @@ private fun ContentState(
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(horizontal = Spacing.ScreenPadding)
+                                    .then(ResponsiveLayout.responsiveHorizontalPadding())
                                     .height(120.dp)
                             ) {
                                 Column {

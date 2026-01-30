@@ -128,6 +128,8 @@ object CacheKeys {
     const val POPULAR_WENDA = "popular_wenda"
     const val POPULAR_COLUMN = "popular_column"
     const val POPULAR_ROUTE = "popular_route"
+    const val WX_OFFICIAL_ACCOUNTS = "wx_official_accounts"
+    const val WX_ARTICLES = "wx_articles"
     
     fun getHomeArticlesKey(page: Int): String {
         return "${HOME_ARTICLES}_$page"
@@ -147,6 +149,10 @@ object CacheKeys {
     
     fun getSearchArticlesKey(keyword: String, page: Int): String {
         return "${SEARCH_ARTICLES}_${keyword}_$page"
+    }
+
+    fun getWxArticlesKey(accountId: Int, page: Int): String {
+        return "${WX_ARTICLES}_${accountId}_$page"
     }
 }
 

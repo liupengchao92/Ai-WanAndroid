@@ -6,9 +6,8 @@ import com.gradle.aicodeapp.cache.CacheConfig
 import com.gradle.aicodeapp.cache.CacheKeys
 import com.gradle.aicodeapp.cache.DataCacheManager
 import com.gradle.aicodeapp.network.model.Article
-import com.gradle.aicodeapp.network.model.WxOfficialAccount
 import com.gradle.aicodeapp.network.repository.NetworkRepository
-import com.gradle.aicodeapp.ui.state.SquareUiState
+import com.gradle.aicodeapp.ui.state.WxArticleListUiState
 import com.gradle.aicodeapp.utils.LogUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,16 +16,33 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SquareViewModel @Inject constructor(
+class WxArticleListViewModel @Inject constructor(
     private val networkRepository: NetworkRepository,
     private val cacheManager: DataCacheManager
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(SquareUiState())
-    val uiState: StateFlow<SquareUiState> = _uiState
+    private val _uiState = MutableStateFlow(WxArticleListUiState())
+    val uiState: StateFlow<WxArticleListUiState> = _uiState
 
-    private val TAG = "SquareViewModel"
+    private val TAG = "WxArticleListViewModel"
 
+    /**
+     * 初始化数据
+     * @param accountId 公众号ID
+     * @param accountName 公众号名称
+     */
+    fun initData(accountId: Int, accountName: String) {
+        _uiState.value = WxArticleListUiState(
+            accountId = accountId,
+            accountName = accountName,
+            isLoading = true
+        )
+        loadData()
+    }
+
+    /**
+     * 加载数据
+     */
     fun loadData() {
         val currentState = _uiState.value
 
@@ -40,19 +56,22 @@ class SquareViewModel @Inject constructor(
         )
 
         viewModelScope.launch {
-            loadSquareArticles()
-            loadWxOfficialAccounts()
+            loadWxArticles()
         }
     }
 
-    private suspend fun loadSquareArticles() {
+    /**
+     * 加载公众号文章列表
+     */
+    private suspend fun loadWxArticles() {
         val currentState = _uiState.value
-        val cacheKey = CacheKeys.getSquareArticlesKey(currentState.currentPage)
+        val cacheKey = CacheKeys.getWxArticlesKey(currentState.accountId, currentState.currentPage)
         val expireTime = CacheConfig.getExpireTime(cacheKey)
-        
+
+        // 尝试从缓存获取
         val cachedArticles = cacheManager.get<List<Article>>(cacheKey)
         if (cachedArticles != null) {
-            val updatedArticles = if (currentState.currentPage == 0) {
+            val updatedArticles = if (currentState.currentPage == 1) {
                 cachedArticles
             } else {
                 currentState.articles + cachedArticles
@@ -63,21 +82,26 @@ class SquareViewModel @Inject constructor(
                 isRefreshing = false,
                 hasMore = cachedArticles.isNotEmpty()
             )
-            LogUtils.d(TAG, "Square articles loaded from cache: ${cachedArticles.size}")
+            LogUtils.d(TAG, "Wx articles loaded from cache: ${cachedArticles.size}")
             return
         }
 
-        val articleResult = networkRepository.getSquareArticles(currentState.currentPage)
-        if (articleResult.isSuccess) {
-            val response = articleResult.getOrNull()
+        // 从网络加载
+        val result = networkRepository.getWxArticles(
+            id = currentState.accountId,
+            page = currentState.currentPage
+        )
+
+        if (result.isSuccess) {
+            val response = result.getOrNull()
             if (response?.isSuccess() == true) {
                 val newArticles = response.data?.datas ?: emptyList()
-                val updatedArticles = if (currentState.currentPage == 0) {
+                val updatedArticles = if (currentState.currentPage == 1) {
                     newArticles
                 } else {
                     currentState.articles + newArticles
                 }
-                
+
                 _uiState.value = _uiState.value.copy(
                     articles = updatedArticles,
                     isLoading = false,
@@ -85,7 +109,7 @@ class SquareViewModel @Inject constructor(
                     hasMore = response.data?.over != true
                 )
                 cacheManager.put(cacheKey, newArticles, expireTime)
-                LogUtils.d(TAG, "Square articles loaded from network: ${newArticles.size}")
+                LogUtils.d(TAG, "Wx articles loaded from network: ${newArticles.size}")
             } else {
                 _uiState.value = _uiState.value.copy(
                     errorMessage = "获取文章失败: ${response?.errorMsg}",
@@ -95,42 +119,37 @@ class SquareViewModel @Inject constructor(
             }
         } else {
             _uiState.value = _uiState.value.copy(
-                errorMessage = "网络错误: ${articleResult.exceptionOrNull()?.message}",
+                errorMessage = "网络错误: ${result.exceptionOrNull()?.message}",
                 isLoading = false,
                 isRefreshing = false
             )
         }
     }
 
+    /**
+     * 刷新数据
+     */
     fun refreshData() {
         viewModelScope.launch {
-            cacheManager.remove(CacheKeys.getSquareArticlesKey(0))
-            
+            val accountId = _uiState.value.accountId
+            // 清除第一页缓存
+            cacheManager.remove(CacheKeys.getWxArticlesKey(accountId, 1))
+
             _uiState.value = _uiState.value.copy(
-                currentPage = 0,
+                currentPage = 1,
                 isRefreshing = true,
                 isLoading = true,
-                articles = emptyList()
+                articles = emptyList(),
+                hasMore = true
             )
-            
-            loadSquareArticles()
+
+            loadWxArticles()
         }
     }
 
-    fun refreshArticles() {
-        viewModelScope.launch {
-            cacheManager.remove(CacheKeys.getSquareArticlesKey(0))
-            
-            _uiState.value = _uiState.value.copy(
-                currentPage = 0,
-                isRefreshing = true,
-                articles = emptyList()
-            )
-            
-            loadSquareArticles()
-        }
-    }
-
+    /**
+     * 加载更多
+     */
     fun loadMore() {
         val currentState = _uiState.value
         if (!currentState.isLoading && currentState.hasMore) {
@@ -138,77 +157,26 @@ class SquareViewModel @Inject constructor(
                 currentPage = currentState.currentPage + 1
             )
             viewModelScope.launch {
-                loadSquareArticles()
+                loadWxArticles()
             }
         }
     }
 
+    /**
+     * 清除错误信息
+     */
     fun clearError() {
         _uiState.value = _uiState.value.copy(
             errorMessage = null
         )
     }
 
-    fun clearWxAccountsError() {
-        _uiState.value = _uiState.value.copy(
-            wxAccountsError = null
-        )
-    }
-
-    fun refreshWxOfficialAccounts() {
-        viewModelScope.launch {
-            cacheManager.remove(CacheKeys.WX_OFFICIAL_ACCOUNTS)
-            loadWxOfficialAccounts()
-        }
-    }
-
-    private suspend fun loadWxOfficialAccounts() {
-        _uiState.value = _uiState.value.copy(
-            isWxAccountsLoading = true,
-            wxAccountsError = null
-        )
-
-        val cacheKey = CacheKeys.WX_OFFICIAL_ACCOUNTS
-        val expireTime = CacheConfig.LONG_EXPIRE_TIME
-
-        val cachedAccounts = cacheManager.get<List<WxOfficialAccount>>(cacheKey)
-        if (cachedAccounts != null) {
-            _uiState.value = _uiState.value.copy(
-                wxOfficialAccounts = cachedAccounts,
-                isWxAccountsLoading = false
-            )
-            LogUtils.d(TAG, "Wx official accounts loaded from cache: ${cachedAccounts.size}")
-            return
-        }
-
-        val result = networkRepository.getWxOfficialAccounts()
-        if (result.isSuccess) {
-            val response = result.getOrNull()
-            if (response?.isSuccess() == true) {
-                val accounts = response.data ?: emptyList()
-                _uiState.value = _uiState.value.copy(
-                    wxOfficialAccounts = accounts,
-                    isWxAccountsLoading = false
-                )
-                cacheManager.put(cacheKey, accounts, expireTime)
-                LogUtils.d(TAG, "Wx official accounts loaded from network: ${accounts.size}")
-            } else {
-                _uiState.value = _uiState.value.copy(
-                    wxAccountsError = "获取公众号列表失败: ${response?.errorMsg}",
-                    isWxAccountsLoading = false
-                )
-            }
-        } else {
-            _uiState.value = _uiState.value.copy(
-                wxAccountsError = "网络错误: ${result.exceptionOrNull()?.message}",
-                isWxAccountsLoading = false
-            )
-        }
-    }
-
+    /**
+     * 更新文章收藏状态
+     */
     fun updateArticleCollectStatus(articleId: Int, isCollected: Boolean) {
         val currentState = _uiState.value
-        
+
         val updatedArticles = currentState.articles.map { article ->
             if (article.id == articleId) {
                 article.copy(collect = isCollected)
@@ -216,11 +184,11 @@ class SquareViewModel @Inject constructor(
                 article
             }
         }
-        
+
         _uiState.value = currentState.copy(
             articles = updatedArticles
         )
-        
+
         LogUtils.d(TAG, "Article collect status updated: articleId=$articleId, isCollected=$isCollected")
     }
 }

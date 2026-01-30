@@ -39,6 +39,7 @@ import com.gradle.aicodeapp.ui.pages.SquarePage
 import com.gradle.aicodeapp.ui.pages.TodoFormPage
 import com.gradle.aicodeapp.ui.pages.TodoPage
 import com.gradle.aicodeapp.ui.pages.WendaListPage
+import com.gradle.aicodeapp.ui.pages.WxArticleListPage
 import com.gradle.aicodeapp.ui.viewmodel.CollectViewModel
 import com.gradle.aicodeapp.ui.viewmodel.HomeViewModel
 import com.gradle.aicodeapp.ui.viewmodel.ProjectViewModel
@@ -192,6 +193,10 @@ fun AppNavigation(
                     },
                     onSearchClick = {
                         navController.navigate(NavigationRoutes.SEARCH)
+                    },
+                    onWxAccountClick = { accountId, accountName ->
+                        val encodedName = URLEncoder.encode(accountName, StandardCharsets.UTF_8.toString())
+                        navController.navigate("${NavigationRoutes.WX_ARTICLE_LIST}/$accountId?${NavigationArguments.WX_ACCOUNT_NAME}=$encodedName")
                     },
                     paddingValues = paddingValues
                 )
@@ -431,6 +436,36 @@ fun AppNavigation(
                         navController.popBackStack()
                     },
                     onRouteClick = { url, title ->
+                        if (url.isNotBlank()) {
+                            val encodedUrl = URLEncoder.encode(url, StandardCharsets.UTF_8.toString())
+                            val encodedTitle = URLEncoder.encode(title, StandardCharsets.UTF_8.toString())
+                            navController.navigate("${NavigationRoutes.ARTICLE_DETAIL}/$encodedUrl?${NavigationArguments.ARTICLE_TITLE}=$encodedTitle")
+                        }
+                    }
+                )
+            }
+
+            composable(
+                route = "${NavigationRoutes.WX_ARTICLE_LIST}/{${NavigationArguments.WX_ACCOUNT_ID}}?${NavigationArguments.WX_ACCOUNT_NAME}={${NavigationArguments.WX_ACCOUNT_NAME}}",
+                arguments = listOf(
+                    navArgument(NavigationArguments.WX_ACCOUNT_ID) { type = NavType.IntType },
+                    navArgument(NavigationArguments.WX_ACCOUNT_NAME) { type = NavType.StringType; nullable = true }
+                )
+            ) { backStackEntry ->
+                val accountId = backStackEntry.arguments?.getInt(NavigationArguments.WX_ACCOUNT_ID) ?: 0
+                val accountName = try {
+                    val encodedName = backStackEntry.arguments?.getString(NavigationArguments.WX_ACCOUNT_NAME) ?: ""
+                    URLDecoder.decode(encodedName, StandardCharsets.UTF_8.toString())
+                } catch (e: Exception) {
+                    "公众号文章"
+                }
+                WxArticleListPage(
+                    accountId = accountId,
+                    accountName = accountName,
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    },
+                    onArticleClick = { url, title ->
                         if (url.isNotBlank()) {
                             val encodedUrl = URLEncoder.encode(url, StandardCharsets.UTF_8.toString())
                             val encodedTitle = URLEncoder.encode(title, StandardCharsets.UTF_8.toString())

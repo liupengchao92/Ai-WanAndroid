@@ -64,6 +64,7 @@ import coil.request.ImageRequest
 import com.gradle.aicodeapp.data.UserManager
 import com.gradle.aicodeapp.ui.theme.CustomShapes
 import com.gradle.aicodeapp.ui.theme.Spacing
+import com.gradle.aicodeapp.ui.theme.ResponsiveLayout
 import javax.inject.Inject
 
 @Composable
@@ -133,7 +134,7 @@ private fun UserHeader(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = Spacing.ScreenPadding),
+            .then(ResponsiveLayout.responsiveHorizontalPadding()),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         shape = RoundedCornerShape(Spacing.CornerRadiusLarge),
         colors = CardDefaults.cardColors(
@@ -263,7 +264,7 @@ private fun MenuSection(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = Spacing.ScreenPadding),
+            .then(ResponsiveLayout.responsiveHorizontalPadding()),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         shape = RoundedCornerShape(Spacing.CornerRadiusLarge),
         colors = CardDefaults.cardColors(

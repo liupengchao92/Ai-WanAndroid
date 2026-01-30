@@ -20,6 +20,7 @@ object NavigationRoutes {
     const val ROUTE_LIST = "route_list"
     const val TODO = "todo"
     const val TODO_FORM = "todo_form"
+    const val WX_ARTICLE_LIST = "wx_article_list"
 }
 
 object NavigationArguments {
@@ -28,4 +29,6 @@ object NavigationArguments {
     const val ARTICLE_TITLE = "articleTitle"
     const val COLLECT_ID = "collectId"
     const val TODO_ID = "todoId"
+    const val WX_ACCOUNT_ID = "wxAccountId"
+    const val WX_ACCOUNT_NAME = "wxAccountName"
 }
