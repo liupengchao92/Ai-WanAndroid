@@ -135,11 +135,13 @@ fun SquarePage(
                     SearchBox(onClick = onSearchClick)
                 }
                 
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
+                Column(
+                    modifier = Modifier.fillMaxSize()
                 ) {
-                    LoadingAnimation()
+                    // 显示文章列表骨架屏
+                    repeat(5) {
+                        ArticleItemSkeleton()
+                    }
                 }
             }
         }
@@ -181,7 +183,18 @@ fun SquarePage(
                     onRefresh = { viewModel.refreshData() },
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    if (uiState.articles.isEmpty() && !uiState.isLoading) {
+                    if (uiState.isRefreshing) {
+                        // 显示文章列表骨架屏
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            state = listState,
+                            contentPadding = ResponsiveLayout.responsiveContentPadding()
+                        ) {
+                            items(5) {
+                                ArticleItemSkeleton()
+                            }
+                        }
+                    } else if (uiState.articles.isEmpty() && !uiState.isLoading) {
                         Box(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center

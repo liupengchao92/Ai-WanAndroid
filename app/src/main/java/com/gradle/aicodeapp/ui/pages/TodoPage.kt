@@ -121,12 +121,13 @@ fun TodoPage(
             .padding(paddingValues),
         topBar = {
             TopAppBar(
-                title = { Text("待办事项") },
+                title = { Text(text = "待办事项", style = MaterialTheme.typography.titleLarge) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "返回"
+                            contentDescription = "返回",
+                            tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 },
@@ -157,7 +158,8 @@ fun TodoPage(
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = "添加待办"
+                    contentDescription = "添加待办",
+                    tint = MaterialTheme.colorScheme.onPrimary
                 )
             }
         }
@@ -165,6 +167,7 @@ fun TodoPage(
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
                 .nestedScroll(pullToRefreshState.nestedScrollConnection)
                 .padding(innerPadding)
         ) {
@@ -334,7 +337,8 @@ fun TodoItem(
             } else {
                 MaterialTheme.colorScheme.surface
             }
-        )
+        ),
+        shape = RoundedCornerShape(12.dp) // 使用标准的medium圆角
     ) {
         Column(
             modifier = Modifier
@@ -418,13 +422,15 @@ fun TodoItem(
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(Spacing.Small)
                 ) {
+                    val typeColor = getTypeColor(todo.type)
+                    val priorityColor = getPriorityColor(todo.priority)
                     FilterChip(
                         label = todo.getTypeName(),
-                        color = getTypeColor(todo.type)
+                        color = typeColor
                     )
                     FilterChip(
                         label = todo.getPriorityName(),
-                        color = getPriorityColor(todo.priority)
+                        color = priorityColor
                     )
                 }
 
@@ -442,7 +448,7 @@ fun TodoItem(
 fun FilterChip(label: String, color: Color) {
     Box(
         modifier = Modifier
-            .clip(RoundedCornerShape(12.dp))
+            .clip(RoundedCornerShape(12.dp)) // 使用标准的medium圆角
             .background(color.copy(alpha = 0.1f))
             .padding(horizontal = Spacing.Small, vertical = Spacing.ExtraSmall)
     ) {
@@ -462,21 +468,22 @@ fun DeleteConfirmDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("确认删除") },
-        text = { Text("确定要删除待办事项「${todo.title}」吗？") },
+        title = { Text(text = "确认删除", style = MaterialTheme.typography.titleMedium) },
+        text = { Text(text = "确定要删除待办事项「${todo.title}」吗？", style = MaterialTheme.typography.bodyMedium) },
         confirmButton = {
             Button(
                 onClick = onConfirm,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.error
-                )
+                ),
+                shape = RoundedCornerShape(8.dp) // 使用标准的small圆角
             ) {
-                Text("删除")
+                Text(text = "删除", style = MaterialTheme.typography.labelLarge)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("取消")
+                Text(text = "取消", style = MaterialTheme.typography.labelLarge)
             }
         }
     )
@@ -497,8 +504,11 @@ fun ErrorContent(message: String, onRetry: () -> Unit) {
             color = MaterialTheme.colorScheme.error
         )
         Spacer(modifier = Modifier.height(Spacing.Medium))
-        Button(onClick = onRetry) {
-            Text("重试")
+        Button(
+            onClick = onRetry,
+            shape = RoundedCornerShape(8.dp) // 使用标准的small圆角
+        ) {
+            Text(text = "重试", style = MaterialTheme.typography.labelLarge)
         }
     }
 }
@@ -564,19 +574,21 @@ private fun getOrderName(orderby: Int?): String {
     }
 }
 
+@Composable
 private fun getTypeColor(type: Int): Color {
     return when (type) {
-        Todo.TYPE_WORK -> Color(0xFF2196F3)
-        Todo.TYPE_LIFE -> Color(0xFF4CAF50)
-        Todo.TYPE_ENTERTAINMENT -> Color(0xFFFF9800)
-        else -> Color.Gray
+        Todo.TYPE_WORK -> MaterialTheme.colorScheme.primary
+        Todo.TYPE_LIFE -> MaterialTheme.colorScheme.secondary
+        Todo.TYPE_ENTERTAINMENT -> MaterialTheme.colorScheme.tertiary
+        else -> MaterialTheme.colorScheme.onSurfaceVariant
     }
 }
 
+@Composable
 private fun getPriorityColor(priority: Int): Color {
     return when (priority) {
-        Todo.PRIORITY_HIGH -> Color(0xFFF44336)
-        Todo.PRIORITY_NORMAL -> Color(0xFF9E9E9E)
-        else -> Color.Gray
+        Todo.PRIORITY_HIGH -> MaterialTheme.colorScheme.error
+        Todo.PRIORITY_NORMAL -> MaterialTheme.colorScheme.onSurfaceVariant
+        else -> MaterialTheme.colorScheme.onSurfaceVariant
     }
 }

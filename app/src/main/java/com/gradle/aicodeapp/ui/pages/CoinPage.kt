@@ -21,6 +21,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -34,7 +36,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -157,14 +158,19 @@ private fun CoinContentView(
             )
         }
     ) { contentPadding ->
-        LazyColumn(
-            state = listState,
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(
-                horizontal = Spacing.ScreenPadding,
-                vertical = Spacing.Small
-            )
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
         ) {
+            LazyColumn(
+                state = listState,
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(
+                    horizontal = Spacing.ScreenPadding,
+                    vertical = Spacing.Small
+                )
+            ) {
             item {
                 UserInfoCard(
                     coinUserInfo = uiState.coinUserInfo,
@@ -223,6 +229,7 @@ private fun CoinContentView(
                     }
                 }
             }
+            }
         }
     }
 }
@@ -242,7 +249,7 @@ private fun UserInfoCard(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer
         ),
-        shape = RoundedCornerShape(Spacing.Medium)
+        shape = RoundedCornerShape(12.dp) // 使用标准的medium圆角
     ) {
         Box(
             modifier = Modifier
@@ -421,9 +428,9 @@ private fun RankNumber(rankNumber: Int) {
             .clip(CircleShape)
             .background(
                 when (rankNumber) {
-                    1 -> ComposeColor(0xFFFFD700) // 金色
-                    2 -> ComposeColor(0xFFC0C0C0) // 银色
-                    3 -> ComposeColor(0xFFCD7F32) // 铜色
+                    1 -> MaterialTheme.colorScheme.tertiary // 使用第三色替代金色
+                    2 -> MaterialTheme.colorScheme.secondary // 使用辅助色替代银色
+                    3 -> MaterialTheme.colorScheme.error // 使用错误色替代铜色
                     else -> MaterialTheme.colorScheme.surfaceVariant
                 }
             )
@@ -440,7 +447,7 @@ private fun RankNumber(rankNumber: Int) {
                 imageVector = Icons.Default.Star,
                 contentDescription = "奖杯",
                 modifier = Modifier.size(22.dp),
-                tint = ComposeColor.White
+                tint = MaterialTheme.colorScheme.onPrimary
             )
         } else {
             Text(
@@ -568,19 +575,23 @@ private fun CoinErrorView(
                 maxLines = 2
             )
 
-            androidx.compose.material3.Button(
-                    onClick = onRetry,
-                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary
-                    )
-                ) {
+            Button(
+                onClick = onRetry,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                ),
+                shape = RoundedCornerShape(8.dp) // 使用标准的small圆角
+            ) {
                 Icon(
                     imageVector = Icons.Default.Refresh,
                     contentDescription = "重试",
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(modifier = Modifier.width(Spacing.Small))
-                Text("重试")
+                Text(
+                    text = "重试",
+                    style = MaterialTheme.typography.labelLarge
+                )
             }
         }
     }
@@ -619,13 +630,17 @@ private fun LoginRequiredView(
                 textAlign = TextAlign.Center
             )
 
-            androidx.compose.material3.Button(
+            Button(
                 onClick = onNavigateToLogin,
-                colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary
-                )
+                ),
+                shape = RoundedCornerShape(8.dp) // 使用标准的small圆角
             ) {
-                Text("去登录")
+                Text(
+                    text = "去登录",
+                    style = MaterialTheme.typography.labelLarge
+                )
             }
         }
     }

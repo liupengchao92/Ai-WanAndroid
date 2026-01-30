@@ -23,7 +23,7 @@
 | Info | #1E88E5 | 信息状态、说明文本 |
 | Background | #FAFAFA | 页面背景、内容区域 |
 | Surface | #FFFFFF | 卡片背景、组件表面 |
-
+使用 context7 获取 Android Jetpack Compose 的最新文档使用 context7 获取 Android Jetpack Compose 的最新文档使用 context7 获取 Android Jetpack Compose 的最新文档使用 context7 获取 Android Jetpack Compose 的最新文档使用 context7 获取 Android Jetpack Compose 的最新文档使用 context7 获取 Android Jetpack Compose 的最新文档使用 context7 获取 Android Jetpack Compose 的最新文档使用 context7 获取 Android Jetpack Compose 的最新文档使用 context7 获取 Android Jetpack Compose 的最新文档使用 context7 获取 Android Jetpack Compose 的最新文档使用 context7 获取 Android Jetpack Compose 的最新文档使用 context7 获取 Android Jetpack Compose 的最新文档
 #### 2.1.2 色彩应用规则
 
 1. **主色（Primary）**：用于主要操作按钮、关键链接和重要信息强调

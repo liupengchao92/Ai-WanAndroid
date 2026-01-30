@@ -59,6 +59,8 @@ import com.gradle.aicodeapp.ui.components.ArticleItemSkeleton
 import com.gradle.aicodeapp.ui.components.BannerCarousel
 import com.gradle.aicodeapp.ui.components.BannerSkeleton
 import com.gradle.aicodeapp.ui.components.PopularCardsSection
+import com.gradle.aicodeapp.ui.components.SkeletonBox
+import androidx.compose.ui.draw.clip
 import com.gradle.aicodeapp.ui.state.CollectUiState
 import com.gradle.aicodeapp.ui.state.HomeUiState
 import com.gradle.aicodeapp.ui.theme.Spacing
@@ -137,29 +139,55 @@ private fun LoadingState(paddingValues: PaddingValues) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = paddingValues.calculateTopPadding()),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+                .padding(top = paddingValues.calculateTopPadding())
         ) {
-            CircularProgressIndicator(
-                modifier = Modifier.size(Spacing.FabSize),
-                color = MaterialTheme.colorScheme.primary,
-                strokeWidth = Spacing.ExtraSmall,
-                trackColor = MaterialTheme.colorScheme.surfaceVariant
-            )
-            Spacer(modifier = Modifier.height(Spacing.Large))
-            Text(
-                text = "加载中...",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.Medium
-            )
-            Spacer(modifier = Modifier.height(Spacing.Small))
-            Text(
-                text = "正在获取最新内容",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            // 显示Banner骨架屏
+            BannerSkeleton()
+            
+            // 显示热门卡片区域占位
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = Spacing.ScreenPadding)
+                    .height(120.dp)
+            ) {
+                Column {
+                    SkeletonBox(
+                        modifier = Modifier
+                            .fillMaxWidth(0.4f)
+                            .height(20.dp)
+                            .padding(vertical = Spacing.Medium)
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        SkeletonBox(
+                            modifier = Modifier
+                                .width(100.dp)
+                                .height(80.dp)
+                                .clip(MaterialTheme.shapes.medium)
+                        )
+                        SkeletonBox(
+                            modifier = Modifier
+                                .width(100.dp)
+                                .height(80.dp)
+                                .clip(MaterialTheme.shapes.medium)
+                        )
+                        SkeletonBox(
+                            modifier = Modifier
+                                .width(100.dp)
+                                .height(80.dp)
+                                .clip(MaterialTheme.shapes.medium)
+                        )
+                    }
+                }
+            }
+            
+            // 显示文章列表骨架屏
+            repeat(5) {
+                ArticleItemSkeleton()
+            }
         }
     }
 }
@@ -209,58 +237,109 @@ private fun ContentState(
                                 banners = uiState.banners,
                                 onBannerClick = { url -> onArticleClick(url, "") }
                             )
+                        } else if (uiState.isRefreshing) {
+                            BannerSkeleton()
                         }
                     }
 
                     item {
-                        PopularCardsSection(
-                            viewModel = viewModel,
-                            onWendaClick = { url, title -> onArticleClick(url, title) },
-                            onColumnClick = { url, title -> onArticleClick(url, title) },
-                            onRouteClick = { url, title -> onArticleClick(url, title) },
-                            onViewMoreWenda = onNavigateToWendaList,
-                            onViewMoreColumn = onNavigateToColumnList,
-                            onViewMoreRoute = onNavigateToRouteList
-                        )
+                        if (!uiState.isRefreshing) {
+                            PopularCardsSection(
+                                viewModel = viewModel,
+                                onWendaClick = { url, title -> onArticleClick(url, title) },
+                                onColumnClick = { url, title -> onArticleClick(url, title) },
+                                onRouteClick = { url, title -> onArticleClick(url, title) },
+                                onViewMoreWenda = onNavigateToWendaList,
+                                onViewMoreColumn = onNavigateToColumnList,
+                                onViewMoreRoute = onNavigateToRouteList
+                            )
+                        } else {
+                            // 显示热门卡片区域骨架屏
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = Spacing.ScreenPadding)
+                                    .height(120.dp)
+                            ) {
+                                Column {
+                                    SkeletonBox(
+                                        modifier = Modifier
+                                            .fillMaxWidth(0.4f)
+                                            .height(20.dp)
+                                            .padding(vertical = Spacing.Medium)
+                                    )
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        SkeletonBox(
+                                            modifier = Modifier
+                                                .width(100.dp)
+                                                .height(80.dp)
+                                                .clip(MaterialTheme.shapes.medium)
+                                        )
+                                        SkeletonBox(
+                                            modifier = Modifier
+                                                .width(100.dp)
+                                                .height(80.dp)
+                                                .clip(MaterialTheme.shapes.medium)
+                                        )
+                                        SkeletonBox(
+                                            modifier = Modifier
+                                                .width(100.dp)
+                                                .height(80.dp)
+                                                .clip(MaterialTheme.shapes.medium)
+                                        )
+                                    }
+                                }
+                            }
+                        }
                     }
 
-                    items(
-                        items = uiState.topArticles,
-                        key = { article -> article.id }
-                    ) {
-                        article ->
-                        ArticleItem(
-                            article = article,
-                            isTop = true,
-                            onClick = { onArticleClick(article.link, article.title) },
-                            onCollectClick = { shouldCollect ->
-                                if (shouldCollect) {
-                                    collectViewModel.collectArticle(article.id)
-                                } else {
-                                    collectViewModel.uncollectArticle(article.id)
+                    if (uiState.isRefreshing) {
+                        // 显示文章列表骨架屏
+                        items(5) {
+                            ArticleItemSkeleton()
+                        }
+                    } else {
+                        items(
+                            items = uiState.topArticles,
+                            key = { article -> article.id }
+                        ) {
+                            article ->
+                            ArticleItem(
+                                article = article,
+                                isTop = true,
+                                onClick = { onArticleClick(article.link, article.title) },
+                                onCollectClick = { shouldCollect ->
+                                    if (shouldCollect) {
+                                        collectViewModel.collectArticle(article.id)
+                                    } else {
+                                        collectViewModel.uncollectArticle(article.id)
+                                    }
+                                    viewModel.updateArticleCollectStatus(article.id, shouldCollect)
                                 }
-                                viewModel.updateArticleCollectStatus(article.id, shouldCollect)
-                            }
-                        )
-                    }
+                            )
+                        }
 
-                    items(
-                        items = uiState.articles,
-                        key = { article -> article.id }
-                    ) {
-                        article ->
-                        ArticleItem(
-                            article = article,
-                            onClick = { onArticleClick(article.link, article.title) },
-                            onCollectClick = { shouldCollect ->
-                                if (shouldCollect) {
-                                    collectViewModel.collectArticle(article.id)
-                                } else {
-                                    collectViewModel.uncollectArticle(article.id)
+                        items(
+                            items = uiState.articles,
+                            key = { article -> article.id }
+                        ) {
+                            article ->
+                            ArticleItem(
+                                article = article,
+                                onClick = { onArticleClick(article.link, article.title) },
+                                onCollectClick = { shouldCollect ->
+                                    if (shouldCollect) {
+                                        collectViewModel.collectArticle(article.id)
+                                    } else {
+                                        collectViewModel.uncollectArticle(article.id)
+                                    }
+                                    viewModel.updateArticleCollectStatus(article.id, shouldCollect)
                                 }
-                                viewModel.updateArticleCollectStatus(article.id, shouldCollect)
-                            }
-                        )
+                            )
+                        }
                     }
 
                     item {

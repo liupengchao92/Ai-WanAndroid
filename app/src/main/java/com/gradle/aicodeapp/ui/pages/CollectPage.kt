@@ -1,5 +1,6 @@
 package com.gradle.aicodeapp.ui.pages
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -85,12 +86,13 @@ fun CollectPage(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("我的收藏") },
+                title = { Text(text = "我的收藏", style = MaterialTheme.typography.titleLarge) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_arrow_back),
-                            contentDescription = "返回"
+                            contentDescription = "返回",
+                            tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 },
@@ -102,7 +104,8 @@ fun CollectPage(
                     ) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_add),
-                            contentDescription = "添加收藏"
+                            contentDescription = "添加收藏",
+                            tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 },
@@ -115,93 +118,102 @@ fun CollectPage(
             )
         }
     ) { scaffoldPadding ->
-        if (uiState.isLoading && uiState.articles.isEmpty()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(scaffoldPadding)
-            ) {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    state = listState
-                ) {
-                    item {
-                        Spacer(Modifier.fillMaxWidth().height(scaffoldPadding.calculateTopPadding()))
-                    }
-
-                    items(5) {
-                        CollectItemSkeleton()
-                    }
-                }
-            }
-        } else {
-            Box(modifier = Modifier.fillMaxSize()) {
-                if (uiState.errorMessage != null) {
-                    androidx.compose.material3.Snackbar(
-                        modifier = Modifier.padding(8.dp),
-                        action = {
-                            androidx.compose.material3.TextButton(
-                                onClick = { viewModel.clearError() }
-                            ) {
-                                Text(text = "关闭")
-                            }
-                        }
-                    ) {
-                        Text(text = uiState.errorMessage ?: "")
-                    }
-                }
-
-                SwipeRefresh(
-                    state = swipeRefreshState,
-                    onRefresh = { viewModel.refreshData() },
-                    modifier = Modifier.fillMaxSize()
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+        ) {
+            if (uiState.isLoading && uiState.articles.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(scaffoldPadding)
                 ) {
                     LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize(),
+                        modifier = Modifier.fillMaxSize(),
                         state = listState
                     ) {
                         item {
                             Spacer(Modifier.fillMaxWidth().height(scaffoldPadding.calculateTopPadding()))
                         }
 
-                        items(uiState.articles) { article ->
-                            CollectItem(
-                                article = article,
-                                onClick = { onArticleClick(article.link, article.title) },
-                                onEditClick = {
-                                    val encodedTitle = URLEncoder.encode(article.title, StandardCharsets.UTF_8.toString())
-                                    val encodedAuthor = URLEncoder.encode(article.author ?: "", StandardCharsets.UTF_8.toString())
-                                    val encodedLink = URLEncoder.encode(article.link, StandardCharsets.UTF_8.toString())
-                                    navController.navigate("${NavigationRoutes.COLLECT_EDIT}/${article.id}?title=$encodedTitle&author=$encodedAuthor&link=$encodedLink")
-                                },
-                                onDeleteClick = {
-                                    articleToDelete = article.id
-                                    collectIdToDelete = article.id
-                                    showDeleteDialog = true
+                        items(5) {
+                            CollectItemSkeleton()
+                        }
+                    }
+                }
+            } else {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    if (uiState.errorMessage != null) {
+                        androidx.compose.material3.Snackbar(
+                            modifier = Modifier.padding(16.dp), // 使用标准的Medium间距
+                            action = {
+                                androidx.compose.material3.TextButton(
+                                    onClick = { viewModel.clearError() }
+                                ) {
+                                    Text(text = "关闭", style = MaterialTheme.typography.labelLarge)
                                 }
+                            }
+                        ) {
+                            Text(
+                                text = uiState.errorMessage ?: "",
+                                style = MaterialTheme.typography.bodyMedium
                             )
                         }
+                    }
 
-                        item {
-                            if (uiState.isLoading && uiState.articles.isNotEmpty()) {
-                                androidx.compose.foundation.layout.Column(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(16.dp),
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    CircularProgressIndicator()
-                                    Text(text = "加载中...", modifier = Modifier.padding(top = 8.dp))
-                                }
-                            } else if (!uiState.hasMore && uiState.articles.isNotEmpty()) {
-                                androidx.compose.foundation.layout.Column(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(16.dp),
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    Text(text = "没有更多数据了", modifier = Modifier.padding(top = 8.dp))
+                    SwipeRefresh(
+                        state = swipeRefreshState,
+                        onRefresh = { viewModel.refreshData() },
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxSize(),
+                            state = listState
+                        ) {
+                            item {
+                                Spacer(Modifier.fillMaxWidth().height(scaffoldPadding.calculateTopPadding()))
+                            }
+
+                            items(uiState.articles) { article ->
+                                CollectItem(
+                                    article = article,
+                                    onClick = { onArticleClick(article.link, article.title) },
+                                    onEditClick = {
+                                        val encodedTitle = URLEncoder.encode(article.title, StandardCharsets.UTF_8.toString())
+                                        val encodedAuthor = URLEncoder.encode(article.author ?: "", StandardCharsets.UTF_8.toString())
+                                        val encodedLink = URLEncoder.encode(article.link, StandardCharsets.UTF_8.toString())
+                                        navController.navigate("${NavigationRoutes.COLLECT_EDIT}/${article.id}?title=$encodedTitle&author=$encodedAuthor&link=$encodedLink")
+                                    },
+                                    onDeleteClick = {
+                                        articleToDelete = article.id
+                                        collectIdToDelete = article.id
+                                        showDeleteDialog = true
+                                    }
+                                )
+                            }
+
+                            item {
+                                if (uiState.isLoading && uiState.articles.isNotEmpty()) {
+                                    androidx.compose.foundation.layout.Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(16.dp),
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        CircularProgressIndicator()
+                                        Text(text = "加载中...", modifier = Modifier.padding(top = 8.dp))
+                                    }
+                                } else if (!uiState.hasMore && uiState.articles.isNotEmpty()) {
+                                    androidx.compose.foundation.layout.Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(16.dp),
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Text(text = "没有更多数据了", modifier = Modifier.padding(top = 8.dp))
+                                    }
                                 }
                             }
                         }
@@ -209,35 +221,35 @@ fun CollectPage(
                 }
             }
         }
-    }
 
-    if (showDeleteDialog) {
-        AlertDialog(
-            onDismissRequest = { showDeleteDialog = false },
-            title = { Text("取消收藏") },
-            text = { Text("确定要取消收藏这篇文章吗？") },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        showDeleteDialog = false
-                        if (articleToDelete != null) {
-                            viewModel.uncollectArticle(articleToDelete!!)
+        if (showDeleteDialog) {
+            AlertDialog(
+                onDismissRequest = { showDeleteDialog = false },
+                title = { Text(text = "取消收藏", style = MaterialTheme.typography.titleMedium) },
+                text = { Text(text = "确定要取消收藏这篇文章吗？", style = MaterialTheme.typography.bodyMedium) },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            showDeleteDialog = false
+                            if (articleToDelete != null) {
+                                viewModel.uncollectArticle(articleToDelete!!)
+                            }
+                            if (collectIdToDelete != null) {
+                                viewModel.uncollectOutsideArticle(collectIdToDelete!!)
+                            }
                         }
-                        if (collectIdToDelete != null) {
-                            viewModel.uncollectOutsideArticle(collectIdToDelete!!)
-                        }
+                    ) {
+                        Text(text = "确定", style = MaterialTheme.typography.labelLarge)
                     }
-                ) {
-                    Text("确定")
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = { showDeleteDialog = false }
+                    ) {
+                        Text(text = "取消", style = MaterialTheme.typography.labelLarge)
+                    }
                 }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = { showDeleteDialog = false }
-                ) {
-                    Text("取消")
-                }
-            }
-        )
+            )
+        }
     }
 }

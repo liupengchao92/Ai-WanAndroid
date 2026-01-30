@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.gradle.aicodeapp.cache.CacheConfig
 import com.gradle.aicodeapp.cache.CacheKeys
 import com.gradle.aicodeapp.cache.DataCacheManager
+import com.gradle.aicodeapp.data.database.SearchHistory
+import com.gradle.aicodeapp.data.database.SearchHistoryRepository
 import com.gradle.aicodeapp.network.model.Article
 import com.gradle.aicodeapp.network.model.Friend
 import com.gradle.aicodeapp.network.repository.NetworkRepository
@@ -19,7 +21,8 @@ import javax.inject.Inject
 @HiltViewModel
 class SearchViewModel @Inject constructor(
     private val networkRepository: NetworkRepository,
-    private val cacheManager: DataCacheManager
+    private val cacheManager: DataCacheManager,
+    private val searchHistoryRepository: SearchHistoryRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SearchUiState())
@@ -28,10 +31,22 @@ class SearchViewModel @Inject constructor(
     private val _hotKeys = MutableStateFlow<List<Friend>>(emptyList())
     val hotKeys: StateFlow<List<Friend>> = _hotKeys
 
+    private val _searchHistory = MutableStateFlow<List<SearchHistory>>(emptyList())
+    val searchHistory: StateFlow<List<SearchHistory>> = _searchHistory
+
     private val TAG = "SearchViewModel"
 
     init {
         loadHotKeys()
+        loadSearchHistory()
+    }
+
+    private fun loadSearchHistory() {
+        viewModelScope.launch {
+            val history = searchHistoryRepository.getSearchHistory()
+            _searchHistory.value = history
+            LogUtils.d(TAG, "Search history loaded: ${history.size}")
+        }
     }
 
     fun loadHotKeys() {
@@ -82,7 +97,26 @@ class SearchViewModel @Inject constructor(
         )
 
         viewModelScope.launch {
+            // 保存搜索历史
+            searchHistoryRepository.addSearchHistory(query)
+            // 重新加载搜索历史
+            loadSearchHistory()
+            // 执行搜索
             performSearch(query, 0)
+        }
+    }
+
+    fun deleteSearchHistory(id: Long) {
+        viewModelScope.launch {
+            searchHistoryRepository.deleteSearchHistory(id)
+            loadSearchHistory()
+        }
+    }
+
+    fun clearSearchHistory() {
+        viewModelScope.launch {
+            searchHistoryRepository.clearSearchHistory()
+            loadSearchHistory()
         }
     }
 

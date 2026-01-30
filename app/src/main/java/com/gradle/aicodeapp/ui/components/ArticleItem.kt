@@ -54,11 +54,14 @@ fun ArticleItem(
     val isPressed by interactionSource.collectIsPressedAsState()
     val isHovered by interactionSource.collectIsHoveredAsState()
 
-    val backgroundColor = when {
-        isPressed -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
-        isHovered -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
-        else -> MaterialTheme.colorScheme.surface
-    }
+    val backgroundColor by animateColorAsState(
+        targetValue = when {
+            isPressed -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+            isHovered -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+            else -> MaterialTheme.colorScheme.surface
+        },
+        label = "backgroundColor"
+    )
 
     val elevation = when {
         isPressed -> Spacing.ElevationMedium.value

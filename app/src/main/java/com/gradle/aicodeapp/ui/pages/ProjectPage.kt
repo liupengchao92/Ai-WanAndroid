@@ -138,84 +138,97 @@ fun ProjectPage(
                     onRefresh = { viewModel.refreshData() },
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        state = listState,
-                        contentPadding = ResponsiveLayout.responsiveContentPadding()
-                    ) {
-                        items(
-                            items = uiState.projects,
-                            key = { project -> project.id }
-                        ) { project ->
-                            ProjectItem(
-                                article = project,
-                                onClick = { onArticleClick(project.link, project.title) }
-                            )
+                    if (uiState.isRefreshing) {
+                        // 显示项目列表骨架屏
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            state = listState,
+                            contentPadding = ResponsiveLayout.responsiveContentPadding()
+                        ) {
+                            items(5) {
+                                ProjectItemSkeleton()
+                            }
                         }
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            state = listState,
+                            contentPadding = ResponsiveLayout.responsiveContentPadding()
+                        ) {
+                            items(
+                                items = uiState.projects,
+                                key = { project -> project.id }
+                            ) { project ->
+                                ProjectItem(
+                                    article = project,
+                                    onClick = { onArticleClick(project.link, project.title) }
+                                )
+                            }
 
-                        item {
-                            if (uiState.isLoading && uiState.projects.isNotEmpty()) {
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .then(ResponsiveLayout.responsiveHorizontalPadding()),
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.Center
-                                ) {
-                                    CircularProgressIndicator(
-                                        color = MaterialTheme.colorScheme.primary,
-                                        strokeWidth = 2.dp,
-                                        trackColor = MaterialTheme.colorScheme.surfaceVariant
-                                    )
-                                    Spacer(modifier = Modifier.height(Spacing.Small))
-                                    Text(
-                                        text = "加载中...",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        fontWeight = FontWeight.Medium,
-                                        modifier = Modifier.padding(top = Spacing.Small)
-                                    )
-                                }
-                            } else if (!uiState.hasMore && uiState.projects.isNotEmpty()) {
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .then(ResponsiveLayout.responsiveHorizontalPadding()),
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    Surface(
-                                        shape = MaterialTheme.shapes.medium,
-                                        color = MaterialTheme.colorScheme.surfaceVariant,
-                                        modifier = Modifier.padding(horizontal = Spacing.Medium)
+                            item {
+                                if (uiState.isLoading && uiState.projects.isNotEmpty()) {
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .then(ResponsiveLayout.responsiveHorizontalPadding()),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.Center
                                     ) {
-                                        Row(
-                                            modifier = Modifier.padding(
-                                                horizontal = Spacing.Medium,
-                                                vertical = Spacing.Small
-                                            ),
-                                            horizontalArrangement = Arrangement.Center,
-                                            verticalAlignment = Alignment.CenterVertically
+                                        CircularProgressIndicator(
+                                            color = MaterialTheme.colorScheme.primary,
+                                            strokeWidth = 2.dp,
+                                            trackColor = MaterialTheme.colorScheme.surfaceVariant
+                                        )
+                                        Spacer(modifier = Modifier.height(Spacing.Small))
+                                        Text(
+                                            text = "加载中...",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            fontWeight = FontWeight.Medium,
+                                            modifier = Modifier.padding(top = Spacing.Small)
+                                        )
+                                    }
+                                } else if (!uiState.hasMore && uiState.projects.isNotEmpty()) {
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .then(ResponsiveLayout.responsiveHorizontalPadding()),
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Surface(
+                                            shape = MaterialTheme.shapes.medium,
+                                            color = MaterialTheme.colorScheme.surfaceVariant,
+                                            modifier = Modifier.padding(horizontal = Spacing.Medium)
                                         ) {
-                                            Text(
-                                                text = "·",
-                                                style = MaterialTheme.typography.titleMedium,
-                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                fontWeight = FontWeight.Bold
-                                            )
-                                            Spacer(modifier = Modifier.width(Spacing.Small))
-                                            Text(
-                                                text = "已经到底了",
-                                                style = MaterialTheme.typography.bodySmall,
-                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                fontWeight = FontWeight.Medium
-                                            )
-                                            Spacer(modifier = Modifier.width(Spacing.Small))
-                                            Text(
-                                                text = "·",
-                                                style = MaterialTheme.typography.titleMedium,
-                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                fontWeight = FontWeight.Bold
-                                            )
+                                            Row(
+                                                modifier = Modifier.padding(
+                                                    horizontal = Spacing.Medium,
+                                                    vertical = Spacing.Small
+                                                ),
+                                                horizontalArrangement = Arrangement.Center,
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                Text(
+                                                    text = "·",
+                                                    style = MaterialTheme.typography.titleMedium,
+                                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                                Spacer(modifier = Modifier.width(Spacing.Small))
+                                                Text(
+                                                    text = "已经到底了",
+                                                    style = MaterialTheme.typography.bodySmall,
+                                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                    fontWeight = FontWeight.Medium
+                                                )
+                                                Spacer(modifier = Modifier.width(Spacing.Small))
+                                                Text(
+                                                    text = "·",
+                                                    style = MaterialTheme.typography.titleMedium,
+                                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                            }
                                         }
                                     }
                                 }

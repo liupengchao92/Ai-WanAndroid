@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -100,6 +101,7 @@ fun SettingsPage(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues)
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState()),
@@ -144,7 +146,8 @@ private fun SettingsTopAppBar(
             Text(
                 text = stringResource(R.string.settings),
                 style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
             )
         },
         navigationIcon = {
@@ -152,13 +155,15 @@ private fun SettingsTopAppBar(
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = stringResource(R.string.back),
+                    modifier = Modifier.size(24.dp),
                     tint = MaterialTheme.colorScheme.onSurface
                 )
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.surface,
-            titleContentColor = MaterialTheme.colorScheme.onSurface
+            titleContentColor = MaterialTheme.colorScheme.onSurface,
+            navigationIconContentColor = MaterialTheme.colorScheme.onSurface
         )
     )
 }
@@ -185,7 +190,8 @@ private fun DarkModeSection(
         elevation = CardDefaults.cardElevation(defaultElevation = Spacing.ElevationLow),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
-        )
+        ),
+        shape = RoundedCornerShape(12.dp) // 使用标准的medium圆角
     ) {
         Column(
             modifier = Modifier
@@ -207,7 +213,7 @@ private fun DarkModeSection(
                 Icon(
                     imageVector = Icons.Default.Settings,
                     contentDescription = stringResource(R.string.dark_mode),
-                    modifier = Modifier.size(Spacing.IconLarge),
+                    modifier = Modifier.size(24.dp),
                     tint = MaterialTheme.colorScheme.primary
                 )
 
@@ -237,7 +243,7 @@ private fun DarkModeSection(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                     contentDescription = stringResource(R.string.expand),
                     modifier = Modifier
-                        .size(Spacing.IconMedium)
+                        .size(24.dp)
                         .rotate(rotation),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -394,7 +400,8 @@ private fun LanguageSection(
         elevation = CardDefaults.cardElevation(defaultElevation = Spacing.ElevationLow),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
-        )
+        ),
+        shape = RoundedCornerShape(12.dp) // 使用标准的medium圆角
     ) {
         Column(
             modifier = Modifier
@@ -416,7 +423,7 @@ private fun LanguageSection(
                 Icon(
                     imageVector = Icons.Default.Info,
                     contentDescription = stringResource(R.string.language),
-                    modifier = Modifier.size(Spacing.IconLarge),
+                    modifier = Modifier.size(24.dp),
                     tint = MaterialTheme.colorScheme.primary
                 )
 
@@ -446,7 +453,7 @@ private fun LanguageSection(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                     contentDescription = stringResource(R.string.expand),
                     modifier = Modifier
-                        .size(Spacing.IconMedium)
+                        .size(24.dp)
                         .rotate(rotation),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -564,8 +571,8 @@ private fun LogoutButton(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = Spacing.ScreenPadding)
-            .height(Spacing.ButtonHeight),
-        shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+            .height(48.dp), // 使用标准的按钮高度
+        shape = RoundedCornerShape(8.dp), // 使用标准的small圆角
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.errorContainer,
             contentColor = MaterialTheme.colorScheme.onErrorContainer
@@ -574,12 +581,12 @@ private fun LogoutButton(
         Icon(
             imageVector = Icons.Default.ExitToApp,
             contentDescription = stringResource(R.string.logout),
-            modifier = Modifier.size(Spacing.IconMedium)
+            modifier = Modifier.size(20.dp)
         )
         Spacer(modifier = Modifier.width(Spacing.Small))
         Text(
             text = stringResource(R.string.logout),
-            style = MaterialTheme.typography.titleMedium
+            style = MaterialTheme.typography.labelLarge
         )
     }
 }
