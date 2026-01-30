@@ -1,8 +1,5 @@
 package com.gradle.aicodeapp.ui.pages
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -25,7 +22,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
@@ -34,7 +30,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -44,19 +39,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gradle.aicodeapp.ui.components.FlowLayout
-import com.gradle.aicodeapp.ui.state.NavigationUiState
-import com.gradle.aicodeapp.ui.theme.CustomShapes
 import com.gradle.aicodeapp.ui.theme.Spacing
 import com.gradle.aicodeapp.ui.viewmodel.NavigationViewModel
 import kotlinx.coroutines.launch
-import kotlin.math.abs
 
 @Composable
 fun NavigationPage(
@@ -70,7 +61,10 @@ fun NavigationPage(
     val rightListState = rememberLazyListState()
 
     var selectedGroupIndex by remember { mutableIntStateOf(0) }
-    var isScrolling by remember { mutableStateOf(false) }
+    // 标记是否由左侧点击触发的滚动，避免循环触发
+    var isLeftClickScrolling by remember { mutableStateOf(false) }
+    // 记录用户手动滚动的状态
+    var isUserScrolling by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.loadNavigationData()
@@ -82,32 +76,28 @@ fun NavigationPage(
         }
     }
 
-    LaunchedEffect(selectedGroupIndex) {
-        if (!isScrolling && selectedGroupIndex >= 0 && selectedGroupIndex < uiState.navigationGroups.size) {
-            coroutineScope.launch {
-                rightListState.animateScrollToItem(selectedGroupIndex)
-            }
+    // 监听右侧列表滚动状态，实现左右联动
+    LaunchedEffect(rightListState.isScrollInProgress) {
+        if (rightListState.isScrollInProgress) {
+            isUserScrolling = true
+        } else {
+            // 滚动停止时，延迟重置状态
+            kotlinx.coroutines.delay(150)
+            isUserScrolling = false
         }
     }
 
-    val visibleGroupIndex by remember {
-        derivedStateOf {
-            val layoutInfo = rightListState.layoutInfo
-            val visibleItems = layoutInfo.visibleItemsInfo
-            if (visibleItems.isNotEmpty()) {
-                visibleItems.first().index
-            } else {
-                -1
-            }
-        }
-    }
-
-    LaunchedEffect(visibleGroupIndex) {
-        if (visibleGroupIndex >= 0 && visibleGroupIndex != selectedGroupIndex && !isScrolling) {
-            selectedGroupIndex = visibleGroupIndex
-            viewModel.selectGroup(visibleGroupIndex)
-            coroutineScope.launch {
-                leftListState.animateScrollToItem(visibleGroupIndex)
+    // 右侧列表滚动时同步更新左侧选中状态
+    LaunchedEffect(rightListState.firstVisibleItemIndex) {
+        if (isUserScrolling && !isLeftClickScrolling) {
+            val currentIndex = rightListState.firstVisibleItemIndex
+            if (currentIndex != selectedGroupIndex && currentIndex >= 0 && 
+                currentIndex < uiState.navigationGroups.size) {
+                selectedGroupIndex = currentIndex
+                viewModel.selectGroup(currentIndex)
+                coroutineScope.launch {
+                    leftListState.animateScrollToItem(currentIndex)
+                }
             }
         }
     }
@@ -156,10 +146,15 @@ fun NavigationPage(
             ) {
                 BoxWithConstraints(modifier = Modifier.fillMaxHeight()) {
                     val screenWidth = constraints.maxWidth.dp
+                    val screenHeight = constraints.maxHeight.dp
+                    val isPortrait = screenHeight > screenWidth
+                    
                     val navWidth = when {
-                        screenWidth > 800.dp -> 180.dp
-                        screenWidth > 600.dp -> 160.dp
-                        screenWidth > 400.dp -> 140.dp
+                        !isPortrait && screenWidth > 800.dp -> 180.dp
+                        !isPortrait && screenWidth > 600.dp -> 160.dp
+                        !isPortrait && screenWidth > 400.dp -> 140.dp
+                        isPortrait && screenWidth > 400.dp -> 100.dp
+                        isPortrait -> 80.dp
                         else -> 120.dp
                     }
                     
@@ -168,12 +163,15 @@ fun NavigationPage(
                         selectedIndex = selectedGroupIndex,
                         listState = leftListState,
                         onGroupClick = { index ->
-                            isScrolling = true
-                            selectedGroupIndex = index
-                            viewModel.selectGroup(index)
-                            coroutineScope.launch {
-                                rightListState.animateScrollToItem(index)
-                                isScrolling = false
+                            if (index != selectedGroupIndex) {
+                                isLeftClickScrolling = true
+                                selectedGroupIndex = index
+                                viewModel.selectGroup(index)
+                                coroutineScope.launch {
+                                    rightListState.animateScrollToItem(index)
+                                    kotlinx.coroutines.delay(200)
+                                    isLeftClickScrolling = false
+                                }
                             }
                         },
                         modifier = Modifier
@@ -213,21 +211,27 @@ fun LeftNavigationPanel(
     onGroupClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    LazyColumn(
-        state = listState,
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(Spacing.Small),
-        contentPadding = PaddingValues(vertical = Spacing.Small)
-    ) {
-        itemsIndexed(
-            items = groups,
-            key = { index, group -> group.cid }
-        ) { index, group ->
-            NavigationGroupItem(
-                name = group.name,
-                isSelected = index == selectedIndex,
-                onClick = { onGroupClick(index) }
-            )
+    BoxWithConstraints(modifier = modifier) {
+        val panelWidth = constraints.maxWidth.dp
+        val isCompact = panelWidth <= 100.dp
+        
+        LazyColumn(
+            state = listState,
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(if (isCompact) Spacing.ExtraSmall else Spacing.Small),
+            contentPadding = PaddingValues(vertical = if (isCompact) Spacing.ExtraSmall else Spacing.Small)
+        ) {
+            itemsIndexed(
+                items = groups,
+                key = { index, group -> group.cid }
+            ) { index, group ->
+                NavigationGroupItem(
+                    name = group.name,
+                    isSelected = index == selectedIndex,
+                    onClick = { onGroupClick(index) },
+                    isCompact = isCompact
+                )
+            }
         }
     }
 }
@@ -237,6 +241,7 @@ fun NavigationGroupItem(
     name: String,
     isSelected: Boolean,
     onClick: () -> Unit,
+    isCompact: Boolean = false,
 ) {
     val backgroundColor = if (isSelected) {
         MaterialTheme.colorScheme.primaryContainer
@@ -248,11 +253,27 @@ fun NavigationGroupItem(
     } else {
         MaterialTheme.colorScheme.onSurface
     }
+    
+    val horizontalPadding = if (isCompact) Spacing.ExtraSmall else Spacing.Small
+    val verticalPadding = if (isCompact) Spacing.Small else Spacing.Medium
+    val textStyle = if (isCompact) {
+        if (isSelected) {
+            MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Medium)
+        } else {
+            MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Normal)
+        }
+    } else {
+        if (isSelected) {
+            MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium)
+        } else {
+            MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Normal)
+        }
+    }
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = Spacing.Small)
+            .padding(horizontal = horizontalPadding)
             .clip(MaterialTheme.shapes.medium)
             .background(backgroundColor)
             .clickable(
@@ -260,21 +281,13 @@ fun NavigationGroupItem(
                 indication = rememberRipple(bounded = true),
                 onClick = onClick
             )
-            .padding(vertical = Spacing.Medium, horizontal = Spacing.Medium)
+            .padding(vertical = verticalPadding, horizontal = horizontalPadding)
     ) {
         Text(
             text = name,
-            style = if (isSelected) {
-                MaterialTheme.typography.labelLarge.copy(
-                    fontWeight = FontWeight.Medium
-                )
-            } else {
-                MaterialTheme.typography.bodyMedium.copy(
-                    fontWeight = FontWeight.Normal
-                )
-            },
+            style = textStyle,
             color = textColor,
-            maxLines = 2,
+            maxLines = if (isCompact) 1 else 2,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.fillMaxWidth()
         )
