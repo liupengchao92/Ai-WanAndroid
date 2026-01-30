@@ -1,9 +1,11 @@
 package com.gradle.aicodeapp.ui.pages
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -11,7 +13,9 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -25,13 +29,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
@@ -39,17 +44,13 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -62,18 +63,30 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gradle.aicodeapp.R
 import com.gradle.aicodeapp.data.preferences.SettingsDataStore
 import com.gradle.aicodeapp.ui.theme.Spacing
+import com.gradle.aicodeapp.ui.theme.ResponsiveLayout
+import com.gradle.aicodeapp.ui.theme.Primary
+import com.gradle.aicodeapp.ui.theme.PrimaryContainer
+import com.gradle.aicodeapp.ui.theme.Secondary
+import com.gradle.aicodeapp.ui.theme.SecondaryContainer
+import com.gradle.aicodeapp.ui.theme.Tertiary
+import com.gradle.aicodeapp.ui.theme.TertiaryContainer
 import com.gradle.aicodeapp.ui.viewmodel.SettingsViewModel
 import java.util.Locale
 
@@ -82,7 +95,7 @@ fun SettingsPage(
     onBackClick: () -> Unit,
     onLogout: () -> Unit,
     paddingValues: PaddingValues = PaddingValues(0.dp),
-    viewModel: SettingsViewModel = hiltViewModel()
+    viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
@@ -93,45 +106,65 @@ fun SettingsPage(
 
     Scaffold(
         topBar = {
-            SettingsTopAppBar(
-                onBackClick = onBackClick
-            )
+            SettingsTopAppBar(onBackClick = onBackClick)
         }
     ) { innerPadding ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.surface,
+                            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f),
+                            MaterialTheme.colorScheme.surface
+                        )
+                    )
+                )
                 .padding(paddingValues)
                 .padding(innerPadding)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.Top
         ) {
-            Spacer(modifier = Modifier.height(Spacing.Medium))
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.Top
+            ) {
+                Spacer(modifier = Modifier.height(Spacing.Medium))
 
-            DarkModeSection(
-                currentMode = uiState.darkMode,
-                onModeChange = { mode ->
-                    viewModel.setDarkMode(mode)
-                }
-            )
+                // 设置分组标题
+                SectionTitle(title = "外观设置")
 
-            Spacer(modifier = Modifier.height(Spacing.Medium))
+                Spacer(modifier = Modifier.height(Spacing.Small))
 
-            LanguageSection(
-                currentLanguage = uiState.language,
-                onLanguageChange = { language ->
-                    viewModel.setLanguage(language)
-                }
-            )
+                DarkModeSection(
+                    currentMode = uiState.darkMode,
+                    onModeChange = { mode ->
+                        viewModel.setDarkMode(mode)
+                    }
+                )
 
-            Spacer(modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.height(Spacing.Large))
 
-            LogoutButton(
-                onLogout = onLogout
-            )
+                SectionTitle(title = "语言设置")
 
-            Spacer(modifier = Modifier.height(Spacing.Medium))
+                Spacer(modifier = Modifier.height(Spacing.Small))
+
+                LanguageSection(
+                    currentLanguage = uiState.language,
+                    onLanguageChange = { language ->
+                        viewModel.setLanguage(language)
+                    }
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Spacer(modifier = Modifier.height(Spacing.Large))
+
+                LogoutButton(onLogout = onLogout)
+
+                Spacer(modifier = Modifier.height(Spacing.ExtraLarge))
+            }
         }
     }
 }
@@ -139,16 +172,11 @@ fun SettingsPage(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SettingsTopAppBar(
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
 ) {
     TopAppBar(
         title = {
-            Text(
-                text = stringResource(R.string.settings),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
+            Text(text = stringResource(R.string.settings))
         },
         navigationIcon = {
             IconButton(onClick = onBackClick) {
@@ -161,7 +189,7 @@ private fun SettingsTopAppBar(
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.surface,
+            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
             titleContentColor = MaterialTheme.colorScheme.onSurface,
             navigationIconContentColor = MaterialTheme.colorScheme.onSurface
         )
@@ -169,9 +197,24 @@ private fun SettingsTopAppBar(
 }
 
 @Composable
+private fun SectionTitle(
+    title: String,
+    modifier: Modifier = Modifier,
+) {
+    Text(
+        text = title,
+        style = MaterialTheme.typography.titleSmall.copy(
+            fontWeight = FontWeight.SemiBold
+        ),
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = modifier.padding(horizontal = ResponsiveLayout.calculateHorizontalPadding())
+    )
+}
+
+@Composable
 private fun DarkModeSection(
     currentMode: String,
-    onModeChange: (String) -> Unit
+    onModeChange: (String) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
     val rotation by animateFloatAsState(
@@ -186,18 +229,22 @@ private fun DarkModeSection(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = Spacing.ScreenPadding),
-        elevation = CardDefaults.cardElevation(defaultElevation = Spacing.ElevationLow),
+            .padding(horizontal = ResponsiveLayout.calculateHorizontalPadding())
+            .shadow(
+                elevation = 4.dp,
+                shape = RoundedCornerShape(Spacing.CornerRadiusLarge),
+                spotColor = Primary.copy(alpha = 0.1f)
+            ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
-        shape = RoundedCornerShape(12.dp) // 使用标准的medium圆角
+        shape = RoundedCornerShape(Spacing.CornerRadiusLarge)
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(Spacing.Small)
+            modifier = Modifier.fillMaxWidth()
         ) {
+            // 头部行
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -210,43 +257,65 @@ private fun DarkModeSection(
                     .padding(Spacing.Medium),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    imageVector = Icons.Default.Settings,
-                    contentDescription = stringResource(R.string.dark_mode),
-                    modifier = Modifier.size(24.dp),
-                    tint = MaterialTheme.colorScheme.primary
-                )
+                Surface(
+                    modifier = Modifier.size(44.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    color = PrimaryContainer
+                ) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = stringResource(R.string.dark_mode),
+                            modifier = Modifier.size(24.dp),
+                            tint = Primary
+                        )
+                    }
+                }
 
                 Spacer(modifier = Modifier.width(Spacing.Medium))
 
-                Text(
-                    text = stringResource(R.string.dark_mode),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
+                Column(
                     modifier = Modifier.weight(1f)
-                )
+                ) {
+                    Text(
+                        text = stringResource(R.string.dark_mode),
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            fontWeight = FontWeight.Medium
+                        ),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
 
-                Text(
-                    text = when (currentMode) {
-                        SettingsDataStore.DARK_MODE_LIGHT -> stringResource(R.string.light_mode)
-                        SettingsDataStore.DARK_MODE_DARK -> stringResource(R.string.dark_mode)
-                        SettingsDataStore.DARK_MODE_SYSTEM -> stringResource(R.string.follow_system)
-                        else -> stringResource(R.string.follow_system)
-                    },
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                    Text(
+                        text = when (currentMode) {
+                            SettingsDataStore.DARK_MODE_LIGHT -> stringResource(R.string.light_mode)
+                            SettingsDataStore.DARK_MODE_DARK -> stringResource(R.string.dark_mode)
+                            SettingsDataStore.DARK_MODE_SYSTEM -> stringResource(R.string.follow_system)
+                            else -> stringResource(R.string.follow_system)
+                        },
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
 
                 Spacer(modifier = Modifier.width(Spacing.Small))
 
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                    contentDescription = stringResource(R.string.expand),
-                    modifier = Modifier
-                        .size(24.dp)
-                        .rotate(rotation),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Surface(
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                        contentDescription = stringResource(R.string.expand),
+                        modifier = Modifier
+                            .size(32.dp)
+                            .padding(4.dp)
+                            .rotate(rotation),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
 
             AnimatedVisibility(
@@ -269,9 +338,10 @@ private fun DarkModeSection(
                         .fillMaxWidth()
                         .selectableGroup()
                 ) {
-                    Divider(
+                    HorizontalDivider(
                         modifier = Modifier.padding(horizontal = Spacing.Medium),
-                        color = MaterialTheme.colorScheme.outlineVariant
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                        thickness = 0.5.dp
                     )
 
                     DarkModeOption(
@@ -283,9 +353,10 @@ private fun DarkModeSection(
                         }
                     )
 
-                    Divider(
+                    HorizontalDivider(
                         modifier = Modifier.padding(horizontal = Spacing.Medium),
-                        color = MaterialTheme.colorScheme.outlineVariant
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                        thickness = 0.5.dp
                     )
 
                     DarkModeOption(
@@ -297,9 +368,10 @@ private fun DarkModeSection(
                         }
                     )
 
-                    Divider(
+                    HorizontalDivider(
                         modifier = Modifier.padding(horizontal = Spacing.Medium),
-                        color = MaterialTheme.colorScheme.outlineVariant
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                        thickness = 0.5.dp
                     )
 
                     DarkModeOption(
@@ -321,15 +393,30 @@ private fun DarkModeOption(
     icon: ImageVector,
     title: String,
     selected: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+
     val scale by animateFloatAsState(
-        targetValue = if (selected) 1f else 0.9f,
+        targetValue = if (selected) 1.05f else if (isPressed) 0.98f else 1f,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
             stiffness = Spring.StiffnessLow
         ),
-        label = "icon_scale"
+        label = "scale"
+    )
+
+    val backgroundColor by animateColorAsState(
+        targetValue = if (selected) {
+            PrimaryContainer.copy(alpha = 0.3f)
+        } else if (isPressed) {
+            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+        } else {
+            Color.Transparent
+        },
+        animationSpec = tween(durationMillis = 150),
+        label = "background"
     )
 
     Row(
@@ -340,40 +427,56 @@ private fun DarkModeOption(
                 onClick = onClick,
                 role = Role.RadioButton
             )
-            .padding(Spacing.Medium),
+            .background(backgroundColor)
+            .padding(Spacing.Medium)
+            .scale(scale),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = title,
-            modifier = Modifier.size(Spacing.IconLarge),
-            tint = if (selected) {
-                MaterialTheme.colorScheme.primary
-            } else {
-                MaterialTheme.colorScheme.onSurfaceVariant
+        Surface(
+            modifier = Modifier.size(36.dp),
+            shape = RoundedCornerShape(10.dp),
+            color = if (selected) PrimaryContainer else MaterialTheme.colorScheme.surfaceVariant.copy(
+                alpha = 0.5f
+            )
+        ) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = title,
+                    modifier = Modifier.size(20.dp),
+                    tint = if (selected) Primary else MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
-        )
+        }
 
         Spacer(modifier = Modifier.width(Spacing.Medium))
 
         Text(
             text = title,
-            style = MaterialTheme.typography.bodyLarge,
-            color = if (selected) {
-                MaterialTheme.colorScheme.primary
-            } else {
-                MaterialTheme.colorScheme.onSurface
-            },
+            style = MaterialTheme.typography.bodyLarge.copy(
+                fontWeight = if (selected) FontWeight.Medium else FontWeight.Normal
+            ),
+            color = if (selected) Primary else MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.weight(1f)
         )
 
         if (selected) {
-            Icon(
-                imageVector = Icons.Default.Check,
-                contentDescription = "已选择",
-                modifier = Modifier.size(Spacing.IconMedium),
-                tint = MaterialTheme.colorScheme.primary
-            )
+            Surface(
+                shape = CircleShape,
+                color = PrimaryContainer
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Check,
+                    contentDescription = "已选择",
+                    modifier = Modifier
+                        .size(28.dp)
+                        .padding(4.dp),
+                    tint = Primary
+                )
+            }
         }
     }
 }
@@ -381,7 +484,7 @@ private fun DarkModeOption(
 @Composable
 private fun LanguageSection(
     currentLanguage: String,
-    onLanguageChange: (String) -> Unit
+    onLanguageChange: (String) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
     val rotation by animateFloatAsState(
@@ -396,17 +499,20 @@ private fun LanguageSection(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = Spacing.ScreenPadding),
-        elevation = CardDefaults.cardElevation(defaultElevation = Spacing.ElevationLow),
+            .padding(horizontal = ResponsiveLayout.calculateHorizontalPadding())
+            .shadow(
+                elevation = 4.dp,
+                shape = RoundedCornerShape(Spacing.CornerRadiusLarge),
+                spotColor = Secondary.copy(alpha = 0.1f)
+            ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
-        shape = RoundedCornerShape(12.dp) // 使用标准的medium圆角
+        shape = RoundedCornerShape(Spacing.CornerRadiusLarge)
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(Spacing.Small)
+            modifier = Modifier.fillMaxWidth()
         ) {
             Row(
                 modifier = Modifier
@@ -420,43 +526,65 @@ private fun LanguageSection(
                     .padding(Spacing.Medium),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    imageVector = Icons.Default.Info,
-                    contentDescription = stringResource(R.string.language),
-                    modifier = Modifier.size(24.dp),
-                    tint = MaterialTheme.colorScheme.primary
-                )
+                Surface(
+                    modifier = Modifier.size(44.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    color = SecondaryContainer
+                ) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Info,
+                            contentDescription = stringResource(R.string.language),
+                            modifier = Modifier.size(24.dp),
+                            tint = Secondary
+                        )
+                    }
+                }
 
                 Spacer(modifier = Modifier.width(Spacing.Medium))
 
-                Text(
-                    text = stringResource(R.string.language),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
+                Column(
                     modifier = Modifier.weight(1f)
-                )
+                ) {
+                    Text(
+                        text = stringResource(R.string.language),
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            fontWeight = FontWeight.Medium
+                        ),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
 
-                Text(
-                    text = when (currentLanguage) {
-                        SettingsDataStore.LANGUAGE_ZH -> stringResource(R.string.simplified_chinese)
-                        SettingsDataStore.LANGUAGE_EN -> stringResource(R.string.english)
-                        SettingsDataStore.LANGUAGE_JA -> stringResource(R.string.japanese)
-                        else -> stringResource(R.string.simplified_chinese)
-                    },
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                    Text(
+                        text = when (currentLanguage) {
+                            SettingsDataStore.LANGUAGE_ZH -> stringResource(R.string.simplified_chinese)
+                            SettingsDataStore.LANGUAGE_EN -> stringResource(R.string.english)
+                            SettingsDataStore.LANGUAGE_JA -> stringResource(R.string.japanese)
+                            else -> stringResource(R.string.simplified_chinese)
+                        },
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
 
                 Spacer(modifier = Modifier.width(Spacing.Small))
 
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                    contentDescription = stringResource(R.string.expand),
-                    modifier = Modifier
-                        .size(24.dp)
-                        .rotate(rotation),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Surface(
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                        contentDescription = stringResource(R.string.expand),
+                        modifier = Modifier
+                            .size(32.dp)
+                            .padding(4.dp)
+                            .rotate(rotation),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
 
             AnimatedVisibility(
@@ -479,39 +607,45 @@ private fun LanguageSection(
                         .fillMaxWidth()
                         .selectableGroup()
                 ) {
-                    Divider(
+                    HorizontalDivider(
                         modifier = Modifier.padding(horizontal = Spacing.Medium),
-                        color = MaterialTheme.colorScheme.outlineVariant
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                        thickness = 0.5.dp
                     )
 
                     LanguageOption(
                         title = stringResource(R.string.simplified_chinese),
+                        subtitle = "简体中文",
                         selected = currentLanguage == SettingsDataStore.LANGUAGE_ZH,
                         onClick = {
                             onLanguageChange(SettingsDataStore.LANGUAGE_ZH)
                         }
                     )
 
-                    Divider(
+                    HorizontalDivider(
                         modifier = Modifier.padding(horizontal = Spacing.Medium),
-                        color = MaterialTheme.colorScheme.outlineVariant
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                        thickness = 0.5.dp
                     )
 
                     LanguageOption(
                         title = stringResource(R.string.english),
+                        subtitle = "English",
                         selected = currentLanguage == SettingsDataStore.LANGUAGE_EN,
                         onClick = {
                             onLanguageChange(SettingsDataStore.LANGUAGE_EN)
                         }
                     )
 
-                    Divider(
+                    HorizontalDivider(
                         modifier = Modifier.padding(horizontal = Spacing.Medium),
-                        color = MaterialTheme.colorScheme.outlineVariant
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                        thickness = 0.5.dp
                     )
 
                     LanguageOption(
                         title = stringResource(R.string.japanese),
+                        subtitle = "日本語",
                         selected = currentLanguage == SettingsDataStore.LANGUAGE_JA,
                         onClick = {
                             onLanguageChange(SettingsDataStore.LANGUAGE_JA)
@@ -526,9 +660,25 @@ private fun LanguageSection(
 @Composable
 private fun LanguageOption(
     title: String,
+    subtitle: String,
     selected: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+
+    val backgroundColor by animateColorAsState(
+        targetValue = if (selected) {
+            SecondaryContainer.copy(alpha = 0.3f)
+        } else if (isPressed) {
+            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+        } else {
+            Color.Transparent
+        },
+        animationSpec = tween(durationMillis = 150),
+        label = "background"
+    )
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -537,56 +687,90 @@ private fun LanguageOption(
                 onClick = onClick,
                 role = Role.RadioButton
             )
+            .background(backgroundColor)
             .padding(Spacing.Medium),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.bodyLarge,
-            color = if (selected) {
-                MaterialTheme.colorScheme.primary
-            } else {
-                MaterialTheme.colorScheme.onSurface
-            },
+        Column(
             modifier = Modifier.weight(1f)
-        )
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontWeight = if (selected) FontWeight.Medium else FontWeight.Normal
+                ),
+                color = if (selected) Secondary else MaterialTheme.colorScheme.onSurface
+            )
+
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
 
         if (selected) {
-            Icon(
-                imageVector = Icons.Default.Check,
-                contentDescription = "已选择",
-                modifier = Modifier.size(Spacing.IconMedium),
-                tint = MaterialTheme.colorScheme.primary
-            )
+            Surface(
+                shape = CircleShape,
+                color = SecondaryContainer
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Check,
+                    contentDescription = "已选择",
+                    modifier = Modifier
+                        .size(28.dp)
+                        .padding(4.dp),
+                    tint = Secondary
+                )
+            }
         }
     }
 }
 
 @Composable
 private fun LogoutButton(
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.98f else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        label = "scale"
+    )
+
     Button(
         onClick = onLogout,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = Spacing.ScreenPadding)
-            .height(48.dp), // 使用标准的按钮高度
-        shape = RoundedCornerShape(8.dp), // 使用标准的small圆角
+            .padding(horizontal = ResponsiveLayout.calculateHorizontalPadding())
+            .height(52.dp)
+            .scale(scale),
+        shape = RoundedCornerShape(Spacing.CornerRadiusLarge),
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.errorContainer,
             contentColor = MaterialTheme.colorScheme.onErrorContainer
+        ),
+        elevation = ButtonDefaults.buttonElevation(
+            defaultElevation = 4.dp,
+            pressedElevation = 8.dp
         )
     ) {
         Icon(
-            imageVector = Icons.Default.ExitToApp,
+            imageVector = Icons.AutoMirrored.Filled.ExitToApp,
             contentDescription = stringResource(R.string.logout),
-            modifier = Modifier.size(20.dp)
+            modifier = Modifier.size(22.dp)
         )
         Spacer(modifier = Modifier.width(Spacing.Small))
         Text(
             text = stringResource(R.string.logout),
-            style = MaterialTheme.typography.labelLarge
+            style = MaterialTheme.typography.labelLarge.copy(
+                fontWeight = FontWeight.Medium
+            )
         )
     }
 }

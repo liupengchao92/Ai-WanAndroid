@@ -99,9 +99,6 @@ fun TodoFormPage(
     val isFormValid = title.isNotBlank() && content.isNotBlank()
     
     Scaffold(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(paddingValues),
         topBar = {
             TopAppBar(
                 title = { Text(pageTitle) },

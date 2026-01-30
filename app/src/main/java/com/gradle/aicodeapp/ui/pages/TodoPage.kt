@@ -116,9 +116,6 @@ fun TodoPage(
     }
 
     Scaffold(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(paddingValues),
         topBar = {
             TopAppBar(
                 title = { Text(text = "待办事项", style = MaterialTheme.typography.titleLarge) },
