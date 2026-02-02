@@ -2,18 +2,121 @@
 <resources>
     <string name="app_name">WanAndroid</string>
 
+    <!-- 通用 -->
     <string name="settings">设置</string>
+    <string name="back">返回</string>
+    <string name="confirm">确定</string>
+    <string name="cancel">取消</string>
+    <string name="delete">删除</string>
+    <string name="edit">编辑</string>
+    <string name="save">保存</string>
+    <string name="loading">加载中…</string>
+    <string name="retry">重试</string>
+    <string name="login">登录</string>
+    <string name="logout">退出登录</string>
+    <string name="register">注册</string>
+    <string name="selected">已选择</string>
+    <string name="expand">展开</string>
+    <string name="enter">进入</string>
+    <string name="add">添加</string>
+
+    <!-- 外观设置 -->
+    <string name="appearance_settings">外观设置</string>
     <string name="dark_mode">深色模式</string>
     <string name="light_mode">浅色模式</string>
     <string name="follow_system">跟随系统</string>
+
+    <!-- 语言设置 -->
+    <string name="language_settings">语言设置</string>
     <string name="language">语言</string>
     <string name="simplified_chinese">简体中文</string>
     <string name="english">English</string>
     <string name="japanese">日本語</string>
-    <string name="back">返回</string>
-    <string name="selected">已选择</string>
-    <string name="expand">展开</string>
-    <string name="logout">退出登录</string>
-    <string name="appearance_settings">外观设置</string>
-    <string name="language_settings">语言设置</string>
+
+    <!-- 登录页面 -->
+    <string name="welcome_login">欢迎登录</string>
+    <string name="app_name_wanandroid">WanAndroid</string>
+
+    <!-- 注册页面 -->
+    <string name="create_account">创建账号</string>
+    <string name="app_name_aicodeapp">AiCodeApp</string>
+
+    <!-- 首页 -->
+    <string name="home">首页</string>
+    <string name="home_subtitle">点击按钮发起网络请求</string>
+    <string name="load_more">加载更多内容…</string>
+    <string name="reached_bottom">已经到底了</string>
+
+    <!-- 热门卡片 -->
+    <string name="popular_wenda">最受欢迎回答</string>
+    <string name="popular_column">最受欢迎专栏</string>
+    <string name="popular_route">最新学习路线</string>
+
+    <!-- 我的页面 -->
+    <string name="mine">我的</string>
+    <string name="click_to_login">点击登录</string>
+    <string name="logged_in">已登录</string>
+    <string name="not_logged_in">未登录</string>
+    <string name="user_id_format">ID: %s</string>
+
+    <!-- 菜单项 -->
+    <string name="my_points">我的积分</string>
+    <string name="view_points_details">查看积分详情</string>
+    <string name="my_favorites">我的收藏</string>
+    <string name="view_favorite_articles">查看收藏文章</string>
+    <string name="todo_list">待办事项</string>
+    <string name="manage_todo_tasks">管理待办任务</string>
+    <string name="app_settings">应用设置</string>
+
+    <!-- 统计数据 -->
+    <string name="points">积分</string>
+    <string name="favorites">收藏</string>
+    <string name="todos">待办</string>
+
+    <!-- 积分页面 -->
+    <string name="points_ranking">积分排行榜</string>
+    <string name="total_points">总积分</string>
+    <string name="current_rank">当前排名</string>
+    <string name="rank">排名</string>
+    <string name="user">用户</string>
+    <string name="points_label">积分</string>
+    <string name="loading_points">加载积分数据中…</string>
+    <string name="need_login">需要登录</string>
+    <string name="login_to_view_points">登录后查看您的积分和排行榜</string>
+    <string name="login_now">立即登录</string>
+
+    <!-- 收藏页面 -->
+    <string name="my_favorites_title">我的收藏</string>
+    <string name="favorites_count">%d</string>
+    <string name="reached_bottom_favorites">已经到底啦 ~</string>
+    <string name="uncollect">取消收藏</string>
+    <string name="uncollect_confirm">确定要取消收藏这篇文章吗？</string>
+    <string name="loading_favorites">加载收藏列表…</string>
+    <string name="no_favorites">暂无收藏</string>
+    <string name="add_first_favorite">点击右下角按钮添加您的第一个收藏</string>
+    <string name="add_favorite">添加收藏</string>
+
+    <!-- 待办页面 -->
+    <string name="todo_title">待办事项</string>
+    <string name="confirm_delete">确认删除</string>
+    <string name="delete_todo_confirm">确定要删除待办事项「%s」吗？</string>
+    <string name="delete_button">删除</string>
+    <string name="cancel_button">取消</string>
+    <string name="no_todos">暂无待办事项</string>
+    <string name="add_new_todo">点击右下角 + 添加新的待办</string>
+
+    <!-- 待办表单 -->
+    <string name="type">类型</string>
+    <string name="type_work">工作</string>
+    <string name="type_life">生活</string>
+    <string name="type_entertainment">娱乐</string>
+    <string name="priority">优先级</string>
+    <string name="priority_high">高</string>
+    <string name="priority_normal">普通</string>
+
+    <!-- 导航页面 -->
+    <string name="no_navigation_data">暂无导航数据</string>
+
+    <!-- 用户头像 -->
+    <string name="user_avatar">用户头像</string>
 </resources>

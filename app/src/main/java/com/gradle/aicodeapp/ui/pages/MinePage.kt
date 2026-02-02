@@ -69,6 +69,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -80,7 +82,6 @@ import coil.request.CachePolicy
 import com.gradle.aicodeapp.R
 import com.gradle.aicodeapp.data.UserManager
 import androidx.compose.foundation.Image
-import androidx.compose.ui.res.painterResource
 import com.gradle.aicodeapp.ui.theme.CustomShapes
 import com.gradle.aicodeapp.ui.theme.Spacing
 import com.gradle.aicodeapp.ui.theme.ResponsiveLayout
@@ -164,7 +165,7 @@ private fun UserHeaderCard(
     val userId = userManager.getUserId()
     val isLoggedIn = userManager.isLoggedIn()
 
-    val displayName = nickname ?: username ?: "点击登录"
+    val displayName = nickname ?: username ?: stringResource(R.string.click_to_login)
     val displayAvatar = icon
 
     Card(
@@ -257,7 +258,7 @@ private fun UserHeaderCard(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Edit,
-                                contentDescription = "编辑",
+                                contentDescription = stringResource(R.string.edit),
                                 modifier = Modifier
                                     .size(16.dp)
                                     .padding(8.dp),
@@ -307,7 +308,7 @@ private fun UserHeaderCard(
                                     tint = Success
                                 )
                                 Text(
-                                    text = "已登录",
+                                    text = stringResource(R.string.logged_in),
                                     style = MaterialTheme.typography.labelMedium.copy(
                                         fontWeight = FontWeight.Medium
                                     ),
@@ -321,7 +322,7 @@ private fun UserHeaderCard(
                             color = MaterialTheme.colorScheme.surfaceVariant
                         ) {
                             Text(
-                                text = "未登录",
+                                text = stringResource(R.string.not_logged_in),
                                 style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.padding(
@@ -338,7 +339,7 @@ private fun UserHeaderCard(
                             color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
                         ) {
                             Text(
-                                text = "ID: ${maskUserId(userId)}",
+                                text = stringResource(R.string.user_id_format, maskUserId(userId)),
                                 style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.padding(
@@ -369,7 +370,7 @@ private fun QuickStatsSection(
         StatCard(
             icon = Icons.Default.Star,
             value = "--",
-            label = "积分",
+            label = stringResource(R.string.points),
             iconBackground = WarningContainer,
             iconTint = Warning,
             modifier = Modifier.weight(1f)
@@ -378,7 +379,7 @@ private fun QuickStatsSection(
         StatCard(
             icon = Icons.Default.Favorite,
             value = "--",
-            label = "收藏",
+            label = stringResource(R.string.favorites),
             iconBackground = SecondaryContainer,
             iconTint = Secondary,
             modifier = Modifier.weight(1f)
@@ -387,7 +388,7 @@ private fun QuickStatsSection(
         StatCard(
             icon = Icons.Default.CheckCircle,
             value = "--",
-            label = "待办",
+            label = stringResource(R.string.todos),
             iconBackground = SuccessContainer,
             iconTint = Success,
             modifier = Modifier.weight(1f)
@@ -499,8 +500,8 @@ private fun MenuSection(
         ) {
             MenuItem(
                 icon = Icons.Default.Star,
-                title = "我的积分",
-                description = "查看积分详情",
+                title = stringResource(R.string.my_points),
+                description = stringResource(R.string.view_points_details),
                 iconBackground = WarningContainer,
                 iconTint = Warning,
                 onClick = onNavigateToCoin,
@@ -511,8 +512,8 @@ private fun MenuSection(
 
             MenuItem(
                 icon = Icons.Default.Favorite,
-                title = "我的收藏",
-                description = "查看收藏文章",
+                title = stringResource(R.string.my_favorites),
+                description = stringResource(R.string.view_favorite_articles),
                 iconBackground = SecondaryContainer,
                 iconTint = Secondary,
                 onClick = onNavigateToCollect
@@ -522,8 +523,8 @@ private fun MenuSection(
 
             MenuItem(
                 icon = Icons.Default.CheckCircle,
-                title = "待办事项",
-                description = "管理待办任务",
+                title = stringResource(R.string.todo_list),
+                description = stringResource(R.string.manage_todo_tasks),
                 iconBackground = SuccessContainer,
                 iconTint = Success,
                 onClick = onNavigateToTodo
@@ -533,8 +534,8 @@ private fun MenuSection(
 
             MenuItem(
                 icon = Icons.Default.Settings,
-                title = "设置",
-                description = "应用设置",
+                title = stringResource(R.string.settings),
+                description = stringResource(R.string.app_settings),
                 iconBackground = PrimaryContainer,
                 iconTint = Primary,
                 onClick = onNavigateToSettings,
@@ -656,7 +657,7 @@ private fun MenuItem(
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                contentDescription = "进入",
+                contentDescription = stringResource(R.string.enter),
                 modifier = Modifier
                     .size(28.dp)
                     .padding(4.dp),
@@ -678,7 +679,7 @@ private fun MenuItem(
 private fun AvatarImage(
     avatarUrl: String?,
     size: androidx.compose.ui.unit.Dp,
-    contentDescription: String = "用户头像"
+    contentDescription: String = stringResource(R.string.user_avatar)
 ) {
     val context = LocalContext.current
 

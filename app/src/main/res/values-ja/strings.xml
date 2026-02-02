@@ -2,18 +2,121 @@
 <resources>
     <string name="app_name">WanAndroid</string>
 
+    <!-- 共通 -->
     <string name="settings">設定</string>
+    <string name="back">戻る</string>
+    <string name="confirm">確定</string>
+    <string name="cancel">キャンセル</string>
+    <string name="delete">削除</string>
+    <string name="edit">編集</string>
+    <string name="save">保存</string>
+    <string name="loading">読み込み中…</string>
+    <string name="retry">再試行</string>
+    <string name="login">ログイン</string>
+    <string name="logout">ログアウト</string>
+    <string name="register">登録</string>
+    <string name="selected">選択済み</string>
+    <string name="expand">展開</string>
+    <string name="enter">進む</string>
+    <string name="add">追加</string>
+
+    <!-- 外観設定 -->
+    <string name="appearance_settings">外観設定</string>
     <string name="dark_mode">ダークモード</string>
     <string name="light_mode">ライトモード</string>
     <string name="follow_system">システムに従う</string>
+
+    <!-- 言語設定 -->
+    <string name="language_settings">言語設定</string>
     <string name="language">言語</string>
     <string name="simplified_chinese">簡体字中国語</string>
     <string name="english">英語</string>
     <string name="japanese">日本語</string>
-    <string name="back">戻る</string>
-    <string name="selected">選択済み</string>
-    <string name="expand">展開</string>
-    <string name="logout">ログアウト</string>
-    <string name="appearance_settings">外観設定</string>
-    <string name="language_settings">言語設定</string>
+
+    <!-- ログインページ -->
+    <string name="welcome_login">ようこそ</string>
+    <string name="app_name_wanandroid">WanAndroid</string>
+
+    <!-- 登録ページ -->
+    <string name="create_account">アカウント作成</string>
+    <string name="app_name_aicodeapp">AiCodeApp</string>
+
+    <!-- ホーム -->
+    <string name="home">ホーム</string>
+    <string name="home_subtitle">ボタンをクリックしてネットワークリクエストを実行</string>
+    <string name="load_more">さらに読み込む…</string>
+    <string name="reached_bottom">最下部に到達</string>
+
+    <!-- 人気カード -->
+    <string name="popular_wenda">人気のQ&amp;A</string>
+    <string name="popular_column">人気コラム</string>
+    <string name="popular_route">最新学習ルート</string>
+
+    <!-- マイページ -->
+    <string name="mine">マイページ</string>
+    <string name="click_to_login">タップしてログイン</string>
+    <string name="logged_in">ログイン済み</string>
+    <string name="not_logged_in">未ログイン</string>
+    <string name="user_id_format">ID: %s</string>
+
+    <!-- メニュー項目 -->
+    <string name="my_points">マイポイント</string>
+    <string name="view_points_details">ポイント詳細を見る</string>
+    <string name="my_favorites">マイお気に入り</string>
+    <string name="view_favorite_articles">お気に入り記事を見る</string>
+    <string name="todo_list">TODOリスト</string>
+    <string name="manage_todo_tasks">TODOタスクを管理</string>
+    <string name="app_settings">アプリ設定</string>
+
+    <!-- 統計 -->
+    <string name="points">ポイント</string>
+    <string name="favorites">お気に入り</string>
+    <string name="todos">TODO</string>
+
+    <!-- ポイントページ -->
+    <string name="points_ranking">ポイントランキング</string>
+    <string name="total_points">総ポイント</string>
+    <string name="current_rank">現在の順位</string>
+    <string name="rank">順位</string>
+    <string name="user">ユーザー</string>
+    <string name="points_label">ポイント</string>
+    <string name="loading_points">ポイントデータを読み込み中…</string>
+    <string name="need_login">ログインが必要</string>
+    <string name="login_to_view_points">ポイントとランキングを見るにはログインしてください</string>
+    <string name="login_now">今すぐログイン</string>
+
+    <!-- お気に入りページ -->
+    <string name="my_favorites_title">マイお気に入り</string>
+    <string name="favorites_count">%d</string>
+    <string name="reached_bottom_favorites">最下部に到達 ~</string>
+    <string name="uncollect">お気に入り解除</string>
+    <string name="uncollect_confirm">この記事のお気に入りを解除しますか？</string>
+    <string name="loading_favorites">お気に入りを読み込み中…</string>
+    <string name="no_favorites">お気に入りはありません</string>
+    <string name="add_first_favorite">右下のボタンをタップして最初のお気に入りを追加</string>
+    <string name="add_favorite">お気に入り追加</string>
+
+    <!-- TODOページ -->
+    <string name="todo_title">TODOリスト</string>
+    <string name="confirm_delete">削除確認</string>
+    <string name="delete_todo_confirm">TODO「%s」を削除しますか？</string>
+    <string name="delete_button">削除</string>
+    <string name="cancel_button">キャンセル</string>
+    <string name="no_todos">TODOはありません</string>
+    <string name="add_new_todo">右下の + をタップして新しいTODOを追加</string>
+
+    <!-- TODOフォーム -->
+    <string name="type">タイプ</string>
+    <string name="type_work">仕事</string>
+    <string name="type_life">生活</string>
+    <string name="type_entertainment">エンタメ</string>
+    <string name="priority">優先度</string>
+    <string name="priority_high">高</string>
+    <string name="priority_normal">普通</string>
+
+    <!-- ナビゲーションページ -->
+    <string name="no_navigation_data">ナビゲーションデータがありません</string>
+
+    <!-- ユーザーアバター -->
+    <string name="user_avatar">ユーザーアバター</string>
 </resources>
