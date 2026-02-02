@@ -76,7 +76,7 @@ fun WxArticleListPage(
     viewModel: WxArticleListViewModel = hiltViewModel(),
     collectViewModel: CollectViewModel = hiltViewModel(),
     onNavigateBack: () -> Unit = {},
-    onArticleClick: (String, String) -> Unit = { _, _ -> }
+    onArticleClick: (String, String) -> Unit = { _, _ -> },
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val collectUiState by collectViewModel.uiState.collectAsState()
@@ -124,11 +124,7 @@ fun WxArticleListPage(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(
-                        text = uiState.accountName.ifEmpty { "公众号文章" },
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.SemiBold
-                    )
+                    Text(text = uiState.accountName.ifEmpty { "公众号文章" })
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
@@ -258,7 +254,10 @@ fun WxArticleListPage(
                                         } else {
                                             collectViewModel.uncollectArticle(article.id)
                                         }
-                                        viewModel.updateArticleCollectStatus(article.id, shouldCollect)
+                                        viewModel.updateArticleCollectStatus(
+                                            article.id,
+                                            shouldCollect
+                                        )
                                     }
                                 )
                             }
@@ -346,7 +345,7 @@ fun WxArticleListPage(
 @Composable
 private fun ErrorSnackbar(
     message: String,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
     if (message.isNotEmpty()) {
         Box(

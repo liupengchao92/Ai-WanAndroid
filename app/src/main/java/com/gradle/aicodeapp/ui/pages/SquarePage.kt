@@ -44,7 +44,7 @@ import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.gradle.aicodeapp.ui.components.ArticleItem
 import com.gradle.aicodeapp.ui.components.ArticleItemSkeleton
-import com.gradle.aicodeapp.ui.components.SearchBox
+import com.gradle.aicodeapp.ui.components.UnifiedSearchBox
 import com.gradle.aicodeapp.ui.components.WxOfficialAccountCard
 import com.gradle.aicodeapp.ui.theme.ResponsiveLayout
 import com.gradle.aicodeapp.ui.theme.Spacing
@@ -126,10 +126,14 @@ fun SquarePage(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    //.then(ResponsiveLayout.responsiveHorizontalPadding())
+                    .padding(horizontal = Spacing.ScreenPadding)
                     .padding(vertical = Spacing.Small)
             ) {
-                SearchBox(onClick = onSearchClick)
+                UnifiedSearchBox(
+                    placeholder = "搜索文章、项目、教程...",
+                    onClick = onSearchClick,
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
 
             // 内容区域 - 使用 SwipeRefresh 包裹

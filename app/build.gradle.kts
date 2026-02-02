@@ -10,6 +10,15 @@ android {
     namespace = "com.gradle.aicodeapp"
     compileSdk = 34
 
+    signingConfigs {
+        create("release") {
+            storeFile = file("keystore/wanandroid.jks")
+            storePassword = "123456"
+            keyAlias = "wanandroid"
+            keyPassword = "123456"
+        }
+    }
+
     defaultConfig {
         applicationId = "com.gradle.aicodeapp"
         minSdk = 24
@@ -23,6 +32,7 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
