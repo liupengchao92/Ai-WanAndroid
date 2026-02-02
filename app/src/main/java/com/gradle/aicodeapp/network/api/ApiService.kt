@@ -20,6 +20,7 @@ import com.gradle.aicodeapp.network.model.ProjectCategory
 import com.gradle.aicodeapp.network.model.RegisterResponse
 import com.gradle.aicodeapp.network.model.Todo
 import com.gradle.aicodeapp.network.model.TodoListResponse
+import com.gradle.aicodeapp.network.model.WendaCommentResponse
 import com.gradle.aicodeapp.network.model.WendaListResponse
 import com.gradle.aicodeapp.network.model.WxOfficialAccountResponse
 import retrofit2.http.Field
@@ -295,6 +296,15 @@ interface ApiService {
         @Path("page") page: Int,
         @Query("page_size") pageSize: Int? = null
     ): ApiResponse<ArticleListResponse>
+
+    /**
+     * 获取问答评论列表
+     * @param wendaId 问答ID
+     */
+    @GET("wenda/comments/{wendaId}/json")
+    suspend fun getWendaComments(
+        @Path("wendaId") wendaId: Int
+    ): WendaCommentResponse
 
     // 可以添加更多API方法
 }

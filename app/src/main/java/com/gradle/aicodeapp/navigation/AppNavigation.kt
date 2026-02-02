@@ -38,6 +38,7 @@ import com.gradle.aicodeapp.ui.pages.SettingsPage
 import com.gradle.aicodeapp.ui.pages.SquarePage
 import com.gradle.aicodeapp.ui.pages.TodoFormPage
 import com.gradle.aicodeapp.ui.pages.TodoPage
+import com.gradle.aicodeapp.ui.pages.WendaDetailPage
 import com.gradle.aicodeapp.ui.pages.WendaListPage
 import com.gradle.aicodeapp.ui.pages.WxArticleListPage
 import com.gradle.aicodeapp.ui.viewmodel.CollectViewModel
@@ -46,6 +47,7 @@ import com.gradle.aicodeapp.ui.viewmodel.ProjectViewModel
 import com.gradle.aicodeapp.ui.viewmodel.SearchViewModel
 import com.gradle.aicodeapp.ui.viewmodel.SquareViewModel
 import com.gradle.aicodeapp.ui.viewmodel.TodoViewModel
+import com.gradle.aicodeapp.ui.viewmodel.WendaListViewModel
 import java.net.URLEncoder
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
@@ -401,18 +403,47 @@ fun AppNavigation(
             }
 
             composable(NavigationRoutes.WENDA_LIST) {
+                val viewModel: WendaListViewModel = hiltViewModel()
                 WendaListPage(
+                    viewModel = viewModel,
                     onBackClick = {
                         navController.popBackStack()
                     },
-                    onArticleClick = { url, title ->
-                        if (url.isNotBlank()) {
-                            val encodedUrl = URLEncoder.encode(url, StandardCharsets.UTF_8.toString())
-                            val encodedTitle = URLEncoder.encode(title, StandardCharsets.UTF_8.toString())
-                            navController.navigate("${NavigationRoutes.ARTICLE_DETAIL}/$encodedUrl?${NavigationArguments.ARTICLE_TITLE}=$encodedTitle")
-                        }
+                    onWendaClick = { wenda ->
+                        navController.navigate("${NavigationRoutes.WENDA_DETAIL}/${wenda.id}")
                     }
                 )
+            }
+
+            composable(
+                route = "${NavigationRoutes.WENDA_DETAIL}/{${NavigationArguments.ARTICLE_ID}}",
+                arguments = listOf(
+                    navArgument(NavigationArguments.ARTICLE_ID) { type = NavType.IntType }
+                )
+            ) { backStackEntry ->
+                val wendaId = backStackEntry.arguments?.getInt(NavigationArguments.ARTICLE_ID) ?: 0
+                val wendaListViewModel: WendaListViewModel = hiltViewModel(navController.getBackStackEntry(NavigationRoutes.WENDA_LIST))
+                val wenda = wendaListViewModel.getWendaById(wendaId)
+
+                if (wenda != null) {
+                    WendaDetailPage(
+                        wenda = wenda,
+                        onBackClick = {
+                            navController.popBackStack()
+                        },
+                        onNavigateToLogin = {
+                            navController.navigate(NavigationRoutes.LOGIN) {
+                                popUpTo(0) { inclusive = true }
+                            }
+                        }
+                    )
+                } else {
+                    androidx.compose.material3.Text(
+                        text = "问答不存在",
+                        modifier = Modifier.fillMaxSize(),
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    )
+                }
             }
 
             composable(NavigationRoutes.COLUMN_LIST) {

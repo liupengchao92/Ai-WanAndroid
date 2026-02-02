@@ -1,8 +1,11 @@
 package com.gradle.aicodeapp.ui.pages
 
+
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -33,19 +37,17 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import com.gradle.aicodeapp.network.model.PopularWenda
 import com.gradle.aicodeapp.ui.components.AppTopAppBar
 import com.gradle.aicodeapp.ui.theme.Spacing
 import com.gradle.aicodeapp.ui.viewmodel.WendaListViewModel
-import androidx.compose.foundation.layout.PaddingValues
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WendaListPage(
     onBackClick: () -> Unit,
-    onArticleClick: (String, String) -> Unit = { _, _ -> },
-    modifier: Modifier = Modifier,
+    onWendaClick: (PopularWenda) -> Unit = { },
     viewModel: WendaListViewModel = hiltViewModel(),
-    paddingValues: PaddingValues = PaddingValues(0.dp)
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val listState = rememberLazyListState()
@@ -136,7 +138,7 @@ fun WendaListPage(
                                 title = wenda.title,
                                 author = wenda.author,
                                 date = wenda.niceDate,
-                                onClick = { onArticleClick(wenda.link, wenda.title) }
+                                onClick = { onWendaClick(wenda) }
                             )
                         }
 
@@ -183,18 +185,19 @@ fun WendaListPage(
         }
     }
 }
-
-@Composable
-private fun WendaListItem(
+  
+  @Composable
+  private fun WendaListItem(
     title: String,
     author: String,
     date: String,
     onClick: () -> Unit
 ) {
-    androidx.compose.material3.Card(
+    Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = Spacing.ScreenPadding, vertical = Spacing.Small),
+            .padding(horizontal = Spacing.ScreenPadding, vertical = Spacing.Small)
+            .clickable(onClick = onClick),
         shape = androidx.compose.material3.CardDefaults.shape,
         elevation = androidx.compose.material3.CardDefaults.cardElevation(
             defaultElevation = Spacing.ElevationLow

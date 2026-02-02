@@ -21,6 +21,7 @@ object NavigationRoutes {
     const val TODO = "todo"
     const val TODO_FORM = "todo_form"
     const val WX_ARTICLE_LIST = "wx_article_list"
+    const val WENDA_DETAIL = "wenda_detail"
 }
 
 object NavigationArguments {

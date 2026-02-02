@@ -23,6 +23,7 @@ import com.gradle.aicodeapp.network.model.RegisterResponse
 import com.gradle.aicodeapp.network.model.Todo
 import com.gradle.aicodeapp.network.model.TodoListResponse
 import com.gradle.aicodeapp.network.model.WendaListResponse
+import com.gradle.aicodeapp.network.model.WendaCommentResponse
 import com.gradle.aicodeapp.network.model.WxOfficialAccountResponse
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -342,6 +343,20 @@ class NetworkRepository @Inject constructor(
         pageSize: Int? = null
     ): Result<ApiResponse<ArticleListResponse>> {
         return safeApiCall { apiService.getWxArticles(id, page, pageSize) }
+    }
+
+    /**
+     * 获取问答评论列表
+     * @param wendaId 问答ID
+     */
+    suspend fun getWendaComments(wendaId: Int): Result<WendaCommentResponse> {
+        return try {
+            val response = apiService.getWendaComments(wendaId)
+            Result.success(response)
+        } catch (e: Exception) {
+            ErrorHandler.handleError(e)
+            Result.failure(e)
+        }
     }
 
     // 可以添加更多网络请求方法
