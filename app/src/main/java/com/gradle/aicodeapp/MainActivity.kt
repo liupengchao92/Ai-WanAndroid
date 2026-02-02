@@ -36,6 +36,7 @@ import com.gradle.aicodeapp.ui.pages.ProjectPage
 import com.gradle.aicodeapp.ui.pages.RegisterPage
 import com.gradle.aicodeapp.ui.pages.SquarePage
 import com.gradle.aicodeapp.ui.theme.AiCodeAppTheme
+import com.gradle.aicodeapp.ui.theme.LanguageWrapper
 import com.gradle.aicodeapp.ui.viewmodel.HomeViewModel
 import com.gradle.aicodeapp.ui.viewmodel.SquareViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -64,6 +65,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen(userManager: UserManager, settingsDataStore: SettingsDataStore) {
     val darkMode by settingsDataStore.darkMode.collectAsState(initial = SettingsDataStore.DARK_MODE_SYSTEM)
+    val language by settingsDataStore.language.collectAsState(initial = SettingsDataStore.LANGUAGE_ZH)
+
     val isDarkTheme = when (darkMode) {
         SettingsDataStore.DARK_MODE_DARK -> true
         SettingsDataStore.DARK_MODE_LIGHT -> false
@@ -71,11 +74,15 @@ fun MainScreen(userManager: UserManager, settingsDataStore: SettingsDataStore) {
     }
 
     val navController = rememberNavController()
-    AiCodeAppTheme(darkTheme = isDarkTheme) {
-        AppNavigation(
-            navController = navController,
-            userManager = userManager
-        )
+
+    // 使用 LanguageWrapper 包装整个应用，确保语言变化时触发重组
+    LanguageWrapper(languageCode = language) {
+        AiCodeAppTheme(darkTheme = isDarkTheme) {
+            AppNavigation(
+                navController = navController,
+                userManager = userManager
+            )
+        }
     }
 }
 

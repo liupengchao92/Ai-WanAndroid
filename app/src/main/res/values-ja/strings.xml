@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">WanAndroid</string>
-    
+
     <string name="settings">設定</string>
     <string name="dark_mode">ダークモード</string>
     <string name="light_mode">ライトモード</string>
@@ -14,4 +14,6 @@
     <string name="selected">選択済み</string>
     <string name="expand">展開</string>
     <string name="logout">ログアウト</string>
+    <string name="appearance_settings">外観設定</string>
+    <string name="language_settings">言語設定</string>
 </resources>

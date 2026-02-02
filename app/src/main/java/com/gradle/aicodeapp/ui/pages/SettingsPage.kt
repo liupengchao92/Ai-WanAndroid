@@ -44,12 +44,16 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -60,6 +64,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -87,8 +92,10 @@ import com.gradle.aicodeapp.ui.theme.Secondary
 import com.gradle.aicodeapp.ui.theme.SecondaryContainer
 import com.gradle.aicodeapp.ui.theme.Tertiary
 import com.gradle.aicodeapp.ui.theme.TertiaryContainer
+import com.gradle.aicodeapp.ui.theme.LanguageManager
 import com.gradle.aicodeapp.ui.viewmodel.SettingsViewModel
-import java.util.Locale
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun SettingsPage(
@@ -99,15 +106,33 @@ fun SettingsPage(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
 
+    // 语言切换状态
+    var isLanguageChanging by remember { mutableStateOf(false) }
+    var showLanguageSuccess by remember { mutableStateOf(false) }
+
+    // 监听语言变化，显示成功提示
     LaunchedEffect(uiState.language) {
-        updateLocale(context, uiState.language)
+        if (showLanguageSuccess) {
+            val message = when (uiState.language) {
+                SettingsDataStore.LANGUAGE_ZH -> "语言已切换为简体中文"
+                SettingsDataStore.LANGUAGE_EN -> "Language switched to English"
+                SettingsDataStore.LANGUAGE_JA -> "言語が日本語に変更されました"
+                else -> "语言已切换"
+            }
+            snackbarHostState.showSnackbar(message)
+            showLanguageSuccess = false
+            isLanguageChanging = false
+        }
     }
 
     Scaffold(
         topBar = {
             SettingsTopAppBar(onBackClick = onBackClick)
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -133,7 +158,7 @@ fun SettingsPage(
                 Spacer(modifier = Modifier.height(Spacing.Medium))
 
                 // 设置分组标题
-                SectionTitle(title = "外观设置")
+                SectionTitle(title = stringResource(R.string.appearance_settings))
 
                 Spacer(modifier = Modifier.height(Spacing.Small))
 
@@ -146,14 +171,19 @@ fun SettingsPage(
 
                 Spacer(modifier = Modifier.height(Spacing.Large))
 
-                SectionTitle(title = "语言设置")
+                SectionTitle(title = stringResource(R.string.language_settings))
 
                 Spacer(modifier = Modifier.height(Spacing.Small))
 
                 LanguageSection(
                     currentLanguage = uiState.language,
+                    isChanging = isLanguageChanging,
                     onLanguageChange = { language ->
-                        viewModel.setLanguage(language)
+                        if (language != uiState.language) {
+                            isLanguageChanging = true
+                            showLanguageSuccess = true
+                            viewModel.setLanguage(language)
+                        }
                     }
                 )
 
@@ -484,6 +514,7 @@ private fun DarkModeOption(
 @Composable
 private fun LanguageSection(
     currentLanguage: String,
+    isChanging: Boolean,
     onLanguageChange: (String) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -569,7 +600,15 @@ private fun LanguageSection(
                     )
                 }
 
-                Spacer(modifier = Modifier.width(Spacing.Small))
+                // 显示加载状态
+                if (isChanging) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = Secondary,
+                        strokeWidth = 2.dp
+                    )
+                    Spacer(modifier = Modifier.width(Spacing.Small))
+                }
 
                 Surface(
                     shape = CircleShape,
@@ -617,6 +656,7 @@ private fun LanguageSection(
                         title = stringResource(R.string.simplified_chinese),
                         subtitle = "简体中文",
                         selected = currentLanguage == SettingsDataStore.LANGUAGE_ZH,
+                        isChanging = isChanging && currentLanguage == SettingsDataStore.LANGUAGE_ZH,
                         onClick = {
                             onLanguageChange(SettingsDataStore.LANGUAGE_ZH)
                         }
@@ -632,6 +672,7 @@ private fun LanguageSection(
                         title = stringResource(R.string.english),
                         subtitle = "English",
                         selected = currentLanguage == SettingsDataStore.LANGUAGE_EN,
+                        isChanging = isChanging && currentLanguage == SettingsDataStore.LANGUAGE_EN,
                         onClick = {
                             onLanguageChange(SettingsDataStore.LANGUAGE_EN)
                         }
@@ -647,6 +688,7 @@ private fun LanguageSection(
                         title = stringResource(R.string.japanese),
                         subtitle = "日本語",
                         selected = currentLanguage == SettingsDataStore.LANGUAGE_JA,
+                        isChanging = isChanging && currentLanguage == SettingsDataStore.LANGUAGE_JA,
                         onClick = {
                             onLanguageChange(SettingsDataStore.LANGUAGE_JA)
                         }
@@ -662,6 +704,7 @@ private fun LanguageOption(
     title: String,
     subtitle: String,
     selected: Boolean,
+    isChanging: Boolean,
     onClick: () -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -709,7 +752,17 @@ private fun LanguageOption(
             )
         }
 
-        if (selected) {
+        // 显示加载指示器
+        if (isChanging) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(20.dp),
+                color = Secondary,
+                strokeWidth = 2.dp
+            )
+            Spacer(modifier = Modifier.width(Spacing.Small))
+        }
+
+        if (selected && !isChanging) {
             Surface(
                 shape = CircleShape,
                 color = SecondaryContainer
@@ -773,17 +826,4 @@ private fun LogoutButton(
             )
         )
     }
-}
-
-private fun updateLocale(context: android.content.Context, languageCode: String) {
-    val locale = when (languageCode) {
-        SettingsDataStore.LANGUAGE_ZH -> Locale.SIMPLIFIED_CHINESE
-        SettingsDataStore.LANGUAGE_EN -> Locale.ENGLISH
-        SettingsDataStore.LANGUAGE_JA -> Locale.JAPANESE
-        else -> Locale.SIMPLIFIED_CHINESE
-    }
-    Locale.setDefault(locale)
-    val config = android.content.res.Configuration()
-    config.setLocale(locale)
-    context.resources.updateConfiguration(config, context.resources.displayMetrics)
 }

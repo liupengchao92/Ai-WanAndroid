@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">WanAndroid</string>
-    
+
     <string name="settings">设置</string>
     <string name="dark_mode">深色模式</string>
     <string name="light_mode">浅色模式</string>
@@ -14,4 +14,6 @@
     <string name="selected">已选择</string>
     <string name="expand">展开</string>
     <string name="logout">退出登录</string>
+    <string name="appearance_settings">外观设置</string>
+    <string name="language_settings">语言设置</string>
 </resources>
