@@ -93,7 +93,7 @@ fun PopularCardsSection(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = Spacing.ScreenPadding, vertical = Spacing.Medium)
+            .padding(vertical = Spacing.Small)
     ) {
         if (isLoading) {
             Box(

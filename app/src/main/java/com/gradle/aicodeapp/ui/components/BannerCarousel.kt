@@ -79,7 +79,7 @@ fun BannerCarousel(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(bannerHeight)
-                .padding(horizontal = Spacing.ScreenPadding, vertical = Spacing.Small)
+                .padding(vertical = Spacing.Small)
         ) {
             Box(
                 modifier = Modifier

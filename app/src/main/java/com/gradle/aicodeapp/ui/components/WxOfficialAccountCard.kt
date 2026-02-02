@@ -61,7 +61,7 @@ fun WxOfficialAccountCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .then(ResponsiveLayout.responsiveHorizontalPadding())
+            //.then(ResponsiveLayout.responsiveHorizontalPadding())
             .padding(vertical = Spacing.Small),
         shape = RoundedCornerShape(Spacing.CornerRadiusCard),
         colors = CardDefaults.cardColors(

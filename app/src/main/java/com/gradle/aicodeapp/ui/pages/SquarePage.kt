@@ -126,7 +126,7 @@ fun SquarePage(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .then(ResponsiveLayout.responsiveHorizontalPadding())
+                    //.then(ResponsiveLayout.responsiveHorizontalPadding())
                     .padding(vertical = Spacing.Small)
             ) {
                 SearchBox(onClick = onSearchClick)

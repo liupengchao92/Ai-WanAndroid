@@ -53,7 +53,7 @@ fun ProjectItem(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .then(ResponsiveLayout.responsiveHorizontalPadding())
+            //.then(ResponsiveLayout.responsiveHorizontalPadding())
             .padding(vertical = Spacing.Small)
             .clickable(
                 interactionSource = interactionSource,
