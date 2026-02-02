@@ -1,15 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- 应用主题 - 支持状态栏透明化 -->
     <style name="Theme.AiCodeApp" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:windowTranslucentStatus">true</item>
-        <item name="android:windowTranslucentNavigation">true</item>
-        <item name="android:fitsSystemWindows">false</item>
+        <!-- 状态栏透明化设置 -->
         <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+
+        <!-- 启用窗口内容延伸到系统栏区域 -->
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="android:windowTranslucentNavigation">false</item>
+
+        <!-- 允许内容延伸到刘海屏区域 -->
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+
+        <!-- 窗口背景 -->
         <item name="android:windowBackground">@color/background</item>
+
+        <!-- Material 颜色配置 -->
         <item name="android:colorPrimary">@color/primary</item>
         <item name="android:colorPrimaryDark">@color/primary_dark</item>
         <item name="android:colorAccent">@color/primary</item>
+
+        <!-- 禁用系统默认的fitsSystemWindows行为，由Compose自行处理 -->
+        <item name="android:fitsSystemWindows">false</item>
     </style>
 
 </resources>

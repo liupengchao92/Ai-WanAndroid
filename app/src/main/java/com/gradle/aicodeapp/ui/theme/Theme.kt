@@ -127,14 +127,8 @@ fun AiCodeAppTheme(
         else -> LightColorScheme
     }
 
-    val view = LocalView.current
-    if (!view.isInEditMode) {
-        SideEffect {
-            val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.background.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
-        }
-    }
+    // 配置系统栏样式（透明状态栏 + 自动适配文字颜色）
+    ConfigureSystemBars(darkTheme = darkTheme)
 
     // 提供主题状态给子组件
     CompositionLocalProvider(
