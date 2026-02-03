@@ -101,8 +101,7 @@ fun CollectPage(
     val listState = rememberLazyListState()
     val snackbarHostState = remember { SnackbarHostState() }
     var showDeleteDialog by remember { mutableStateOf(false) }
-    var articleToDelete by remember { mutableStateOf<Int?>(null) }
-    var collectIdToDelete by remember { mutableStateOf<Int?>(null) }
+    var articleToDelete by remember { mutableStateOf<com.gradle.aicodeapp.network.model.Article?>(null) }
 
     val isAtBottom by remember {
         derivedStateOf {
@@ -117,7 +116,8 @@ fun CollectPage(
     }
 
     LaunchedEffect(isAtBottom) {
-        if (isAtBottom && uiState.hasMore && !uiState.isLoading) {
+        // 只有在非刷新、非加载状态下才触发加载更多
+        if (isAtBottom && uiState.hasMore && !uiState.isLoading && !uiState.isRefreshing) {
             viewModel.loadMore()
         }
     }
@@ -189,8 +189,10 @@ fun CollectPage(
                 .padding(scaffoldPadding)
         ) {
             when {
-                uiState.isLoading && uiState.articles.isEmpty() -> LoadingView()
-                uiState.articles.isEmpty() && !uiState.isLoading -> EmptyView(
+                // 初始加载时显示加载视图
+                uiState.isLoading && uiState.articles.isEmpty() && !uiState.isRefreshing -> LoadingView()
+                // 只有在非刷新状态下且列表为空时才显示空白页面
+                uiState.articles.isEmpty() && !uiState.isLoading && !uiState.isRefreshing -> EmptyView(
                     onAddClick = { navController.navigate(NavigationRoutes.COLLECT_ADD) }
                 )
                 else -> {
@@ -222,8 +224,7 @@ fun CollectPage(
                                         navController.navigate("${NavigationRoutes.COLLECT_EDIT}/${article.id}?title=$encodedTitle&author=$encodedAuthor&link=$encodedLink")
                                     },
                                     onDeleteClick = {
-                                        articleToDelete = article.id
-                                        collectIdToDelete = article.id
+                                        articleToDelete = article
                                         showDeleteDialog = true
                                     }
                                 )
@@ -294,8 +295,16 @@ fun CollectPage(
                 TextButton(
                     onClick = {
                         showDeleteDialog = false
-                        articleToDelete?.let { viewModel.uncollectArticle(it) }
-                        collectIdToDelete?.let { viewModel.uncollectOutsideArticle(it) }
+                        articleToDelete?.let { article ->
+                            // 根据 originId 判断是站内文章还是站外文章
+                            // originId 不为 -1 表示站内文章，使用 originId 取消收藏
+                            // originId 为 -1 表示站外文章，使用收藏列表中的 id 取消收藏
+                            if (article.originId != -1) {
+                                viewModel.uncollectArticle(article.id, article.originId)
+                            } else {
+                                viewModel.uncollectOutsideArticle(article.id)
+                            }
+                        }
                     }
                 ) {
                     Text(

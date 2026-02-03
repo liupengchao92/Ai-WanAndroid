@@ -2,9 +2,6 @@ package com.gradle.aicodeapp.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gradle.aicodeapp.cache.CacheConfig
-import com.gradle.aicodeapp.cache.CacheKeys
-import com.gradle.aicodeapp.cache.DataCacheManager
 import com.gradle.aicodeapp.data.UserManager
 import com.gradle.aicodeapp.network.exception.ErrorHandler
 import com.gradle.aicodeapp.network.model.Article
@@ -20,7 +17,6 @@ import javax.inject.Inject
 @HiltViewModel
 class CollectViewModel @Inject constructor(
     private val networkRepository: NetworkRepository,
-    private val cacheManager: DataCacheManager,
     private val userManager: UserManager
 ) : ViewModel() {
 
@@ -45,31 +41,12 @@ class CollectViewModel @Inject constructor(
         )
 
         viewModelScope.launch {
-            loadCollectListFromCacheOrNetwork()
+            loadCollectListFromNetwork()
         }
     }
 
-    private suspend fun loadCollectListFromCacheOrNetwork() {
+    private suspend fun loadCollectListFromNetwork() {
         val currentState = _uiState.value
-        val cacheKey = CacheKeys.getCollectListKey(currentState.currentPage)
-        val expireTime = CacheConfig.getExpireTime(cacheKey)
-        
-        val cachedArticles = cacheManager.get<List<Article>>(cacheKey)
-        if (cachedArticles != null) {
-            val updatedArticles = if (currentState.currentPage == 0) {
-                cachedArticles
-            } else {
-                currentState.articles + cachedArticles
-            }
-            _uiState.value = _uiState.value.copy(
-                articles = updatedArticles,
-                isLoading = false,
-                isRefreshing = false,
-                hasMore = cachedArticles.size > 0
-            )
-            LogUtils.d(TAG, "Collect list loaded from cache: ${cachedArticles.size}")
-            return
-        }
 
         val result = networkRepository.getCollectList(currentState.currentPage)
         if (result.isSuccess) {
@@ -81,14 +58,13 @@ class CollectViewModel @Inject constructor(
                 } else {
                     currentState.articles + newArticles
                 }
-                
+
                 _uiState.value = _uiState.value.copy(
                     articles = updatedArticles,
                     isLoading = false,
                     isRefreshing = false,
                     hasMore = response.data?.over != true
                 )
-                cacheManager.put(cacheKey, newArticles, expireTime)
                 LogUtils.d(TAG, "Collect list loaded from network: ${newArticles.size}")
             } else {
                 _uiState.value = _uiState.value.copy(
@@ -183,7 +159,7 @@ class CollectViewModel @Inject constructor(
         }
     }
 
-    fun uncollectArticle(articleId: Int) {
+    fun uncollectArticle(articleId: Int, originId: Int = -1) {
         if (!userManager.isLoggedIn()) {
             ErrorHandler.emitErrorEvent(
                 ErrorHandler.ErrorEvent(
@@ -194,14 +170,20 @@ class CollectViewModel @Inject constructor(
             )
             return
         }
-        
+
         viewModelScope.launch {
-            val result = networkRepository.uncollectArticle(articleId)
+            // 如果 originId 有效（不为-1），说明是站内文章，使用 originId 取消收藏
+            // 否则使用 articleId
+            val idToUse = if (originId != -1) originId else articleId
+            val result = networkRepository.uncollectArticle(idToUse)
             if (result.isSuccess) {
                 val response = result.getOrNull()
                 if (response?.isSuccess() == true) {
                     LogUtils.d(TAG, "Article uncollected successfully: $articleId")
+                    // 从列表中移除已取消收藏的文章
+                    val updatedArticles = _uiState.value.articles.filter { it.id != articleId }
                     _uiState.value = _uiState.value.copy(
+                        articles = updatedArticles,
                         errorMessage = null
                     )
                 } else {
@@ -244,7 +226,10 @@ class CollectViewModel @Inject constructor(
                 val response = result.getOrNull()
                 if (response?.isSuccess() == true) {
                     LogUtils.d(TAG, "Outside article uncollected successfully: $collectId")
+                    // 从列表中移除已取消收藏的文章
+                    val updatedArticles = _uiState.value.articles.filter { it.id != collectId }
                     _uiState.value = _uiState.value.copy(
+                        articles = updatedArticles,
                         errorMessage = null
                     )
                 } else {
@@ -285,27 +270,29 @@ class CollectViewModel @Inject constructor(
 
     fun refreshData() {
         viewModelScope.launch {
-            cacheManager.remove(CacheKeys.getCollectListKey(0))
-            
             _uiState.value = _uiState.value.copy(
                 currentPage = 0,
                 isRefreshing = true,
                 articles = emptyList()
             )
-            
-            loadCollectListFromCacheOrNetwork()
+
+            loadCollectListFromNetwork()
         }
     }
 
     fun loadMore() {
+        LogUtils.d(TAG, "loadMore called")
         val currentState = _uiState.value
-        if (!currentState.isLoading && currentState.hasMore) {
+        // 只有在非加载、非刷新状态下才执行加载更多
+        if (!currentState.isLoading && !currentState.isRefreshing && currentState.hasMore) {
             _uiState.value = currentState.copy(
                 currentPage = currentState.currentPage + 1
             )
             viewModelScope.launch {
-                loadCollectListFromCacheOrNetwork()
+                loadCollectListFromNetwork()
             }
+        } else {
+            LogUtils.d(TAG, "loadMore skipped: isLoading=${currentState.isLoading}, isRefreshing=${currentState.isRefreshing}, hasMore=${currentState.hasMore}")
         }
     }
 

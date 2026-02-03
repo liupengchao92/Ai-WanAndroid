@@ -60,6 +60,8 @@ data class Article(
     val niceShareDate: String?,
     @SerializedName("origin")
     val origin: String?,
+    @SerializedName("originId")
+    val originId: Int = -1,
     @SerializedName("prefix")
     val prefix: String?,
     @SerializedName("projectLink")
