@@ -32,6 +32,45 @@ class WendaDetailViewModel @Inject constructor(
         loadComments(wenda.id)
     }
 
+    fun loadWendaById(wendaId: Int) {
+        if (wendaId <= 0) return
+
+        currentWendaId = wendaId
+        _uiState.value = _uiState.value.copy(isLoading = true)
+
+        viewModelScope.launch {
+            try {
+                val result = networkRepository.getWendaList(page = 1)
+                if (result.isSuccess) {
+                    val response = result.getOrNull()
+                    val wenda = response?.data?.datas?.find { it.id == wendaId }
+                    if (wenda != null) {
+                        _uiState.value = _uiState.value.copy(
+                            wenda = wenda,
+                            isLoading = false
+                        )
+                        loadComments(wendaId)
+                    } else {
+                        _uiState.value = _uiState.value.copy(
+                            errorMessage = "问答不存在",
+                            isLoading = false
+                        )
+                    }
+                } else {
+                    _uiState.value = _uiState.value.copy(
+                        errorMessage = "加载问答失败",
+                        isLoading = false
+                    )
+                }
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    errorMessage = "加载问答失败: ${e.message}",
+                    isLoading = false
+                )
+            }
+        }
+    }
+
     fun loadComments(wendaId: Int) {
         if (wendaId <= 0) return
 

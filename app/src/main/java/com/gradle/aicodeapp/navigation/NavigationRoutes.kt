@@ -33,4 +33,5 @@ object NavigationArguments {
     const val TODO_ID = "todoId"
     const val WX_ACCOUNT_ID = "wxAccountId"
     const val WX_ACCOUNT_NAME = "wxAccountName"
+    const val WENDA_JSON = "wendaJson"
 }

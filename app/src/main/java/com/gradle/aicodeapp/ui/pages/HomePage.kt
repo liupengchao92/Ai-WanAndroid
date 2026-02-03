@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import com.gradle.aicodeapp.network.model.PopularWenda
 import com.gradle.aicodeapp.ui.components.ArticleItem
 import com.gradle.aicodeapp.ui.components.ArticleItemSkeleton
 import com.gradle.aicodeapp.ui.components.BannerCarousel
@@ -74,6 +75,7 @@ fun HomePage(
     viewModel: HomeViewModel,
     collectViewModel: CollectViewModel = hiltViewModel(),
     onArticleClick: (String, String) -> Unit = { _, _ -> },
+    onWendaClick: (PopularWenda) -> Unit = { _ -> },
     onNavigateToWendaList: () -> Unit = {},
     onNavigateToColumnList: () -> Unit = {},
     onNavigateToRouteList: () -> Unit = {},
@@ -120,6 +122,7 @@ fun HomePage(
                 viewModel = viewModel,
                 collectViewModel = collectViewModel,
                 onArticleClick = onArticleClick,
+                onWendaClick=onWendaClick,
                 onNavigateToWendaList = onNavigateToWendaList,
                 onNavigateToColumnList = onNavigateToColumnList,
                 onNavigateToRouteList = onNavigateToRouteList
@@ -203,6 +206,7 @@ private fun ContentState(
     viewModel: HomeViewModel,
     collectViewModel: CollectViewModel,
     onArticleClick: (String, String) -> Unit,
+    onWendaClick: (PopularWenda) -> Unit ,
     onNavigateToWendaList: () -> Unit,
     onNavigateToColumnList: () -> Unit,
     onNavigateToRouteList: () -> Unit
@@ -246,7 +250,7 @@ private fun ContentState(
                         if (!uiState.isRefreshing) {
                             PopularCardsSection(
                                 viewModel = viewModel,
-                                onWendaClick = { url, title -> onArticleClick(url, title) },
+                                onWendaClick = { wenda -> onWendaClick(wenda) },
                                 onColumnClick = { url, title -> onArticleClick(url, title) },
                                 onRouteClick = { url, title -> onArticleClick(url, title) },
                                 onViewMoreWenda = onNavigateToWendaList,

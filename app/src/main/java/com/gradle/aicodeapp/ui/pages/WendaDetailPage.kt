@@ -33,13 +33,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Edit
-
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -49,14 +47,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -72,8 +67,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -97,12 +90,12 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WendaDetailPage(
-    wenda: PopularWenda,
+    wenda: PopularWenda? = null,
     onBackClick: () -> Unit,
     onNavigateToLogin: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: WendaDetailViewModel = hiltViewModel(),
-    paddingValues: PaddingValues = PaddingValues(0.dp)
+    paddingValues: PaddingValues = PaddingValues(0.dp),
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val listState = rememberLazyListState()
@@ -113,7 +106,9 @@ fun WendaDetailPage(
     val view = LocalView.current
 
     LaunchedEffect(key1 = wenda) {
-        viewModel.setWenda(wenda)
+        wenda?.let {
+            viewModel.setWenda(it)
+        }
     }
 
     LaunchedEffect(uiState.errorMessage) {
@@ -202,10 +197,12 @@ fun WendaDetailPage(
                         contentPadding = PaddingValues(bottom = 80.dp)
                     ) {
                         item {
-                            WendaContentSection(
-                                wenda = wenda,
-                                modifier = Modifier.padding(horizontal = Spacing.ScreenPadding)
-                            )
+                            uiState.wenda?.let { wendaData ->
+                                WendaContentSection(
+                                    wenda = wendaData,
+                                    modifier = Modifier.padding(horizontal = Spacing.ScreenPadding)
+                                )
+                            }
                         }
 
                         item {
@@ -251,7 +248,7 @@ fun WendaDetailPage(
 
 @Composable
 private fun LoadingState(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Box(
         modifier = modifier.fillMaxSize(),
@@ -279,7 +276,7 @@ private fun LoadingState(
 @Composable
 private fun WendaContentSection(
     wenda: PopularWenda,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Card(
         modifier = modifier
@@ -419,7 +416,7 @@ private fun WendaContentSection(
 @Composable
 private fun HtmlContent(
     htmlContent: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     AndroidView(
         modifier = modifier,
@@ -441,7 +438,7 @@ private fun HtmlContent(
 private fun CommentHeader(
     commentCount: Int,
     onRefreshClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Row(
         modifier = modifier
@@ -502,7 +499,7 @@ private fun CommentHeader(
 
 @Composable
 private fun EmptyCommentView(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Box(
         modifier = modifier
@@ -542,7 +539,7 @@ private fun CommentItem(
     comment: WendaComment,
     currentUserId: Int,
     onReplyClick: (Int, String?) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val isCurrentUser = comment.userId == currentUserId
 
@@ -622,7 +619,10 @@ private fun CommentItem(
                                         style = MaterialTheme.typography.labelSmall,
                                         color = MaterialTheme.colorScheme.onPrimary,
                                         fontWeight = FontWeight.Medium,
-                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                        modifier = Modifier.padding(
+                                            horizontal = 6.dp,
+                                            vertical = 2.dp
+                                        )
                                     )
                                 }
                             }
@@ -729,7 +729,7 @@ private fun CommentItem(
 @Composable
 private fun ReplyItem(
     reply: WendaReply,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier.fillMaxWidth()
@@ -794,7 +794,7 @@ private fun CommentInputBar(
     onSendClick: () -> Unit,
     onClearReply: () -> Unit,
     focusRequester: FocusRequester,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier

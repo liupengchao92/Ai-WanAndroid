@@ -164,8 +164,4 @@ class WendaListViewModel @Inject constructor(
             errorMessage = null
         )
     }
-
-    fun getWendaById(id: Int): PopularWenda? {
-        return _uiState.value.wendaList.find { it.id == id }
-    }
 }

@@ -57,7 +57,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun PopularCardsSection(
     viewModel: HomeViewModel = hiltViewModel(),
-    onWendaClick: (String, String) -> Unit = { _, _ -> },
+    onWendaClick: (PopularWenda) -> Unit = { _ -> },
     onColumnClick: (String, String) -> Unit = { _, _ -> },
     onRouteClick: (String, String) -> Unit = { _, _ -> },
     onViewMoreWenda: () -> Unit = {},
@@ -162,7 +162,7 @@ fun PopularCardsSection(
 @Composable
 fun PopularWendaCard(
     wendaList: List<PopularWenda>,
-    onWendaClick: (String, String) -> Unit,
+    onWendaClick: (PopularWenda) -> Unit,
     onViewMore: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -204,7 +204,7 @@ fun PopularWendaCard(
                 wendaList.forEach { wenda ->
                     WendaItem(
                         title = wenda.title,
-                        onClick = { onWendaClick(wenda.link, wenda.title) }
+                        onClick = { onWendaClick(wenda) }
                     )
                     Spacer(modifier = Modifier.height(Spacing.Small))
                 }

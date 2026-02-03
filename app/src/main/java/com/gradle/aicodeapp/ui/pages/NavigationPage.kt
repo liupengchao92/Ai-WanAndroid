@@ -251,8 +251,9 @@ private fun NavigationContent(
                 onGroupClick = onGroupClick,
                 modifier = Modifier
                     .width(navWidth)
-                    .fillMaxHeight()
-                    .padding(paddingValues)
+                    .fillMaxHeight(),
+                paddingValues = paddingValues
+                    //.padding(paddingValues)
             )
         }
 
@@ -281,7 +282,8 @@ private fun LeftNavigationPanel(
     listState: LazyListState,
     onGroupClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
-) {
+    paddingValues: PaddingValues,
+    ) {
     BoxWithConstraints(modifier = modifier) {
         val panelWidth = constraints.maxWidth.dp
         
@@ -298,7 +300,12 @@ private fun LeftNavigationPanel(
                     )
                 ),
             verticalArrangement = Arrangement.spacedBy(4.dp),
-            contentPadding = PaddingValues(vertical = 12.dp, horizontal = 8.dp)
+            contentPadding = PaddingValues(
+                start = 16.dp,
+                end = 16.dp,
+                top = paddingValues.calculateTopPadding() + 8.dp,
+                bottom = paddingValues.calculateBottomPadding() + 16.dp
+            ),
         ) {
             itemsIndexed(
                 items = groups,

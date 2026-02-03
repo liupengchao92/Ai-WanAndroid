@@ -1,5 +1,6 @@
 package com.gradle.aicodeapp.navigation
 
+import android.text.TextUtils
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
@@ -18,6 +19,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import com.gradle.aicodeapp.data.UserManager
+import com.gradle.aicodeapp.network.model.PopularWenda
 import com.gradle.aicodeapp.ui.components.BottomNavigationBar
 import com.gradle.aicodeapp.ui.components.GlobalErrorHandler
 import com.gradle.aicodeapp.ui.pages.ArticleDetailPage
@@ -49,6 +51,7 @@ import com.gradle.aicodeapp.ui.viewmodel.SearchViewModel
 import com.gradle.aicodeapp.ui.viewmodel.SquareViewModel
 import com.gradle.aicodeapp.ui.viewmodel.TodoViewModel
 import com.gradle.aicodeapp.ui.viewmodel.WendaListViewModel
+import com.gradle.aicodeapp.utils.JsonUtils
 import java.net.URLEncoder
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
@@ -65,7 +68,7 @@ private val bottomNavRoutes = listOf(
 fun AppNavigation(
     navController: NavHostController,
     userManager: UserManager,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val startDestination = if (userManager.isLoggedIn()) {
         NavigationRoutes.HOME
@@ -100,15 +103,19 @@ fun AppNavigation(
                             0 -> navController.navigate(NavigationRoutes.HOME) {
                                 launchSingleTop = true
                             }
+
                             1 -> navController.navigate(NavigationRoutes.SQUARE) {
                                 launchSingleTop = true
                             }
+
                             2 -> navController.navigate(NavigationRoutes.PROJECT) {
                                 launchSingleTop = true
                             }
+
                             3 -> navController.navigate(NavigationRoutes.NAVIGATION) {
                                 launchSingleTop = true
                             }
+
                             4 -> navController.navigate(NavigationRoutes.MINE) {
                                 launchSingleTop = true
                             }
@@ -165,10 +172,18 @@ fun AppNavigation(
                     viewModel = viewModel,
                     onArticleClick = { url, title ->
                         if (url.isNotBlank()) {
-                            val encodedUrl = URLEncoder.encode(url, StandardCharsets.UTF_8.toString())
-                            val encodedTitle = URLEncoder.encode(title, StandardCharsets.UTF_8.toString())
+                            val encodedUrl =
+                                URLEncoder.encode(url, StandardCharsets.UTF_8.toString())
+                            val encodedTitle =
+                                URLEncoder.encode(title, StandardCharsets.UTF_8.toString())
                             navController.navigate("${NavigationRoutes.ARTICLE_DETAIL}/$encodedUrl?${NavigationArguments.ARTICLE_TITLE}=$encodedTitle")
                         }
+                    },
+                    onWendaClick = { wenda ->
+                        val wendaJson = JsonUtils.toJson(wenda)?.let {
+                            URLEncoder.encode(it, StandardCharsets.UTF_8.toString())
+                        } ?: ""
+                        navController.navigate("${NavigationRoutes.WENDA_DETAIL}/$wendaJson")
                     },
                     onNavigateToWendaList = {
                         navController.navigate(NavigationRoutes.WENDA_LIST)
@@ -189,8 +204,10 @@ fun AppNavigation(
                     viewModel = viewModel,
                     onArticleClick = { url, title ->
                         if (url.isNotBlank()) {
-                            val encodedUrl = URLEncoder.encode(url, StandardCharsets.UTF_8.toString())
-                            val encodedTitle = URLEncoder.encode(title, StandardCharsets.UTF_8.toString())
+                            val encodedUrl =
+                                URLEncoder.encode(url, StandardCharsets.UTF_8.toString())
+                            val encodedTitle =
+                                URLEncoder.encode(title, StandardCharsets.UTF_8.toString())
                             navController.navigate("${NavigationRoutes.ARTICLE_DETAIL}/$encodedUrl?${NavigationArguments.ARTICLE_TITLE}=$encodedTitle")
                         }
                     },
@@ -198,7 +215,8 @@ fun AppNavigation(
                         navController.navigate(NavigationRoutes.SEARCH)
                     },
                     onWxAccountClick = { accountId, accountName ->
-                        val encodedName = URLEncoder.encode(accountName, StandardCharsets.UTF_8.toString())
+                        val encodedName =
+                            URLEncoder.encode(accountName, StandardCharsets.UTF_8.toString())
                         navController.navigate("${NavigationRoutes.WX_ARTICLE_LIST}/$accountId?${NavigationArguments.WX_ACCOUNT_NAME}=$encodedName")
                     },
                     paddingValues = paddingValues
@@ -211,8 +229,10 @@ fun AppNavigation(
                     viewModel = viewModel,
                     onArticleClick = { url, title ->
                         if (url.isNotBlank()) {
-                            val encodedUrl = URLEncoder.encode(url, StandardCharsets.UTF_8.toString())
-                            val encodedTitle = URLEncoder.encode(title, StandardCharsets.UTF_8.toString())
+                            val encodedUrl =
+                                URLEncoder.encode(url, StandardCharsets.UTF_8.toString())
+                            val encodedTitle =
+                                URLEncoder.encode(title, StandardCharsets.UTF_8.toString())
                             navController.navigate("${NavigationRoutes.ARTICLE_DETAIL}/$encodedUrl?${NavigationArguments.ARTICLE_TITLE}=$encodedTitle")
                         }
                     },
@@ -224,8 +244,10 @@ fun AppNavigation(
                 NavigationPage(
                     onArticleClick = { url, title ->
                         if (url.isNotBlank()) {
-                            val encodedUrl = URLEncoder.encode(url, StandardCharsets.UTF_8.toString())
-                            val encodedTitle = URLEncoder.encode(title, StandardCharsets.UTF_8.toString())
+                            val encodedUrl =
+                                URLEncoder.encode(url, StandardCharsets.UTF_8.toString())
+                            val encodedTitle =
+                                URLEncoder.encode(title, StandardCharsets.UTF_8.toString())
                             navController.navigate("${NavigationRoutes.ARTICLE_DETAIL}/$encodedUrl?${NavigationArguments.ARTICLE_TITLE}=$encodedTitle")
                         }
                     },
@@ -276,8 +298,10 @@ fun AppNavigation(
                     navController = navController,
                     onArticleClick = { url, title ->
                         if (url.isNotBlank()) {
-                            val encodedUrl = URLEncoder.encode(url, StandardCharsets.UTF_8.toString())
-                            val encodedTitle = URLEncoder.encode(title, StandardCharsets.UTF_8.toString())
+                            val encodedUrl =
+                                URLEncoder.encode(url, StandardCharsets.UTF_8.toString())
+                            val encodedTitle =
+                                URLEncoder.encode(title, StandardCharsets.UTF_8.toString())
                             navController.navigate("${NavigationRoutes.ARTICLE_DETAIL}/$encodedUrl?${NavigationArguments.ARTICLE_TITLE}=$encodedTitle")
                         }
                     },
@@ -336,15 +360,23 @@ fun AppNavigation(
                 )
             ) { backStackEntry ->
                 val todoId = backStackEntry.arguments?.getInt(NavigationArguments.TODO_ID)
+                // 使用与TodoPage相同的ViewModel实例
+                val viewModel: TodoViewModel =
+                    hiltViewModel(navController.getBackStackEntry(NavigationRoutes.TODO))
                 TodoFormPage(
                     todoId = todoId,
+                    viewModel = viewModel,
                     onBackClick = { navController.popBackStack() },
                     paddingValues = paddingValues
                 )
             }
 
             composable(NavigationRoutes.TODO_FORM) {
+                // 使用与TodoPage相同的ViewModel实例
+                val viewModel: TodoViewModel =
+                    hiltViewModel(navController.getBackStackEntry(NavigationRoutes.TODO))
                 TodoFormPage(
+                    viewModel = viewModel,
                     onBackClick = { navController.popBackStack() },
                     paddingValues = paddingValues
                 )
@@ -370,7 +402,8 @@ fun AppNavigation(
                     navArgument("link") { type = NavType.StringType; nullable = true }
                 )
             ) { backStackEntry ->
-                val articleId = backStackEntry.arguments?.getInt(NavigationArguments.ARTICLE_ID) ?: 0
+                val articleId =
+                    backStackEntry.arguments?.getInt(NavigationArguments.ARTICLE_ID) ?: 0
                 val title = try {
                     val encodedTitle = backStackEntry.arguments?.getString("title") ?: ""
                     URLDecoder.decode(encodedTitle, StandardCharsets.UTF_8.toString())
@@ -409,8 +442,10 @@ fun AppNavigation(
                     viewModel = viewModel,
                     onArticleClick = { url, title ->
                         if (url.isNotBlank()) {
-                            val encodedUrl = URLEncoder.encode(url, StandardCharsets.UTF_8.toString())
-                            val encodedTitle = URLEncoder.encode(title, StandardCharsets.UTF_8.toString())
+                            val encodedUrl =
+                                URLEncoder.encode(url, StandardCharsets.UTF_8.toString())
+                            val encodedTitle =
+                                URLEncoder.encode(title, StandardCharsets.UTF_8.toString())
                             navController.navigate("${NavigationRoutes.ARTICLE_DETAIL}/$encodedUrl?${NavigationArguments.ARTICLE_TITLE}=$encodedTitle")
                         }
                     },
@@ -428,40 +463,38 @@ fun AppNavigation(
                         navController.popBackStack()
                     },
                     onWendaClick = { wenda ->
-                        navController.navigate("${NavigationRoutes.WENDA_DETAIL}/${wenda.id}")
+                        val wendaJson = JsonUtils.toJson(wenda)?.let {
+                            URLEncoder.encode(it, StandardCharsets.UTF_8.toString())
+                        } ?: ""
+                        navController.navigate("${NavigationRoutes.WENDA_DETAIL}/$wendaJson")
                     }
                 )
             }
 
             composable(
-                route = "${NavigationRoutes.WENDA_DETAIL}/{${NavigationArguments.ARTICLE_ID}}",
+                route = "${NavigationRoutes.WENDA_DETAIL}/{${NavigationArguments.WENDA_JSON}}",
                 arguments = listOf(
-                    navArgument(NavigationArguments.ARTICLE_ID) { type = NavType.IntType }
+                    navArgument(NavigationArguments.WENDA_JSON) { type = NavType.StringType }
                 )
             ) { backStackEntry ->
-                val wendaId = backStackEntry.arguments?.getInt(NavigationArguments.ARTICLE_ID) ?: 0
-                val wendaListViewModel: WendaListViewModel = hiltViewModel(navController.getBackStackEntry(NavigationRoutes.WENDA_LIST))
-                val wenda = wendaListViewModel.getWendaById(wendaId)
-
-                if (wenda != null) {
-                    WendaDetailPage(
-                        wenda = wenda,
-                        onBackClick = {
-                            navController.popBackStack()
-                        },
-                        onNavigateToLogin = {
-                            navController.navigate(NavigationRoutes.LOGIN) {
-                                popUpTo(0) { inclusive = true }
-                            }
-                        }
-                    )
-                } else {
-                    androidx.compose.material3.Text(
-                        text = "问答不存在",
-                        modifier = Modifier.fillMaxSize(),
-                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                    )
+                val encodedWendaJson = backStackEntry.arguments?.getString(NavigationArguments.WENDA_JSON) ?: ""
+                val wendaJson = try {
+                    URLDecoder.decode(encodedWendaJson, StandardCharsets.UTF_8.toString())
+                } catch (e: Exception) {
+                    encodedWendaJson
                 }
+                val wenda: PopularWenda? = JsonUtils.fromJson(wendaJson, PopularWenda::class.java)
+                WendaDetailPage(
+                    wenda = wenda,
+                    onBackClick = {
+                        navController.popBackStack()
+                    },
+                    onNavigateToLogin = {
+                        navController.navigate(NavigationRoutes.LOGIN) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
+                )
             }
 
             composable(NavigationRoutes.COLUMN_LIST) {
@@ -471,8 +504,10 @@ fun AppNavigation(
                     },
                     onColumnClick = { url, title ->
                         if (url.isNotBlank()) {
-                            val encodedUrl = URLEncoder.encode(url, StandardCharsets.UTF_8.toString())
-                            val encodedTitle = URLEncoder.encode(title, StandardCharsets.UTF_8.toString())
+                            val encodedUrl =
+                                URLEncoder.encode(url, StandardCharsets.UTF_8.toString())
+                            val encodedTitle =
+                                URLEncoder.encode(title, StandardCharsets.UTF_8.toString())
                             navController.navigate("${NavigationRoutes.ARTICLE_DETAIL}/$encodedUrl?${NavigationArguments.ARTICLE_TITLE}=$encodedTitle")
                         }
                     }
@@ -486,8 +521,10 @@ fun AppNavigation(
                     },
                     onRouteClick = { url, title ->
                         if (url.isNotBlank()) {
-                            val encodedUrl = URLEncoder.encode(url, StandardCharsets.UTF_8.toString())
-                            val encodedTitle = URLEncoder.encode(title, StandardCharsets.UTF_8.toString())
+                            val encodedUrl =
+                                URLEncoder.encode(url, StandardCharsets.UTF_8.toString())
+                            val encodedTitle =
+                                URLEncoder.encode(title, StandardCharsets.UTF_8.toString())
                             navController.navigate("${NavigationRoutes.ARTICLE_DETAIL}/$encodedUrl?${NavigationArguments.ARTICLE_TITLE}=$encodedTitle")
                         }
                     }
@@ -498,12 +535,17 @@ fun AppNavigation(
                 route = "${NavigationRoutes.WX_ARTICLE_LIST}/{${NavigationArguments.WX_ACCOUNT_ID}}?${NavigationArguments.WX_ACCOUNT_NAME}={${NavigationArguments.WX_ACCOUNT_NAME}}",
                 arguments = listOf(
                     navArgument(NavigationArguments.WX_ACCOUNT_ID) { type = NavType.IntType },
-                    navArgument(NavigationArguments.WX_ACCOUNT_NAME) { type = NavType.StringType; nullable = true }
+                    navArgument(NavigationArguments.WX_ACCOUNT_NAME) {
+                        type = NavType.StringType; nullable = true
+                    }
                 )
             ) { backStackEntry ->
-                val accountId = backStackEntry.arguments?.getInt(NavigationArguments.WX_ACCOUNT_ID) ?: 0
+                val accountId =
+                    backStackEntry.arguments?.getInt(NavigationArguments.WX_ACCOUNT_ID) ?: 0
                 val accountName = try {
-                    val encodedName = backStackEntry.arguments?.getString(NavigationArguments.WX_ACCOUNT_NAME) ?: ""
+                    val encodedName =
+                        backStackEntry.arguments?.getString(NavigationArguments.WX_ACCOUNT_NAME)
+                            ?: ""
                     URLDecoder.decode(encodedName, StandardCharsets.UTF_8.toString())
                 } catch (e: Exception) {
                     "公众号文章"
@@ -516,8 +558,10 @@ fun AppNavigation(
                     },
                     onArticleClick = { url, title ->
                         if (url.isNotBlank()) {
-                            val encodedUrl = URLEncoder.encode(url, StandardCharsets.UTF_8.toString())
-                            val encodedTitle = URLEncoder.encode(title, StandardCharsets.UTF_8.toString())
+                            val encodedUrl =
+                                URLEncoder.encode(url, StandardCharsets.UTF_8.toString())
+                            val encodedTitle =
+                                URLEncoder.encode(title, StandardCharsets.UTF_8.toString())
                             navController.navigate("${NavigationRoutes.ARTICLE_DETAIL}/$encodedUrl?${NavigationArguments.ARTICLE_TITLE}=$encodedTitle")
                         }
                     }
@@ -528,16 +572,20 @@ fun AppNavigation(
                 route = "${NavigationRoutes.ARTICLE_DETAIL}/{${NavigationArguments.ARTICLE_URL}}?${NavigationArguments.ARTICLE_TITLE}={${NavigationArguments.ARTICLE_TITLE}}",
                 arguments = listOf(
                     navArgument(NavigationArguments.ARTICLE_URL) { type = NavType.StringType },
-                    navArgument(NavigationArguments.ARTICLE_TITLE) { type = NavType.StringType; nullable = true }
+                    navArgument(NavigationArguments.ARTICLE_TITLE) {
+                        type = NavType.StringType; nullable = true
+                    }
                 )
             ) { backStackEntry ->
-                val encodedUrl = backStackEntry.arguments?.getString(NavigationArguments.ARTICLE_URL) ?: ""
+                val encodedUrl =
+                    backStackEntry.arguments?.getString(NavigationArguments.ARTICLE_URL) ?: ""
                 val articleUrl = try {
                     URLDecoder.decode(encodedUrl, StandardCharsets.UTF_8.toString())
                 } catch (e: Exception) {
                     encodedUrl
                 }
-                val encodedTitle = backStackEntry.arguments?.getString(NavigationArguments.ARTICLE_TITLE) ?: ""
+                val encodedTitle =
+                    backStackEntry.arguments?.getString(NavigationArguments.ARTICLE_TITLE) ?: ""
                 val articleTitle = try {
                     URLDecoder.decode(encodedTitle, StandardCharsets.UTF_8.toString())
                 } catch (e: Exception) {
