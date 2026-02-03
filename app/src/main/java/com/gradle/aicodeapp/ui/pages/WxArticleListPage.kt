@@ -31,7 +31,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -43,6 +42,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import com.gradle.aicodeapp.ui.components.AppTopAppBar
+import com.gradle.aicodeapp.ui.components.InlineLoadingView
+import com.gradle.aicodeapp.ui.components.LoadingSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -245,30 +246,11 @@ fun WxArticleListPage(
                             // 加载更多或到底提示
                             item {
                                 if (uiState.isLoading && uiState.articles.isNotEmpty()) {
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .then(ResponsiveLayout.responsiveHorizontalPadding()),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Column(
-                                            horizontalAlignment = Alignment.CenterHorizontally,
-                                            verticalArrangement = Arrangement.Center
-                                        ) {
-                                            CircularProgressIndicator(
-                                                color = MaterialTheme.colorScheme.primary,
-                                                strokeWidth = 2.dp,
-                                                trackColor = MaterialTheme.colorScheme.surfaceVariant
-                                            )
-                                            Spacer(modifier = Modifier.height(Spacing.Small))
-                                            Text(
-                                                text = "加载中...",
-                                                style = MaterialTheme.typography.bodySmall,
-                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                fontWeight = FontWeight.Medium
-                                            )
-                                        }
-                                    }
+                                    InlineLoadingView(
+                                        text = "加载中...",
+                                        size = LoadingSize.MEDIUM,
+                                        modifier = Modifier.then(ResponsiveLayout.responsiveHorizontalPadding())
+                                    )
                                 } else if (!uiState.hasMore && uiState.articles.isNotEmpty()) {
                                     Box(
                                         modifier = Modifier

@@ -43,7 +43,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -53,6 +52,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import com.gradle.aicodeapp.ui.components.AppTopAppBar
+import com.gradle.aicodeapp.ui.components.FullScreenLoadingView
+import com.gradle.aicodeapp.ui.components.InlineLoadingView
+import com.gradle.aicodeapp.ui.components.LoadingSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -223,18 +225,9 @@ private fun CoinContentView(
                         enter = fadeIn() + scaleIn(),
                         exit = fadeOut() + scaleOut()
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(Spacing.Medium),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(28.dp),
-                                strokeWidth = 2.5.dp,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        }
+                        InlineLoadingView(
+                            size = LoadingSize.SMALL
+                        )
                     }
                 }
 
@@ -331,16 +324,9 @@ private fun UserInfoCard(
                 Spacer(modifier = Modifier.height(60.dp))
 
                 if (isLoading && coinUserInfo == null) {
-                    Box(
-                        modifier = Modifier.fillMaxWidth(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(40.dp),
-                            color = MaterialTheme.colorScheme.primary,
-                            strokeWidth = 3.dp
-                        )
-                    }
+                    InlineLoadingView(
+                        size = LoadingSize.MEDIUM
+                    )
                 } else {
                     // 积分图标
                     Surface(
@@ -712,39 +698,10 @@ private fun CoinCount(
 
 @Composable
 private fun LoadingView() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(Spacing.Large)
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(100.dp)
-                    .shadow(
-                        elevation = 8.dp,
-                        shape = CircleShape,
-                        spotColor = Primary.copy(alpha = 0.2f)
-                    )
-                    .background(MaterialTheme.colorScheme.surface, CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(48.dp),
-                    color = MaterialTheme.colorScheme.primary,
-                    strokeWidth = 4.dp
-                )
-            }
-
-            Text(
-                text = "加载积分数据中...",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-    }
+    FullScreenLoadingView(
+        text = "加载积分数据中...",
+        size = LoadingSize.LARGE
+    )
 }
 
 @Composable

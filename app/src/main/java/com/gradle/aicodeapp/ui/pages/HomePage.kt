@@ -31,13 +31,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import com.gradle.aicodeapp.ui.components.InlineLoadingView
+import com.gradle.aicodeapp.ui.components.LoadingSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -429,31 +430,11 @@ private fun LoadingFooter(
 ) {
     when {
         isLoading && hasContent -> {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .then(ResponsiveLayout.responsiveHorizontalPadding()),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(32.dp),
-                        color = MaterialTheme.colorScheme.primary,
-                        strokeWidth = 2.dp,
-                        trackColor = MaterialTheme.colorScheme.surfaceVariant
-                    )
-                    Spacer(modifier = Modifier.height(Spacing.Small))
-                    Text(
-                        text = "加载更多内容...",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
-            }
+            InlineLoadingView(
+                text = "加载更多内容...",
+                size = LoadingSize.MEDIUM,
+                modifier = Modifier.then(ResponsiveLayout.responsiveHorizontalPadding())
+            )
         }
         !hasMore && hasContent -> {
             Box(

@@ -22,7 +22,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.ui.res.painterResource
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -36,6 +35,9 @@ import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import com.gradle.aicodeapp.ui.components.AppTopAppBar
+import com.gradle.aicodeapp.ui.components.FullScreenLoadingView
+import com.gradle.aicodeapp.ui.components.InlineLoadingView
+import com.gradle.aicodeapp.ui.components.LoadingSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -226,17 +228,9 @@ private fun UnreadMessageList(
 
                     if (isLoadingMore) {
                         item {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(Spacing.Medium),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(24.dp),
-                                    strokeWidth = 2.dp
-                                )
-                            }
+                            InlineLoadingView(
+                                size = LoadingSize.SMALL
+                            )
                         }
                     }
                 }
@@ -294,17 +288,9 @@ private fun ReadMessageList(
 
                     if (isLoadingMore) {
                         item {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(Spacing.Medium),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(24.dp),
-                                    strokeWidth = 2.dp
-                                )
-                            }
+                            InlineLoadingView(
+                                size = LoadingSize.SMALL
+                            )
                         }
                     }
                 }
@@ -435,12 +421,9 @@ private fun MessageItem(
 
 @Composable
 private fun LoadingContent() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        CircularProgressIndicator()
-    }
+    FullScreenLoadingView(
+        size = LoadingSize.LARGE
+    )
 }
 
 @Composable

@@ -23,7 +23,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Surface
@@ -45,6 +44,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import com.gradle.aicodeapp.ui.components.InlineLoadingView
+import com.gradle.aicodeapp.ui.components.LoadingSize
 import com.gradle.aicodeapp.ui.components.ProjectItem
 import com.gradle.aicodeapp.ui.components.ProjectItemSkeleton
 import com.gradle.aicodeapp.ui.theme.Spacing
@@ -167,27 +168,11 @@ fun ProjectPage(
 
                             item {
                                 if (uiState.isLoading && uiState.projects.isNotEmpty()) {
-                                    Column(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .then(ResponsiveLayout.responsiveHorizontalPadding()),
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        verticalArrangement = Arrangement.Center
-                                    ) {
-                                        CircularProgressIndicator(
-                                            color = MaterialTheme.colorScheme.primary,
-                                            strokeWidth = 2.dp,
-                                            trackColor = MaterialTheme.colorScheme.surfaceVariant
-                                        )
-                                        Spacer(modifier = Modifier.height(Spacing.Small))
-                                        Text(
-                                            text = "加载中...",
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                            fontWeight = FontWeight.Medium,
-                                            modifier = Modifier.padding(top = Spacing.Small)
-                                        )
-                                    }
+                                    InlineLoadingView(
+                                        text = "加载中...",
+                                        size = LoadingSize.MEDIUM,
+                                        modifier = Modifier.then(ResponsiveLayout.responsiveHorizontalPadding())
+                                    )
                                 } else if (!uiState.hasMore && uiState.projects.isNotEmpty()) {
                                     Column(
                                         modifier = Modifier

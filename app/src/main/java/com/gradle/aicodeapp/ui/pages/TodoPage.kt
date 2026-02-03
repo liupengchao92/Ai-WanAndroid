@@ -58,6 +58,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import com.gradle.aicodeapp.ui.components.CenteredLoadingView
+import com.gradle.aicodeapp.ui.components.FullScreenLoadingView
+import com.gradle.aicodeapp.ui.components.InlineLoadingView
+import com.gradle.aicodeapp.ui.components.LoadingSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -245,17 +249,9 @@ fun TodoPage(
                         }
                         if (uiState.isLoading) {
                             item {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(Spacing.Medium),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    CircularProgressIndicator(
-                                        modifier = Modifier.size(24.dp),
-                                        strokeWidth = 2.dp
-                                    )
-                                }
+                                InlineLoadingView(
+                                    size = LoadingSize.SMALL
+                                )
                             }
                         }
                     }
@@ -914,21 +910,10 @@ fun TodoLoadingContent() {
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(Spacing.Medium)
-        ) {
-            CircularProgressIndicator(
-                modifier = Modifier.size(48.dp),
-                strokeWidth = 4.dp,
-                color = MaterialTheme.colorScheme.primary
-            )
-            Text(
-                text = "加载中...",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
+        FullScreenLoadingView(
+            text = "加载中...",
+            size = LoadingSize.LARGE
+        )
     }
 }
 

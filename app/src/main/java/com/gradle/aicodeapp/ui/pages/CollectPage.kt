@@ -44,7 +44,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
@@ -58,6 +57,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import com.gradle.aicodeapp.ui.components.AppTopAppBar
+import com.gradle.aicodeapp.ui.components.FullScreenLoadingView
+import com.gradle.aicodeapp.ui.components.InlineLoadingView
+import com.gradle.aicodeapp.ui.components.LoadingSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -237,18 +239,9 @@ fun CollectPage(
                                     enter = fadeIn() + scaleIn(),
                                     exit = fadeOut() + scaleOut()
                                 ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(vertical = Spacing.Large),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        CircularProgressIndicator(
-                                            modifier = Modifier.size(32.dp),
-                                            strokeWidth = 3.dp,
-                                            color = MaterialTheme.colorScheme.primary
-                                        )
-                                    }
+                                    InlineLoadingView(
+                                        size = LoadingSize.MEDIUM
+                                    )
                                 }
                             }
 
@@ -527,39 +520,10 @@ private fun CollectItemCard(
 
 @Composable
 private fun LoadingView() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(Spacing.Large)
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(100.dp)
-                    .shadow(
-                        elevation = Spacing.ElevationHigh,
-                        shape = CircleShape,
-                        spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
-                    )
-                    .background(MaterialTheme.colorScheme.surface, CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(48.dp),
-                    color = MaterialTheme.colorScheme.primary,
-                    strokeWidth = 4.dp
-                )
-            }
-
-            Text(
-                text = "加载收藏列表...",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-    }
+    FullScreenLoadingView(
+        text = "加载收藏列表...",
+        size = LoadingSize.LARGE
+    )
 }
 
 @Composable

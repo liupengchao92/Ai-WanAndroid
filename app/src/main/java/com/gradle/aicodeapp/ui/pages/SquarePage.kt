@@ -21,7 +21,6 @@ import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -44,6 +43,9 @@ import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.gradle.aicodeapp.ui.components.ArticleItem
 import com.gradle.aicodeapp.ui.components.ArticleItemSkeleton
+import com.gradle.aicodeapp.ui.components.FullScreenLoadingView
+import com.gradle.aicodeapp.ui.components.InlineLoadingView
+import com.gradle.aicodeapp.ui.components.LoadingSize
 import com.gradle.aicodeapp.ui.components.UnifiedSearchBox
 import com.gradle.aicodeapp.ui.components.WxOfficialAccountCard
 import com.gradle.aicodeapp.ui.theme.ResponsiveLayout
@@ -282,30 +284,11 @@ fun SquarePage(
                         // 加载更多或到底提示
                         item(key = "load_more") {
                             if (uiState.isLoading && uiState.articles.isNotEmpty()) {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .then(ResponsiveLayout.responsiveHorizontalPadding()),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Column(
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        verticalArrangement = Arrangement.Center
-                                    ) {
-                                        CircularProgressIndicator(
-                                            color = MaterialTheme.colorScheme.primary,
-                                            strokeWidth = 2.dp,
-                                            trackColor = MaterialTheme.colorScheme.surfaceVariant
-                                        )
-                                        Spacer(modifier = Modifier.height(Spacing.Small))
-                                        Text(
-                                            text = "加载中...",
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                            fontWeight = FontWeight.Medium
-                                        )
-                                    }
-                                }
+                                InlineLoadingView(
+                                    text = "加载中...",
+                                    size = LoadingSize.MEDIUM,
+                                    modifier = Modifier.then(ResponsiveLayout.responsiveHorizontalPadding())
+                                )
                             } else if (!uiState.hasMore && uiState.articles.isNotEmpty()) {
                                 Box(
                                     modifier = Modifier
@@ -415,28 +398,8 @@ private fun ErrorSnackbar(
 
 @Composable
 private fun LoadingAnimation() {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        CircularProgressIndicator(
-            modifier = Modifier.size(56.dp),
-            color = MaterialTheme.colorScheme.primary,
-            strokeWidth = 4.dp,
-            trackColor = MaterialTheme.colorScheme.surfaceVariant
-        )
-        Spacer(modifier = Modifier.height(Spacing.Large))
-        Text(
-            text = "加载中...",
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurface,
-            fontWeight = FontWeight.Medium
-        )
-        Spacer(modifier = Modifier.height(Spacing.Small))
-        Text(
-            text = "正在获取最新内容",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
+    FullScreenLoadingView(
+        text = "加载中...",
+        size = LoadingSize.LARGE
+    )
 }

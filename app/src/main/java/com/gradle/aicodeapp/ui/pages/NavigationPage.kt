@@ -33,6 +33,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.*
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.gradle.aicodeapp.ui.components.FullScreenLoadingView
+import com.gradle.aicodeapp.ui.components.LoadingSize
 import com.gradle.aicodeapp.ui.theme.Spacing
 import com.gradle.aicodeapp.ui.viewmodel.NavigationViewModel
 import kotlinx.coroutines.launch
@@ -146,23 +148,10 @@ private fun NavigationLoadingView() {
             .background(MaterialTheme.colorScheme.background),
         contentAlignment = Alignment.Center
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            CircularProgressIndicator(
-                color = MaterialTheme.colorScheme.primary,
-                strokeWidth = 4.dp,
-                trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                modifier = Modifier.size(48.dp)
-            )
-            Spacer(modifier = Modifier.height(Spacing.Large))
-            Text(
-                text = "加载中...",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
+        FullScreenLoadingView(
+            text = "加载中...",
+            size = LoadingSize.LARGE
+        )
     }
 }
 
