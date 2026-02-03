@@ -11,6 +11,7 @@ import com.gradle.aicodeapp.network.model.CoinRankResponse
 import com.gradle.aicodeapp.network.model.CoinUserInfo
 import com.gradle.aicodeapp.network.model.Friend
 import com.gradle.aicodeapp.network.model.LoginResponse
+import com.gradle.aicodeapp.network.model.MessageListResponse
 import com.gradle.aicodeapp.network.model.NavigationGroup
 import com.gradle.aicodeapp.network.model.PopularColumn
 import com.gradle.aicodeapp.network.model.PopularColumnResponse
@@ -22,6 +23,7 @@ import com.gradle.aicodeapp.network.model.ProjectCategory
 import com.gradle.aicodeapp.network.model.RegisterResponse
 import com.gradle.aicodeapp.network.model.Todo
 import com.gradle.aicodeapp.network.model.TodoListResponse
+import com.gradle.aicodeapp.network.model.UnreadMessageCountResponse
 import com.gradle.aicodeapp.network.model.WendaListResponse
 import com.gradle.aicodeapp.network.model.WendaCommentResponse
 import com.gradle.aicodeapp.network.model.WxOfficialAccountResponse
@@ -352,6 +354,56 @@ class NetworkRepository @Inject constructor(
     suspend fun getWendaComments(wendaId: Int): Result<WendaCommentResponse> {
         return try {
             val response = apiService.getWendaComments(wendaId)
+            Result.success(response)
+        } catch (e: Exception) {
+            ErrorHandler.handleError(e)
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * 获取未读消息数量
+     */
+    suspend fun getUnreadMessageCount(): Result<UnreadMessageCountResponse> {
+        return try {
+            val response = apiService.getUnreadMessageCount()
+            Result.success(response)
+        } catch (e: Exception) {
+            ErrorHandler.handleError(e)
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * 获取已读消息列表
+     * @param page 页码，从1开始
+     * @param pageSize 每页数量，1-40
+     */
+    suspend fun getReadMessageList(
+        page: Int,
+        pageSize: Int? = null
+    ): Result<MessageListResponse> {
+        return try {
+            val response = apiService.getReadMessageList(page, pageSize)
+            Result.success(response)
+        } catch (e: Exception) {
+            ErrorHandler.handleError(e)
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * 获取未读消息列表
+     * 注意：访问此接口后，所有未读消息将被标记为已读
+     * @param page 页码，从1开始
+     * @param pageSize 每页数量，1-40
+     */
+    suspend fun getUnreadMessageList(
+        page: Int,
+        pageSize: Int? = null
+    ): Result<MessageListResponse> {
+        return try {
+            val response = apiService.getUnreadMessageList(page, pageSize)
             Result.success(response)
         } catch (e: Exception) {
             ErrorHandler.handleError(e)

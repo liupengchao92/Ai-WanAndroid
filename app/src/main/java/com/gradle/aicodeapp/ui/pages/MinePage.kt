@@ -46,6 +46,7 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
@@ -54,6 +55,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -82,6 +85,7 @@ import coil.request.CachePolicy
 import com.gradle.aicodeapp.R
 import com.gradle.aicodeapp.data.UserManager
 import androidx.compose.foundation.Image
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.gradle.aicodeapp.ui.theme.CustomShapes
 import com.gradle.aicodeapp.ui.theme.Spacing
 import com.gradle.aicodeapp.ui.theme.ResponsiveLayout
@@ -95,15 +99,18 @@ import com.gradle.aicodeapp.ui.theme.Success
 import com.gradle.aicodeapp.ui.theme.SuccessContainer
 import com.gradle.aicodeapp.ui.theme.Warning
 import com.gradle.aicodeapp.ui.theme.WarningContainer
+import com.gradle.aicodeapp.ui.viewmodel.MessageViewModel
 import javax.inject.Inject
 
 @Composable
 fun MinePage(
     userManager: UserManager,
+    messageViewModel: MessageViewModel = hiltViewModel(),
     onNavigateToCollect: () -> Unit = {},
     onNavigateToCoin: () -> Unit = {},
     onNavigateToSettings: () -> Unit = {},
     onNavigateToTodo: () -> Unit = {},
+    onNavigateToMessage: () -> Unit = {},
     paddingValues: PaddingValues = PaddingValues(0.dp)
 ) {
     val scrollState = rememberScrollState()
@@ -132,7 +139,9 @@ fun MinePage(
             Spacer(modifier = Modifier.height(Spacing.Large))
 
             UserHeaderCard(
-                userManager = userManager
+                userManager = userManager,
+                messageViewModel = messageViewModel,
+                onNavigateToMessage = onNavigateToMessage
             )
 
             Spacer(modifier = Modifier.height(Spacing.Large))
@@ -157,7 +166,9 @@ fun MinePage(
 
 @Composable
 private fun UserHeaderCard(
-    userManager: UserManager
+    userManager: UserManager,
+    messageViewModel: MessageViewModel,
+    onNavigateToMessage: () -> Unit = {}
 ) {
     val username = userManager.getUsername()
     val nickname = userManager.getNickname()
@@ -167,6 +178,14 @@ private fun UserHeaderCard(
 
     val displayName = nickname ?: username ?: stringResource(R.string.click_to_login)
     val displayAvatar = icon
+
+    LaunchedEffect(isLoggedIn) {
+        if (isLoggedIn) {
+            messageViewModel.loadUnreadCount()
+        }
+    }
+
+    val messageUiState by messageViewModel.uiState.collectAsState()
 
     Card(
         modifier = Modifier
@@ -227,6 +246,17 @@ private fun UserHeaderCard(
                         shape = CircleShape
                     )
             )
+
+            // 消息图标
+            if (isLoggedIn) {
+                MessageIconWithBadge(
+                    onClick = onNavigateToMessage,
+                    unreadCount = messageUiState.unreadCount,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(Spacing.Medium)
+                )
+            }
 
             Column(
                 modifier = Modifier
@@ -349,6 +379,76 @@ private fun UserHeaderCard(
                             )
                         }
                     }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun MessageIconWithBadge(
+    onClick: () -> Unit,
+    unreadCount: Int,
+    modifier: Modifier = Modifier
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.9f else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        label = "scale"
+    )
+
+    Box(
+        modifier = modifier
+            .scale(scale)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick
+            )
+    ) {
+        Surface(
+            shape = CircleShape,
+            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+            shadowElevation = 4.dp,
+            modifier = Modifier.size(44.dp)
+        ) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Notifications,
+                    contentDescription = stringResource(R.string.messages),
+                    modifier = Modifier.size(24.dp),
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+            }
+        }
+
+        // 红色提示徽章
+        if (unreadCount > 0) {
+            Surface(
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .offset(x = 2.dp, y = (-2).dp)
+            ) {
+                Box(
+                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = if (unreadCount > 99) "99+" else unreadCount.toString(),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
         }

@@ -119,4 +119,13 @@
 
     <!-- 用户头像 -->
     <string name="user_avatar">用户头像</string>
+
+    <!-- 消息页面 -->
+    <string name="messages">消息</string>
+    <string name="unread_messages">未读消息</string>
+    <string name="read_messages">已读消息</string>
+    <string name="no_unread_messages">暂无未读消息</string>
+    <string name="no_unread_messages_subtitle">您已经阅读了所有消息</string>
+    <string name="no_read_messages">暂无已读消息</string>
+    <string name="no_read_messages_subtitle">您还没有已读消息</string>
 </resources>

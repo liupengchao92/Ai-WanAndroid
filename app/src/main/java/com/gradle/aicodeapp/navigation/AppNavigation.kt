@@ -28,6 +28,7 @@ import com.gradle.aicodeapp.ui.pages.CollectPage
 import com.gradle.aicodeapp.ui.pages.ColumnListPage
 import com.gradle.aicodeapp.ui.pages.HomePage
 import com.gradle.aicodeapp.ui.pages.LoginPage
+import com.gradle.aicodeapp.ui.pages.MessagePage
 import com.gradle.aicodeapp.ui.pages.MinePage
 import com.gradle.aicodeapp.ui.pages.NavigationPage
 import com.gradle.aicodeapp.ui.pages.ProjectPage
@@ -246,6 +247,23 @@ fun AppNavigation(
                     },
                     onNavigateToSettings = {
                         navController.navigate(NavigationRoutes.SETTINGS)
+                    },
+                    onNavigateToMessage = {
+                        navController.navigate(NavigationRoutes.MESSAGE)
+                    },
+                    paddingValues = paddingValues
+                )
+            }
+
+            composable(NavigationRoutes.MESSAGE) {
+                MessagePage(
+                    onBackClick = {
+                        navController.popBackStack()
+                    },
+                    onNavigateToLogin = {
+                        navController.navigate(NavigationRoutes.LOGIN) {
+                            popUpTo(0) { inclusive = true }
+                        }
                     },
                     paddingValues = paddingValues
                 )

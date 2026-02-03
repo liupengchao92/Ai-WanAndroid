@@ -9,6 +9,7 @@ import com.gradle.aicodeapp.network.model.CoinRankResponse
 import com.gradle.aicodeapp.network.model.CoinUserInfo
 import com.gradle.aicodeapp.network.model.Friend
 import com.gradle.aicodeapp.network.model.LoginResponse
+import com.gradle.aicodeapp.network.model.MessageListResponse
 import com.gradle.aicodeapp.network.model.NavigationGroup
 import com.gradle.aicodeapp.network.model.PopularColumn
 import com.gradle.aicodeapp.network.model.PopularColumnResponse
@@ -20,6 +21,7 @@ import com.gradle.aicodeapp.network.model.ProjectCategory
 import com.gradle.aicodeapp.network.model.RegisterResponse
 import com.gradle.aicodeapp.network.model.Todo
 import com.gradle.aicodeapp.network.model.TodoListResponse
+import com.gradle.aicodeapp.network.model.UnreadMessageCountResponse
 import com.gradle.aicodeapp.network.model.WendaCommentResponse
 import com.gradle.aicodeapp.network.model.WendaListResponse
 import com.gradle.aicodeapp.network.model.WxOfficialAccountResponse
@@ -305,6 +307,35 @@ interface ApiService {
     suspend fun getWendaComments(
         @Path("wendaId") wendaId: Int
     ): WendaCommentResponse
+
+    /**
+     * 获取未读消息数量
+     */
+    @GET("message/lg/count_unread/json")
+    suspend fun getUnreadMessageCount(): UnreadMessageCountResponse
+
+    /**
+     * 获取已读消息列表
+     * @param page 页码，从1开始
+     * @param pageSize 每页数量，1-40
+     */
+    @GET("message/lg/readed_list/{page}/json")
+    suspend fun getReadMessageList(
+        @Path("page") page: Int,
+        @Query("page_size") pageSize: Int? = null
+    ): MessageListResponse
+
+    /**
+     * 获取未读消息列表
+     * 注意：访问此接口后，所有未读消息将被标记为已读
+     * @param page 页码，从1开始
+     * @param pageSize 每页数量，1-40
+     */
+    @GET("message/lg/unread_list/{page}/json")
+    suspend fun getUnreadMessageList(
+        @Path("page") page: Int,
+        @Query("page_size") pageSize: Int? = null
+    ): MessageListResponse
 
     // 可以添加更多API方法
 }
