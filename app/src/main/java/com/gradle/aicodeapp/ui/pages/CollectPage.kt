@@ -37,6 +37,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -50,7 +52,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -83,12 +84,7 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.gradle.aicodeapp.navigation.NavigationRoutes
 import com.gradle.aicodeapp.ui.components.CollectItemSkeleton
 import com.gradle.aicodeapp.ui.theme.Spacing
-import com.gradle.aicodeapp.ui.theme.ResponsiveLayout
-import com.gradle.aicodeapp.ui.theme.Primary
-import com.gradle.aicodeapp.ui.theme.PrimaryContainer
-import com.gradle.aicodeapp.ui.theme.Secondary
-import com.gradle.aicodeapp.ui.theme.SecondaryContainer
-import com.gradle.aicodeapp.ui.theme.ErrorContainer
+import com.gradle.aicodeapp.ui.theme.CustomShapes
 import com.gradle.aicodeapp.ui.viewmodel.CollectViewModel
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -145,15 +141,15 @@ fun CollectPage(
                     // 收藏数量徽章
                     if (uiState.articles.isNotEmpty()) {
                         Surface(
-                            shape = RoundedCornerShape(12.dp),
-                            color = PrimaryContainer
+                            shape = CustomShapes.Full,
+                            color = MaterialTheme.colorScheme.primaryContainer
                         ) {
                             Text(
                                 text = "${uiState.articles.size}",
                                 style = MaterialTheme.typography.labelMedium.copy(
                                     fontWeight = FontWeight.Medium
                                 ),
-                                color = Primary,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer,
                                 modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
                             )
                         }
@@ -165,12 +161,12 @@ fun CollectPage(
             FloatingActionButton(
                 onClick = { navController.navigate(NavigationRoutes.COLLECT_ADD) },
                 shape = CircleShape,
-                containerColor = Primary,
-                contentColor = Color.White,
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier.shadow(
-                    elevation = 8.dp,
+                    elevation = Spacing.ElevationHigh,
                     shape = CircleShape,
-                    spotColor = Primary.copy(alpha = 0.4f)
+                    spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
                 )
             ) {
                 Icon(
@@ -180,20 +176,16 @@ fun CollectPage(
                 )
             }
         },
-        snackbarHost = { SnackbarHost(snackbarHostState) }
+        snackbarHost = {
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier.padding(16.dp)
+            )
+        }
     ) { scaffoldPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.surface,
-                            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f),
-                            MaterialTheme.colorScheme.surface
-                        )
-                    )
-                )
                 .padding(scaffoldPadding)
         ) {
             when {
@@ -211,9 +203,10 @@ fun CollectPage(
                             modifier = Modifier.fillMaxSize(),
                             state = listState,
                             contentPadding = PaddingValues(
-                                horizontal = ResponsiveLayout.calculateHorizontalPadding(),
-                                vertical = Spacing.Medium
-                            )
+                                horizontal = Spacing.ScreenPadding,
+                                vertical = Spacing.Small
+                            ),
+                            verticalArrangement = Arrangement.spacedBy(Spacing.ListItemSpacing)
                         ) {
                             items(
                                 items = uiState.articles,
@@ -236,6 +229,7 @@ fun CollectPage(
                                 )
                             }
 
+                            // 加载更多指示器
                             item {
                                 AnimatedVisibility(
                                     visible = uiState.isLoading && uiState.articles.isNotEmpty(),
@@ -245,37 +239,32 @@ fun CollectPage(
                                     Box(
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .padding(Spacing.Medium),
+                                            .padding(vertical = Spacing.Large),
                                         contentAlignment = Alignment.Center
                                     ) {
                                         CircularProgressIndicator(
-                                            modifier = Modifier.size(28.dp),
-                                            strokeWidth = 2.5.dp,
+                                            modifier = Modifier.size(32.dp),
+                                            strokeWidth = 3.dp,
                                             color = MaterialTheme.colorScheme.primary
                                         )
                                     }
                                 }
                             }
 
+                            // 没有更多数据提示
                             item {
                                 AnimatedVisibility(
                                     visible = !uiState.hasMore && uiState.articles.isNotEmpty(),
                                     enter = fadeIn() + slideInVertically(),
                                     exit = fadeOut()
                                 ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(Spacing.Medium),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text(
-                                            text = "已经到底啦 ~",
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-                                        )
-                                    }
+                                    NoMoreDataFooter()
                                 }
+                            }
+
+                            // 底部间距
+                            item {
+                                Spacer(modifier = Modifier.height(Spacing.Medium))
                             }
                         }
                     }
@@ -328,7 +317,7 @@ fun CollectPage(
                     )
                 }
             },
-            shape = RoundedCornerShape(Spacing.CornerRadiusExtraLarge)
+            shape = CustomShapes.ExtraLarge
         )
     }
 }
@@ -354,7 +343,7 @@ private fun CollectItemCard(
 
     val backgroundColor by animateColorAsState(
         targetValue = if (isPressed) {
-            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.15f)
+            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
         } else {
             MaterialTheme.colorScheme.surface
         },
@@ -362,114 +351,104 @@ private fun CollectItemCard(
         label = "background"
     )
 
+    val elevation = when {
+        isPressed -> Spacing.ElevationMedium
+        else -> Spacing.ElevationLow
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = Spacing.Small)
-            .scale(scale)
-            .shadow(
-                elevation = 4.dp,
-                shape = RoundedCornerShape(Spacing.CornerRadiusLarge),
-                spotColor = Primary.copy(alpha = 0.1f)
-            ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        shape = RoundedCornerShape(Spacing.CornerRadiusLarge),
+            .scale(scale),
+        elevation = CardDefaults.cardElevation(defaultElevation = elevation),
+        shape = CustomShapes.Medium,
         colors = CardDefaults.cardColors(containerColor = backgroundColor),
         onClick = onClick
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(Spacing.Medium)
+                .padding(Spacing.CardPadding)
         ) {
-            // 标题行
+            // 标题行 - 带收藏图标
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Top
-            ) {
-                Row(
-                    modifier = Modifier.weight(1f),
-                    verticalAlignment = Alignment.Top
-                ) {
-                   /* // 收藏图标
-                    Surface(
-                        modifier = Modifier.size(36.dp),
-                        shape = RoundedCornerShape(10.dp),
-                        color = SecondaryContainer
-                    ) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Favorite,
-                                contentDescription = null,
-                                modifier = Modifier.size(20.dp),
-                                tint = Secondary
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.width(Spacing.Medium))*/
-
-                    // 标题和元信息
-                    Column(
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(
-                            text = article.title,
-                            style = MaterialTheme.typography.bodyLarge.copy(
-                                fontWeight = FontWeight.SemiBold
-                            ),
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-
-                        Spacer(modifier = Modifier.height(Spacing.Small))
-
-                        // 作者和日期
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            val authorText = when {
-                                !article.author.isNullOrEmpty() -> article.author
-                                !article.shareUser.isNullOrEmpty() -> "分享人：${article.shareUser}"
-                                else -> null
-                            }
-
-                            authorText?.let {
-                                Text(
-                                    text = it,
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-
-                                Spacer(modifier = Modifier.width(Spacing.Medium))
-                            }
-
-                            Text(
-                                text = article.niceDate,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
-                            )
-                        }
-                    }
-                }
+            ) {      
+                // 标题
+                Text(
+                    text = article.title,
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.SemiBold
+                    ),
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.weight(1f)
+                )
             }
 
             Spacer(modifier = Modifier.height(Spacing.Medium))
 
             HorizontalDivider(
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f),
-                thickness = 0.5.dp
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
             )
 
-            Spacer(modifier = Modifier.height(Spacing.Small))
+            Spacer(modifier = Modifier.height(Spacing.Medium))
+
+            // 作者和日期信息
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                val authorText = when {
+                    !article.author.isNullOrEmpty() -> article.author
+                    !article.shareUser.isNullOrEmpty() -> "分享人：${article.shareUser}"
+                    else -> null
+                }
+
+                authorText?.let {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.width(Spacing.ExtraSmall))
+                        Text(
+                            text = it,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(Spacing.Large))
+                }
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.DateRange,
+                        contentDescription = null,
+                        modifier = Modifier.size(14.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.width(Spacing.ExtraSmall))
+                    Text(
+                        text = article.niceDate,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(Spacing.Medium))
 
             // 操作按钮行
             Row(
@@ -480,9 +459,9 @@ private fun CollectItemCard(
                 // 编辑按钮
                 Surface(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(8.dp))
+                        .clip(CustomShapes.Small)
                         .clickable(onClick = onEditClick),
-                    shape = RoundedCornerShape(8.dp),
+                    shape = CustomShapes.Small,
                     color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
                 ) {
                     Row(
@@ -509,10 +488,10 @@ private fun CollectItemCard(
                 // 删除按钮
                 Surface(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(8.dp))
+                        .clip(CustomShapes.Small)
                         .clickable(onClick = onDeleteClick),
-                    shape = RoundedCornerShape(8.dp),
-                    color = ErrorContainer.copy(alpha = 0.5f)
+                    shape = CustomShapes.Small,
+                    color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f)
                 ) {
                     Row(
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
@@ -551,9 +530,9 @@ private fun LoadingView() {
                 modifier = Modifier
                     .size(100.dp)
                     .shadow(
-                        elevation = 8.dp,
+                        elevation = Spacing.ElevationHigh,
                         shape = CircleShape,
-                        spotColor = Primary.copy(alpha = 0.2f)
+                        spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
                     )
                     .background(MaterialTheme.colorScheme.surface, CircleShape),
                 contentAlignment = Alignment.Center
@@ -590,8 +569,8 @@ private fun EmptyView(
             Surface(
                 modifier = Modifier.size(120.dp),
                 shape = CircleShape,
-                color = SecondaryContainer,
-                shadowElevation = 8.dp
+                color = MaterialTheme.colorScheme.secondaryContainer,
+                shadowElevation = Spacing.ElevationHigh
             ) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -601,7 +580,7 @@ private fun EmptyView(
                         imageVector = Icons.Default.Favorite,
                         contentDescription = "收藏",
                         modifier = Modifier.size(60.dp),
-                        tint = Secondary
+                        tint = MaterialTheme.colorScheme.onSecondaryContainer
                     )
                 }
             }
@@ -629,12 +608,12 @@ private fun EmptyView(
             Button(
                 onClick = onAddClick,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Primary
+                    containerColor = MaterialTheme.colorScheme.primary
                 ),
-                shape = RoundedCornerShape(Spacing.CornerRadiusLarge),
+                shape = CustomShapes.Medium,
                 elevation = ButtonDefaults.buttonElevation(
-                    defaultElevation = 4.dp,
-                    pressedElevation = 8.dp
+                    defaultElevation = Spacing.ElevationLow,
+                    pressedElevation = Spacing.ElevationMedium
                 )
             ) {
                 Icon(
@@ -651,5 +630,26 @@ private fun EmptyView(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun NoMoreDataFooter() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = Spacing.Large),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        HorizontalDivider(
+            modifier = Modifier.padding(horizontal = Spacing.ExtraLarge),
+            color = MaterialTheme.colorScheme.outlineVariant
+        )
+        Spacer(modifier = Modifier.height(Spacing.Medium))
+        Text(
+            text = "已经到底啦 ~",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+        )
     }
 }

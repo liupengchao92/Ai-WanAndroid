@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -79,6 +80,7 @@ fun ProjectItem(
                 } else {
                     article.envelopePic
                 },
+                placeholder = painterResource(R.drawable.ic_default_project),
                 contentDescription = article.title,
                 modifier = Modifier
                     .width(80.dp)
