@@ -43,7 +43,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -56,6 +55,9 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import com.gradle.aicodeapp.ui.components.AppTopAppBar
+import com.gradle.aicodeapp.ui.components.CenteredLoadingView
+import com.gradle.aicodeapp.ui.components.FullScreenLoadingView
+import com.gradle.aicodeapp.ui.components.LoadingSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -584,10 +586,8 @@ private fun LanguageSection(
 
                 // 显示加载状态
                 if (isChanging) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(24.dp),
-                        color = Secondary,
-                        strokeWidth = 2.dp
+                    CenteredLoadingView(
+                        size = LoadingSize.SMALL
                     )
                     Spacer(modifier = Modifier.width(Spacing.Small))
                 }
@@ -736,10 +736,8 @@ private fun LanguageOption(
 
         // 显示加载指示器
         if (isChanging) {
-            CircularProgressIndicator(
-                modifier = Modifier.size(20.dp),
-                color = Secondary,
-                strokeWidth = 2.dp
+            CenteredLoadingView(
+                size = LoadingSize.SMALL
             )
             Spacer(modifier = Modifier.width(Spacing.Small))
         }

@@ -34,7 +34,7 @@ enum class ScreenSize {
  * 响应式布局辅助函数
  */
 object ResponsiveLayout {
-    
+
     /**
      * 获取当前屏幕尺寸
      */
@@ -47,7 +47,7 @@ object ResponsiveLayout {
             else -> ScreenSize.LARGE
         }
     }
-    
+
     /**
      * 根据屏幕尺寸获取合适的水平外边距
      */
@@ -59,7 +59,7 @@ object ResponsiveLayout {
             ScreenSize.LARGE -> 32.dp
         }
     }
-    
+
     /**
      * 根据屏幕尺寸获取合适的内容宽度
      */
@@ -70,20 +70,21 @@ object ResponsiveLayout {
         val horizontalPadding = calculateHorizontalPadding()
         return screenWidth - (horizontalPadding * 2)
     }
-    
+
     /**
      * 获取响应式内容内边距
      */
     @Composable
-    fun responsiveContentPadding(): PaddingValues {
+    fun responsiveContentPadding(top: Dp = 0.dp): PaddingValues {
         val horizontalPadding = calculateHorizontalPadding()
         return PaddingValues(
+            top = top,
             start = horizontalPadding,
             end = horizontalPadding,
             bottom = Spacing.ExtraLarge
         )
     }
-    
+
     /**
      * 获取响应式修饰符，包含水平外边距
      */
@@ -95,7 +96,7 @@ object ResponsiveLayout {
             end = horizontalPadding
         )
     }
-    
+
     /**
      * 获取响应式修饰符，包含顶部和水平外边距
      */
@@ -108,7 +109,7 @@ object ResponsiveLayout {
             top = topPadding
         )
     }
-    
+
     /**
      * 获取响应式修饰符，包含底部和水平外边距
      */
@@ -121,14 +122,14 @@ object ResponsiveLayout {
             bottom = bottomPadding
         )
     }
-    
+
     /**
      * 获取响应式修饰符，包含所有方向的外边距
      */
     @Composable
     fun responsivePadding(
         top: Dp = Spacing.Small,
-        bottom: Dp = Spacing.Small
+        bottom: Dp = Spacing.Small,
     ): Modifier {
         val horizontalPadding = calculateHorizontalPadding()
         return Modifier.padding(
@@ -138,7 +139,7 @@ object ResponsiveLayout {
             bottom = bottom
         )
     }
-    
+
     /**
      * 获取响应式修饰符，包含安全区域内边距
      */
@@ -147,7 +148,7 @@ object ResponsiveLayout {
         val windowInsets = WindowInsets.safeDrawing
         return Modifier.windowInsetsPadding(windowInsets)
     }
-    
+
     /**
      * 获取响应式修饰符，包含显示切口安全区域
      */
@@ -156,7 +157,7 @@ object ResponsiveLayout {
         val windowInsets = WindowInsets.displayCutout
         return Modifier.windowInsetsPadding(windowInsets)
     }
-    
+
     /**
      * 获取响应式字体大小
      */
@@ -170,7 +171,7 @@ object ResponsiveLayout {
         }
         return (baseSize * scale * scaleFactor).sp
     }
-    
+
     /**
      * 获取响应式文本样式
      */
@@ -187,7 +188,7 @@ object ResponsiveLayout {
             lineHeight = (baseStyle.lineHeight.value * scale).sp
         )
     }
-    
+
     /**
      * 获取响应式间距
      */
@@ -201,7 +202,7 @@ object ResponsiveLayout {
         }
         return (baseSpacing.value * scale).dp
     }
-    
+
     /**
      * 获取响应式网格列数
      */
@@ -213,7 +214,7 @@ object ResponsiveLayout {
             ScreenSize.LARGE -> 3
         }
     }
-    
+
     /**
      * 获取响应式卡片宽度
      */

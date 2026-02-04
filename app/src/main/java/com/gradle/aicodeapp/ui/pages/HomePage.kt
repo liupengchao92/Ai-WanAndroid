@@ -224,7 +224,7 @@ private fun ContentState(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
-                .padding(top = paddingValues.calculateTopPadding())
+                //.padding(top = paddingValues.calculateTopPadding())
         ) {
             SwipeRefresh(
                 state = swipeRefreshState,
@@ -234,7 +234,7 @@ private fun ContentState(
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     state = listState,
-                    contentPadding = ResponsiveLayout.responsiveContentPadding()
+                    contentPadding = ResponsiveLayout.responsiveContentPadding(paddingValues.calculateTopPadding())
                 ) {
                     item {
                         if (uiState.banners.isNotEmpty()) {
